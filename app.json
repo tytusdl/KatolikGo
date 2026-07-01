@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "KatolikGo",
+    "slug": "katolikgo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "katolikgo",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.katolikgo.app"
+    },
+    "android": {
+      "package": "com.katolikgo.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a3a5c"
+      }
+    },
+    "web": {
+      "output": "static",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1a3a5c",
+          "imageWidth": 76
+        }
+      ]
+    ]
+  }
+}
