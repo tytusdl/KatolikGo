@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
@@ -16,16 +17,17 @@ export default function QuizScreen() {
 
   if (!userData) {
     return (
-      <View style={styles.loading}>
+      <SafeAreaView style={styles.loading} edges={['top']}>
         <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      </SafeAreaView>
     );
   }
 
   const unlockedLevel = userData.currentLevel;
 
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView style={{ flex: 1 }}>
       <View style={styles.content}>
         <Text style={styles.title}>Pilih Tahap Kuiz</Text>
         <Text style={styles.subtitle}>
@@ -63,7 +65,8 @@ export default function QuizScreen() {
           })}
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

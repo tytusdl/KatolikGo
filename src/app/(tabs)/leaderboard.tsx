@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { subscribeToGlobalLeaderboard } from '@/services/leaderboardService';
 import type { LeaderboardEntry } from '@/types';
@@ -51,14 +52,14 @@ export default function LeaderboardScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loading}>
+      <SafeAreaView style={styles.loading} edges={['top']}>
         <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Text style={styles.title}>Papan Pendahulu</Text>
 
       <FlatList
@@ -67,7 +68,7 @@ export default function LeaderboardScreen() {
         keyExtractor={(item) => item.userId}
         contentContainerStyle={styles.list}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

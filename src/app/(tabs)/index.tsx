@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize } from '@/constants/theme';
 
@@ -6,7 +7,8 @@ export default function HomeScreen() {
   const { userData } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView style={{ flex: 1 }}>
       <View style={styles.content}>
         <Text style={styles.welcome}>Selamat Datang,</Text>
         <Text style={styles.name}>{userData?.displayName || 'Para pelajar'}</Text>
@@ -44,7 +46,8 @@ export default function HomeScreen() {
           </Text>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

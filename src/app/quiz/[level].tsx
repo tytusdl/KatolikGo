@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { getQuizByLevel } from '@/services/quizService';
@@ -78,9 +79,9 @@ export default function QuizPlayScreen() {
 
   if (loading || !quiz) {
     return (
-      <View style={styles.loading}>
+      <SafeAreaView style={styles.loading} edges={['top']}>
         <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -88,7 +89,7 @@ export default function QuizPlayScreen() {
   const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.levelTitle}>Tahap {levelNum}</Text>
         <Text style={styles.progress}>
@@ -141,7 +142,7 @@ export default function QuizPlayScreen() {
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
