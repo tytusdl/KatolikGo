@@ -7,7 +7,7 @@ import {
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '@/config/firebase';
+import { auth, db, saveCredentials, getSavedCredentials, clearCredentials } from '@/config/firebase';
 import type { UserData } from '@/types';
 
 export async function registerUser(email: string, password: string, displayName: string): Promise<UserData> {
@@ -35,15 +35,31 @@ export async function registerUser(email: string, password: string, displayName:
     updatedAt: serverTimestamp(),
   });
 
+  await saveCredentials(email, password);
+
   return { ...userData, createdAt: Date.now(), updatedAt: Date.now() };
 }
 
 export async function loginUser(email: string, password: string) {
   await signInWithEmailAndPassword(auth, email, password);
+  await saveCredentials(email, password);
 }
 
 export async function signOut() {
   await firebaseSignOut(auth);
+  await clearCredentials();
+}
+
+export async function autoLogin(): Promise<boolean> {
+  const creds = await getSavedCredentials();
+  if (!creds) return false;
+  try {
+    await signInWithEmailAndPassword(auth, creds.email, creds.password);
+    return true;
+  } catch {
+    await clearCredentials();
+    return false;
+  }
 }
 
 export async function getUserData(uid: string): Promise<UserData | null> {

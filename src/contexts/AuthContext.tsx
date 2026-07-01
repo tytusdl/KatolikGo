@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { type User as FirebaseUser } from 'firebase/auth';
-import { onAuthChange, getUserData } from '@/services/authService';
+import { auth } from '@/config/firebase';
+import { onAuthChange, getUserData, autoLogin } from '@/services/authService';
 import type { UserData } from '@/types';
 
 interface AuthContextType {
@@ -30,18 +31,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
-        const data = await getUserData(firebaseUser.uid);
-        setUserData(data);
-      } else {
-        setUserData(null);
-      }
-      setLoading(false);
-    });
+    let mounted = true;
 
-    return () => unsubscribe();
+    const init = async () => {
+      const unsubAuth = onAuthChange(async (firebaseUser) => {
+        if (!mounted) return;
+        setUser(firebaseUser);
+        if (firebaseUser) {
+          const data = await getUserData(firebaseUser.uid);
+          if (mounted) setUserData(data);
+        } else {
+          if (mounted) setUserData(null);
+        }
+        if (mounted) setLoading(false);
+      });
+
+      const hasUser = auth.currentUser;
+      if (!hasUser) {
+        await autoLogin();
+      }
+
+      return () => {
+        mounted = false;
+        unsubAuth();
+      };
+    };
+
+    init();
   }, []);
 
   return (
