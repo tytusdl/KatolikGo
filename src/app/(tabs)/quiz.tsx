@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { ScreenContainer } from '@/components/ScreenContainer';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 import { TOTAL_LEVELS } from '@/types';
@@ -17,56 +17,52 @@ export default function QuizScreen() {
 
   if (!userData) {
     return (
-      <SafeAreaView style={styles.loading} edges={['top']}>
+      <View style={styles.loading}>
         <ActivityIndicator size="large" color={Colors.primary} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   const unlockedLevel = userData.currentLevel;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView style={{ flex: 1 }}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Pilih Tahap Kuiz</Text>
-        <Text style={styles.subtitle}>
-          Tahap kunci: {unlockedLevel}/{TOTAL_LEVELS}
-        </Text>
+    <ScreenContainer scroll>
+      <Text style={styles.title}>Pilih Tahap Kuiz</Text>
+      <Text style={styles.subtitle}>
+        Tahap kunci: {unlockedLevel}/{TOTAL_LEVELS}
+      </Text>
 
-        <View style={styles.levelsGrid}>
-          {Array.from({ length: TOTAL_LEVELS }, (_, i) => i + 1).map((level) => {
-            const isUnlocked = level <= unlockedLevel;
-            const progress = userData.levelProgress[level];
+      <View style={styles.levelsGrid}>
+        {Array.from({ length: TOTAL_LEVELS }, (_, i) => i + 1).map((level) => {
+          const isUnlocked = level <= unlockedLevel;
+          const progress = userData.levelProgress[level];
 
-            return (
-              <TouchableOpacity
-                key={level}
-                style={[
-                  styles.levelCard,
-                  !isUnlocked && styles.lockedCard,
-                ]}
-                onPress={() => handleLevelPress(level)}
-                disabled={!isUnlocked}
-              >
-                <Text style={[
-                  styles.levelNumber,
-                  !isUnlocked && styles.lockedText,
-                ]}>
-                  {level}
+          return (
+            <TouchableOpacity
+              key={level}
+              style={[
+                styles.levelCard,
+                !isUnlocked && styles.lockedCard,
+              ]}
+              onPress={() => handleLevelPress(level)}
+              disabled={!isUnlocked}
+            >
+              <Text style={[
+                styles.levelNumber,
+                !isUnlocked && styles.lockedText,
+              ]}>
+                {level}
+              </Text>
+              {progress && (
+                <Text style={styles.completionBadge}>
+                  V
                 </Text>
-                {progress && (
-                  <Text style={styles.completionBadge}>
-                    ✓
-                  </Text>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
       </View>
-      </ScrollView>
-    </SafeAreaView>
+    </ScreenContainer>
   );
 }
 
@@ -76,13 +72,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.white,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  content: {
-    padding: Spacing.lg,
   },
   title: {
     fontSize: FontSize.xxl,

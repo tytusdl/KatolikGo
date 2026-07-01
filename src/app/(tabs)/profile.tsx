@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/services/authService';
-import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Colors, Spacing, FontSize } from '@/constants/theme';
 
 export default function ProfileScreen() {
   const { user, userData } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -33,11 +34,11 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.profileHeader}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
-            {userData?.displayName?.charAt(0) || '👤'}
+            {userData?.displayName?.charAt(0) || 'U'}
           </Text>
         </View>
         <Text style={styles.displayName}>{userData?.displayName}</Text>
@@ -63,7 +64,7 @@ export default function ProfileScreen() {
         <View style={styles.statRow}>
           <Text style={styles.statLabel}>Premium</Text>
           <Text style={[styles.statValue, userData?.isPremium && styles.premiumActive]}>
-            {userData?.isPremium ? 'Aktif ✓' : 'Tidak Aktif'}
+            {userData?.isPremium ? 'Aktif' : 'Tidak Aktif'}
           </Text>
         </View>
       </View>
@@ -77,7 +78,7 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>Log Keluar</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

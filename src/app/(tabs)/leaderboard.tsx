@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { subscribeToGlobalLeaderboard } from '@/services/leaderboardService';
 import type { LeaderboardEntry } from '@/types';
@@ -8,6 +8,7 @@ import { Colors, Spacing, FontSize } from '@/constants/theme';
 
 export default function LeaderboardScreen() {
   const { userData } = useAuth();
+  const insets = useSafeAreaInsets();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,15 +53,15 @@ export default function LeaderboardScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.loading} edges={['top']}>
+      <View style={styles.loading}>
         <ActivityIndicator size="large" color={Colors.primary} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <Text style={styles.title}>Papan Pendahulu</Text>
+    <View style={styles.container}>
+      <Text style={[styles.title, { paddingTop: insets.top + 16 }]}>Papan Pendahulu</Text>
 
       <FlatList
         data={entries}
@@ -68,7 +69,7 @@ export default function LeaderboardScreen() {
         keyExtractor={(item) => item.userId}
         contentContainerStyle={styles.list}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xl,
     fontWeight: 'bold',
     color: Colors.primary,
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
   },
   list: {

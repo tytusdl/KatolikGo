@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { getQuizByLevel } from '@/services/quizService';
 import { submitLevelCompletion } from '@/services/levelService';
-import type { Quiz, QuizQuestion } from '@/types';
+import type { Quiz } from '@/types';
 import { Colors, Spacing, FontSize } from '@/constants/theme';
 
 export default function QuizPlayScreen() {
   const { level } = useLocalSearchParams<{ level: string }>();
   const { userData } = useAuth();
+  const insets = useSafeAreaInsets();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -58,7 +59,7 @@ export default function QuizPlayScreen() {
       setShowExplanation(false);
     } else {
       const percentage = Math.round(newScore);
-      const { completed, tokensEarned, nextLevelUnlocked } = await submitLevelCompletion(
+      const { tokensEarned, nextLevelUnlocked } = await submitLevelCompletion(
         userData.uid,
         levelNum,
         percentage,
@@ -79,9 +80,9 @@ export default function QuizPlayScreen() {
 
   if (loading || !quiz) {
     return (
-      <SafeAreaView style={styles.loading} edges={['top']}>
+      <View style={styles.loading}>
         <ActivityIndicator size="large" color={Colors.primary} />
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -89,7 +90,7 @@ export default function QuizPlayScreen() {
   const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={[styles.container, { paddingTop: insets.top + 16 }]}>
       <View style={styles.header}>
         <Text style={styles.levelTitle}>Tahap {levelNum}</Text>
         <Text style={styles.progress}>
@@ -142,7 +143,7 @@ export default function QuizPlayScreen() {
           </TouchableOpacity>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
   },
   header: {
     marginBottom: Spacing.md,

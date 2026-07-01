@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Share } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Link } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 
@@ -10,6 +10,7 @@ export default function QuizResultScreen() {
     tokens: string;
     unlocked: string;
   }>();
+  const insets = useSafeAreaInsets();
 
   const scoreNum = parseInt(score || '0', 10);
   const tokensNum = parseInt(tokens || '0', 10);
@@ -19,15 +20,15 @@ export default function QuizResultScreen() {
   const shareAchievement = async () => {
     try {
       await Share.share({
-        message: `Saya telah lulus Tahap ${levelNum} KatolikGo dengan skor ${scoreNum}%! 🎉 #KatolikGo`,
+        message: `Saya telah lulus Tahap ${levelNum} KatolikGo dengan skor ${scoreNum}%! #KatolikGo`,
       });
     } catch (error) {}
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
-        <Text style={styles.emoji}>🎉</Text>
+        <Text style={styles.emoji}>!</Text>
 
         <Text style={styles.congrats}>Tahniah!</Text>
 
@@ -62,15 +63,9 @@ export default function QuizResultScreen() {
               <Text style={styles.continueText}>Kembali ke Kuiz</Text>
             </TouchableOpacity>
           </Link>
-
-          {scoreNum < 80 && (
-            <TouchableOpacity style={styles.retryButton} onPress={() => {}}>
-              <Text style={styles.retryText}>Cuba Semula</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -88,6 +83,7 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 64,
     marginBottom: Spacing.md,
+    color: Colors.accent,
   },
   congrats: {
     fontSize: FontSize.xxl,
@@ -158,16 +154,6 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: Colors.white,
-    fontWeight: '600',
-  },
-  retryButton: {
-    backgroundColor: Colors.light.surfaceAlt,
-    padding: Spacing.md,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  retryText: {
-    color: Colors.primary,
     fontWeight: '600',
   },
 });

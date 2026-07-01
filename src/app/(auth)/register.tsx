@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { registerUser } from '@/services/authService';
 import Button from '@/components/Button';
@@ -11,6 +11,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleRegister = async () => {
     if (!email || !password || !displayName) {
@@ -35,12 +36,12 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.content}
-      >
-        <Text style={styles.logo}>✝️ KatolikGo</Text>
+    <KeyboardAvoidingView
+      style={[styles.container, { paddingTop: insets.top }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.content}>
+        <Text style={styles.logo}>KatolikGo</Text>
         <Text style={styles.title}>Daftar Akaun Baru</Text>
 
         <TextInput
@@ -78,8 +79,8 @@ export default function RegisterScreen() {
             Log masuk di sini
           </Link>
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -87,9 +88,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    justifyContent: 'center',
   },
   content: {
+    flex: 1,
+    justifyContent: 'center',
     padding: Spacing.lg,
   },
   logo: {
