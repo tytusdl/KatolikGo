@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCzq0iMJZUGjLrSGEnou66f7AA8jsBu2Jw',
@@ -12,6 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const quizzes = [
   {
@@ -208,6 +210,8 @@ const quizzes = [
 
 async function seedQuizzes() {
   console.log('Mula menanam soalan kuiz ke Firestore...');
+  await signInAnonymously(auth);
+  console.log('Berjaya sign in anonymous');
 
   for (const quiz of quizzes) {
     const quizId = `level_${quiz.level}`;
@@ -220,6 +224,10 @@ async function seedQuizzes() {
   }
 
   console.log('Selesai! Semua soalan kuiz telah ditambah ke Firestore.');
+  process.exit(0);
 }
 
-seedQuizzes().catch(console.error);
+seedQuizzes().catch((err) => {
+  console.error('Seed gagal:', err);
+  process.exit(1);
+});

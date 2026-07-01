@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,7 +43,10 @@ export default function QuizPlayScreen() {
   };
 
   const handleNext = async () => {
-    if (!quiz || !userData) return;
+    if (!quiz || !userData) {
+      Alert.alert('Debug', 'Quiz or userData missing');
+      return;
+    }
 
     const question = quiz.questions[currentQuestion];
     let newScore = score;
@@ -59,22 +62,36 @@ export default function QuizPlayScreen() {
       setShowExplanation(false);
     } else {
       const percentage = Math.round(newScore);
-      const { tokensEarned, nextLevelUnlocked } = await submitLevelCompletion(
-        userData.uid,
-        levelNum,
-        percentage,
-        userData
-      );
+      try {
+        const { tokensEarned, nextLevelUnlocked } = await submitLevelCompletion(
+          userData.uid,
+          levelNum,
+          percentage,
+          userData
+        );
 
-      router.replace({
-        pathname: '/quiz/result',
-        params: {
-          level: levelNum.toString(),
-          score: percentage.toString(),
-          tokens: tokensEarned.toString(),
-          unlocked: nextLevelUnlocked.toString(),
-        },
-      });
+        router.replace({
+          pathname: '/quiz/result',
+          params: {
+            level: levelNum.toString(),
+            score: percentage.toString(),
+            tokens: tokensEarned.toString(),
+            unlocked: nextLevelUnlocked.toString(),
+          },
+        });
+      } catch (error: any) {
+        Alert.alert('Debug', 'Error: ' + error.message);
+        // Still navigate even if submission fails
+        router.replace({
+          pathname: '/quiz/result',
+          params: {
+            level: levelNum.toString(),
+            score: percentage.toString(),
+            tokens: '0',
+            unlocked: 'false',
+          },
+        });
+      }
     }
   };
 
@@ -102,18 +119,23 @@ export default function QuizPlayScreen() {
         <View style={[styles.progressFill, { width: `${progress}%` }]} />
       </View>
 
-      <View style={styles.questionContainer}>
+      <ScrollView style={styles.questionScroll} contentContainerStyle={styles.questionContent}>
         <Text style={styles.question}>{question.question}</Text>
 
         <View style={styles.optionsContainer}>
           {question.options.map((option, index) => {
+            const isCorrect = index === question.correctAnswer;
+            const isSelected = index === selectedAnswer;
             const backgroundColor = selectedAnswer !== null
-              ? index === question.correctAnswer
+              ? isCorrect
                 ? Colors.success
-                : index === selectedAnswer
+                : isSelected
                 ? Colors.error
                 : Colors.light.surfaceAlt
               : Colors.light.surfaceAlt;
+            const textColor = selectedAnswer !== null && (isCorrect || isSelected)
+              ? Colors.white
+              : Colors.primary;
 
             return (
               <TouchableOpacity
@@ -121,8 +143,17 @@ export default function QuizPlayScreen() {
                 style={[styles.option, { backgroundColor }]}
                 onPress={() => handleAnswerSelect(index)}
                 disabled={selectedAnswer !== null}
+                activeOpacity={0.7}
               >
-                <Text style={styles.optionText}>{option}</Text>
+                <View style={styles.optionRow}>
+                  <Text style={[styles.optionText, { color: textColor }]}>{option}</Text>
+                  {selectedAnswer !== null && isCorrect && (
+                    <Text style={styles.optionIcon}>✓</Text>
+                  )}
+                  {selectedAnswer !== null && isSelected && !isCorrect && (
+                    <Text style={styles.optionIcon}>✗</Text>
+                  )}
+                </View>
               </TouchableOpacity>
             );
           })}
@@ -130,19 +161,21 @@ export default function QuizPlayScreen() {
 
         {showExplanation && (
           <View style={styles.explanationBox}>
-            <Text style={styles.explanationTitle}>Penjelasan:</Text>
+            <Text style={styles.explanationTitle}>📖 Penjelasan:</Text>
             <Text style={styles.explanation}>{question.explanation}</Text>
           </View>
         )}
+      </ScrollView>
 
-        {selectedAnswer !== null && (
-          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+      {selectedAnswer !== null && (
+        <View style={styles.nextButtonContainer}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext} activeOpacity={0.8}>
             <Text style={styles.nextButtonText}>
-              {currentQuestion < quiz.questions.length - 1 ? 'Seterusnya' : 'Hantar Jawapan'}
+              {currentQuestion < quiz.questions.length - 1 ? 'Seterusnya →' : 'Hantar Jawapan 🎉'}
             </Text>
           </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -181,8 +214,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent,
     borderRadius: 4,
   },
-  questionContainer: {
+  questionScroll: {
     flex: 1,
+  },
+  questionContent: {
+    paddingBottom: Spacing.lg,
   },
   question: {
     fontSize: FontSize.lg,
@@ -197,9 +233,19 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: 8,
   },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   optionText: {
     fontSize: FontSize.md,
-    color: Colors.primary,
+    flex: 1,
+  },
+  optionIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.white,
   },
   explanationBox: {
     backgroundColor: Colors.light.surfaceAlt,
@@ -217,16 +263,30 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.light.textSecondary,
   },
+  nextButtonContainer: {
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.border,
+    marginHorizontal: -Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
   nextButton: {
-    backgroundColor: Colors.primary,
-    padding: Spacing.md,
-    borderRadius: 8,
+    backgroundColor: Colors.accent,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: Spacing.lg,
+    shadowColor: Colors.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   nextButtonText: {
     color: Colors.white,
     fontSize: FontSize.md,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
 });

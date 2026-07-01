@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/services/authService';
-import { Colors, Spacing, FontSize } from '@/constants/theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 
 export default function ProfileScreen() {
   const { user, userData } = useAuth();
@@ -29,137 +29,521 @@ export default function ProfileScreen() {
     );
   };
 
-  const handlePremium = () => {
-    Alert.alert('Premium', 'Ciri premium akan datang tidak lama lagi!');
-  };
-
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.profileHeader}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {userData?.displayName?.charAt(0) || 'U'}
+    <View style={styles.container}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profil Saya</Text>
+          <TouchableOpacity style={styles.settingsBtn}>
+            <Text style={styles.settingsIcon}>⚙</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Avatar + Name */}
+        <View style={styles.profileSection}>
+          <View style={styles.avatarOuter}>
+            <View style={styles.avatarInner}>
+              <Text style={styles.avatarEmoji}>
+                {userData?.displayName?.charAt(0).toUpperCase() || 'K'}
+              </Text>
+            </View>
+          </View>
+          
+          <Text style={styles.userName}>{userData?.displayName || 'Saudara'}</Text>
+          
+          <View style={styles.handleBadge}>
+            <Text style={styles.handleText}>
+              @{user?.email?.split('@')[0] || 'katolikgo'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Decorative sparkles */}
+        <Text style={[styles.sparkle, styles.sparkleLeft]}>✨</Text>
+        <Text style={[styles.sparkle, styles.sparkleRight]}>⭐</Text>
+
+        {/* Stats Grid 2x2 */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <View style={styles.statIconWrap}>
+              <Text style={styles.statIcon}>🪙</Text>
+            </View>
+            <View>
+              <Text style={styles.statValue}>{userData?.streakDays || 0}</Text>
+              <Text style={styles.statLabel}>Streak Menang</Text>
+            </View>
+          </View>
+
+          <View style={styles.statCard}>
+            <View style={[styles.statIconWrap, { backgroundColor: '#D1FAE5' }]}>
+              <Text style={styles.statIcon}>📚</Text>
+            </View>
+            <View>
+              <Text style={styles.statValue}>{userData?.levelsCompleted?.length || 0}</Text>
+              <Text style={styles.statLabel}>Jumlah Kuiz</Text>
+            </View>
+          </View>
+
+          <View style={styles.statCard}>
+            <View style={[styles.statIconWrap, { backgroundColor: '#E0E7FF' }]}>
+              <Text style={styles.statIcon}>👥</Text>
+            </View>
+            <View>
+              <Text style={styles.statValue}>{userData?.friendsCount || 0}</Text>
+              <Text style={styles.statLabel}>Rakan</Text>
+            </View>
+          </View>
+
+          <View style={styles.statCard}>
+            <View style={[styles.statIconWrap, { backgroundColor: '#D1FAE5' }]}>
+              <Text style={styles.statIcon}>📈</Text>
+            </View>
+            <View>
+              <Text style={styles.statValue}>{userData?.accuracy || 0}%</Text>
+              <Text style={styles.statLabel}>Skor Tinggi</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Progress Card */}
+        <View style={styles.progressCard}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.waveIcon}>〰️</Text>
+            <TouchableOpacity style={styles.monthlyBtn}>
+              <Text style={styles.monthlyText}>Bulanan</Text>
+              <Text style={styles.monthlyArrow}>▾</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <Text style={styles.progressMessage}>
+            Anda telah bermain sebanyak
           </Text>
-        </View>
-        <Text style={styles.displayName}>{userData?.displayName}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
-      </View>
-
-      <View style={styles.statsSection}>
-        <View style={styles.statRow}>
-          <Text style={styles.statLabel}>Level</Text>
-          <Text style={styles.statValue}>{userData?.currentLevel || 1}/100</Text>
-        </View>
-
-        <View style={styles.statRow}>
-          <Text style={styles.statLabel}>XP Jumlah</Text>
-          <Text style={styles.statValue}>{userData?.totalXP?.toLocaleString() || 0}</Text>
-        </View>
-
-        <View style={styles.statRow}>
-          <Text style={styles.statLabel}>Token</Text>
-          <Text style={styles.statValue}>{userData?.tokens || 0}</Text>
-        </View>
-
-        <View style={styles.statRow}>
-          <Text style={styles.statLabel}>Premium</Text>
-          <Text style={[styles.statValue, userData?.isPremium && styles.premiumActive]}>
-            {userData?.isPremium ? 'Aktif' : 'Tidak Aktif'}
+          <Text style={styles.progressHighlight}>
+            {userData?.quizzesThisMonth || 24} kuiz bulan ini!
           </Text>
+
+          {/* Donut Chart */}
+          <View style={styles.donutContainer}>
+            <DonutChart percentage={74} />
+          </View>
         </View>
-      </View>
 
-      <View style={styles.actionsSection}>
-        <TouchableOpacity style={styles.actionButton} onPress={handlePremium}>
-          <Text style={styles.actionText}>Dapatkan Token / Premium</Text>
-        </TouchableOpacity>
+        {/* Menu Items */}
+        <View style={styles.menuSection}>
+          <MenuItem 
+            icon="🏆" 
+            iconBg="#FEF3C7"
+            title="Pencapaian & Lencana" 
+            onPress={() => Alert.alert('Pencapaian', 'Ciri akan datang!')}
+          />
+          
+          <MenuItem 
+            icon="⛪" 
+            iconBg="#DBEAFE"
+            title="Parish Saya" 
+            subtitle={userData?.parishName || 'Tetapkan parish'}
+            onPress={() => Alert.alert('Parish', 'Ciri akan datang!')}
+          />
+          
+          <MenuItem 
+            icon="👑" 
+            iconBg="#FCE7F3"
+            title={userData?.isPremium ? 'Pro Aktif' : 'Naik Taraf ke Pro'}
+            subtitle={userData?.isPremium ? 'Anda ahli Pro!' : 'Akses semua topik premium'}
+            onPress={() => Alert.alert('Premium', 'Ciri akan datang!')}
+          />
+        </View>
 
+        {/* Sign Out */}
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+          <Text style={styles.signOutIcon}>🚪</Text>
           <Text style={styles.signOutText}>Log Keluar</Text>
         </TouchableOpacity>
+
+        <Text style={styles.versionText}>KatolikGo v1.0.0</Text>
+        
+        {/* Bottom spacing for tab bar */}
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </View>
+  );
+}
+
+// Donut Chart Component
+function DonutChart({ percentage }: { percentage: number }) {
+  const segments = 100;
+  const filled = Math.round((percentage / 100) * segments);
+  
+  return (
+    <View style={donutStyles.container}>
+      <View style={donutStyles.ringWrap}>
+        {/* Use multiple views to simulate donut */}
+        {Array.from({ length: 24 }).map((_, i) => {
+          const angle = (i / 24) * 360;
+          const isFilled = i < Math.round((percentage / 100) * 24);
+          return (
+            <View
+              key={i}
+              style={[
+                donutStyles.dot,
+                {
+                  transform: [
+                    { rotate: `${angle}deg` },
+                    { translateY: -58 },
+                  ],
+                  backgroundColor: isFilled ? Colors.accent : Colors.light.border,
+                },
+              ]}
+            />
+          );
+        })}
+        <View style={donutStyles.center}>
+          <Text style={donutStyles.percent}>{percentage}%</Text>
+          <Text style={donutStyles.label}>Selesai</Text>
+        </View>
       </View>
     </View>
+  );
+}
+
+// Menu Item Component
+function MenuItem({ 
+  icon, 
+  iconBg, 
+  title, 
+  subtitle, 
+  onPress 
+}: { 
+  icon: string; 
+  iconBg: string; 
+  title: string; 
+  subtitle?: string; 
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+      <View style={[styles.menuIcon, { backgroundColor: iconBg }]}>
+        <Text style={styles.menuIconText}>{icon}</Text>
+      </View>
+      <View style={styles.menuTextWrap}>
+        <Text style={styles.menuTitle}>{title}</Text>
+        {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+      </View>
+      <Text style={styles.menuArrow}>›</Text>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.light.background, // same as other screens
   },
-  profileHeader: {
+  scrollContent: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xl,
+  },
+  
+  // Header
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.xl,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+    position: 'relative',
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.primary,
+  headerTitle: {
+    fontSize: FontSize.xl,
+    fontWeight: 'bold',
+    color: Colors.primary,
+  },
+  settingsBtn: {
+    position: 'absolute',
+    right: 0,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  settingsIcon: {
+    fontSize: 18,
+    color: Colors.primary,
+  },
+  
+  // Profile Section
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  avatarOuter: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: Colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
-  avatarText: {
-    fontSize: 32,
+  avatarInner: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#F5D77E', // lighter orange/gold
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarEmoji: {
+    fontSize: 48,
+    fontWeight: 'bold',
     color: Colors.white,
   },
-  displayName: {
+  userName: {
     fontSize: FontSize.xl,
     fontWeight: 'bold',
     color: Colors.primary,
     marginBottom: Spacing.xs,
   },
-  email: {
+  handleBadge: {
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.round,
+  },
+  handleText: {
     fontSize: FontSize.sm,
-    color: Colors.light.textSecondary,
+    fontWeight: '600',
+    color: Colors.white,
   },
-  statsSection: {
-    padding: Spacing.lg,
+  
+  // Sparkles
+  sparkle: {
+    position: 'absolute',
+    fontSize: 20,
   },
-  statRow: {
+  sparkleLeft: {
+    top: 100,
+    left: 20,
+  },
+  sparkleRight: {
+    top: 110,
+    right: 30,
+    fontSize: 16,
+  },
+  
+  // Stats Grid
+  statsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    marginBottom: Spacing.lg,
   },
-  statLabel: {
-    fontSize: FontSize.md,
-    color: Colors.light.textSecondary,
+  statCard: {
+    width: '48%',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FEF3C7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+  },
+  statIcon: {
+    fontSize: 22,
   },
   statValue: {
+    fontSize: FontSize.lg,
+    fontWeight: 'bold',
+    color: Colors.primary,
+  },
+  statLabel: {
+    fontSize: FontSize.xs,
+    color: Colors.light.textSecondary,
+    marginTop: 2,
+  },
+  
+  // Progress Card
+  progressCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  waveIcon: {
+    fontSize: 20,
+  },
+  monthlyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.surfaceAlt,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.round,
+  },
+  monthlyText: {
+    fontSize: FontSize.xs,
+    color: Colors.light.textSecondary,
+    fontWeight: '500',
+  },
+  monthlyArrow: {
+    fontSize: 10,
+    color: Colors.light.textSecondary,
+    marginLeft: 4,
+  },
+  progressMessage: {
+    fontSize: FontSize.md,
+    color: Colors.primary,
+    textAlign: 'center',
+  },
+  progressHighlight: {
+    fontSize: FontSize.md,
+    fontWeight: 'bold',
+    color: Colors.accent,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  
+  // Menu
+  menuSection: {
+    marginBottom: Spacing.lg,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  menuIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  menuIconText: {
+    fontSize: 20,
+  },
+  menuTextWrap: {
+    flex: 1,
+  },
+  menuTitle: {
     fontSize: FontSize.md,
     fontWeight: '600',
     color: Colors.primary,
   },
-  premiumActive: {
-    color: Colors.success,
+  menuSubtitle: {
+    fontSize: FontSize.xs,
+    color: Colors.light.textSecondary,
+    marginTop: 2,
   },
-  actionsSection: {
-    padding: Spacing.lg,
-    gap: Spacing.sm,
+  menuArrow: {
+    fontSize: 28,
+    color: Colors.light.textSecondary,
   },
-  actionButton: {
-    backgroundColor: Colors.accent,
-    padding: Spacing.md,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  actionText: {
-    color: Colors.white,
-    fontWeight: '600',
-  },
+  
+  // Sign Out
   signOutButton: {
-    backgroundColor: Colors.error,
-    padding: Spacing.md,
-    borderRadius: 8,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.white,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.error,
+    marginBottom: Spacing.lg,
+  },
+  signOutIcon: {
+    fontSize: 18,
+    marginRight: Spacing.sm,
   },
   signOutText: {
-    color: Colors.white,
+    fontSize: FontSize.md,
     fontWeight: '600',
+    color: Colors.error,
+  },
+  
+  // Version
+  versionText: {
+    fontSize: FontSize.xs,
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+  },
+});
+
+// Donut chart styles
+const donutStyles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    marginTop: Spacing.lg,
+  },
+  ringWrap: {
+    width: 140,
+    height: 140,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  dot: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  center: {
+    position: 'absolute',
+    alignItems: 'center',
+  },
+  percent: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: Colors.primary,
+  },
+  label: {
+    fontSize: FontSize.xs,
+    color: Colors.light.textSecondary,
   },
 });

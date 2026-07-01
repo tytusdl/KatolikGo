@@ -10,7 +10,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 // Google: GANTI dengan Web Client ID dari Google Cloud Console
 // https://console.cloud.google.com/apis/credentials
-const GOOGLE_WEB_CLIENT_ID = 'YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com';
+const GOOGLE_WEB_CLIENT_ID = '615054372997-mrprnf461bkdfbq2guh5lb8ossas1972.apps.googleusercontent.com';
 
 // Facebook: GANTI dengan App ID dari Facebook Developer
 // https://developers.facebook.com/

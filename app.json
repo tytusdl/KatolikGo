@@ -8,7 +8,11 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.katolikgo.app"
+      "bundleIdentifier": "com.katolikgo.app",
+      "infoPlist": {
+        "UIStatusBarStyle": "UIStatusBarStyleDarkContent"
+      },
+      "userInterfaceStyle": "light"
     },
     "android": {
       "package": "com.katolikgo.app",

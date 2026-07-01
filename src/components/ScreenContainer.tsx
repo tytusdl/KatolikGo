@@ -14,7 +14,7 @@ export function ScreenContainer({ children, scroll = false, style }: ScreenConta
     return (
       <ScrollView
         style={[styles.container, style]}
-        contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 16 }}
+        contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 16, paddingHorizontal: 16 }}
       >
         {children}
       </ScrollView>
@@ -38,5 +38,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
   },
 });
