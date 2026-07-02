@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/services/authService';
@@ -20,7 +20,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await signOut();
-            } catch (error) {
+            } catch {
               Alert.alert('Ralat', 'Gagal log keluar');
             }
           },
@@ -127,7 +127,7 @@ export default function ProfileScreen() {
           </Text>
 
           {/* Donut Chart */}
-          <View style={styles.donutContainer}>
+          <View style={donutStyles.container}>
             <DonutChart percentage={74} />
           </View>
         </View>
@@ -175,16 +175,12 @@ export default function ProfileScreen() {
 
 // Donut Chart Component
 function DonutChart({ percentage }: { percentage: number }) {
-  const segments = 100;
-  const filled = Math.round((percentage / 100) * segments);
-  
   return (
     <View style={donutStyles.container}>
       <View style={donutStyles.ringWrap}>
         {/* Use multiple views to simulate donut */}
         {Array.from({ length: 24 }).map((_, i) => {
           const angle = (i / 24) * 360;
-          const isFilled = i < Math.round((percentage / 100) * 24);
           return (
             <View
               key={i}
@@ -195,7 +191,10 @@ function DonutChart({ percentage }: { percentage: number }) {
                     { rotate: `${angle}deg` },
                     { translateY: -58 },
                   ],
-                  backgroundColor: isFilled ? Colors.accent : Colors.light.border,
+                  backgroundColor:
+                    i < Math.round((percentage / 100) * 24)
+                      ? Colors.accent
+                      : Colors.light.border,
                 },
               ]}
             />

@@ -1,7 +1,21 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import * as firebaseAuth from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// `getReactNativePersistence` ships in firebase's React-Native bundle but
+// isn't surfaced in the generic `firebase/auth` typings (TypeScript's
+// customConditions don't propagate through the barrel re-export). At
+// runtime the symbol is present when bundling for `react-native`, so we
+// pluck it off the runtime module via a typed accessor.
+const getReactNativePersistence = (firebaseAuth as any)
+  .getReactNativePersistence as (
+  storage: typeof AsyncStorage
+) => Parameters<typeof firebaseAuth.initializeAuth>[1] extends infer D
+  ? D extends { persistence?: infer P }
+    ? P
+    : never
+  : never;
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCzq0iMJZUGjLrSGEnou66f7AA8jsBu2Jw',
@@ -13,29 +27,19 @@ const firebaseConfig = {
   measurementId: 'G-2F43XDJRQV',
 };
 
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Guard against double initialization on fast-refresh / Hermes.
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-const CREDENTIALS_KEY = '@katolikgo_credentials';
+const { initializeAuth, getAuth } = firebaseAuth;
 
-export async function saveCredentials(email: string, password: string) {
+export const auth = (() => {
   try {
-    await AsyncStorage.setItem(CREDENTIALS_KEY, JSON.stringify({ email, password }));
-  } catch {}
-}
-
-export async function getSavedCredentials(): Promise<{ email: string; password: string } | null> {
-  try {
-    const data = await AsyncStorage.getItem(CREDENTIALS_KEY);
-    return data ? JSON.parse(data) : null;
+    return initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
   } catch {
-    return null;
+    return getAuth(app);
   }
-}
+})();
 
-export async function clearCredentials() {
-  try {
-    await AsyncStorage.removeItem(CREDENTIALS_KEY);
-  } catch {}
-}
+export const db = getFirestore(app);

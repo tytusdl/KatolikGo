@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 import { registerUser } from '@/services/authService';
-import { useGoogleAuthRequest, signInWithGoogle, useFacebookAuthRequest, signInWithFacebook } from '@/services/socialAuthService';
+import {
+  useGoogleAuthRequest,
+  signInWithGoogle,
+  useFacebookAuthRequest,
+  signInWithFacebook,
+  isFacebookAuthConfigured,
+  friendlyAuthError,
+} from '@/services/socialAuthService';
 import Button from '@/components/Button';
 import { Colors, Spacing, FontSize } from '@/constants/theme';
 
@@ -14,8 +21,9 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
 
-  const [googleRequest, googleResponse, googlePromptAsync] = useGoogleAuthRequest();
-  const [fbRequest, fbResponse, fbPromptAsync] = useFacebookAuthRequest();
+  const [googleRequest, , googlePromptAsync] = useGoogleAuthRequest();
+  const [fbRequest, , fbPromptAsync] = useFacebookAuthRequest();
+  const facebookEnabled = isFacebookAuthConfigured();
 
   const handleRegister = async () => {
     if (!email || !password || !displayName) {
@@ -28,10 +36,11 @@ export default function RegisterScreen() {
     }
     setLoading(true);
     try {
+      // registerUser creates the account and updates auth state; AuthGate
+      // observes that and redirects out of the (auth) group on its own.
       await registerUser(email, password, displayName);
-      router.replace('/');
-    } catch (error: any) {
-      Alert.alert('Gagal Daftar', error.message || 'Pendaftaran gagal');
+    } catch (error) {
+      Alert.alert('Gagal Daftar', friendlyAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -39,29 +48,34 @@ export default function RegisterScreen() {
 
   const handleGoogleLogin = async () => {
     try {
+      setLoading(true);
       const result = await googlePromptAsync();
       if (result?.type === 'success' && result.authentication?.idToken) {
-        setLoading(true);
         await signInWithGoogle(result.authentication.idToken);
-        router.replace('/');
       }
-    } catch (error: any) {
-      Alert.alert('Gagal', error.message || 'Google login gagal');
+    } catch (error) {
+      Alert.alert('Gagal', friendlyAuthError(error));
     } finally {
       setLoading(false);
     }
   };
 
   const handleFacebookLogin = async () => {
+    if (!facebookEnabled) {
+      Alert.alert(
+        'Tidak Tersedia',
+        'Facebook login belum dikonfigurasikan dalam build ini.'
+      );
+      return;
+    }
     try {
+      setLoading(true);
       const result = await fbPromptAsync();
       if (result?.type === 'success' && result.authentication?.accessToken) {
-        setLoading(true);
         await signInWithFacebook(result.authentication.accessToken);
-        router.replace('/');
       }
-    } catch (error: any) {
-      Alert.alert('Gagal', error.message || 'Facebook login gagal');
+    } catch (error) {
+      Alert.alert('Gagal', friendlyAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -123,7 +137,7 @@ export default function RegisterScreen() {
         <TouchableOpacity
           style={[styles.socialButton, styles.facebookButton]}
           onPress={handleFacebookLogin}
-          disabled={!fbRequest}
+          disabled={!fbRequest || !facebookEnabled}
         >
           <Text style={[styles.socialButtonText, { color: '#fff' }]}>f</Text>
           <Text style={[styles.socialButtonLabel, { color: '#fff' }]}>Daftar dengan Facebook</Text>

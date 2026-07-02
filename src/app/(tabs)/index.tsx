@@ -131,7 +131,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.quoteContent}>
           <Text style={styles.verseText}>
-            "Sebarkanlah Injil ke segala makhluk, sebab di situlah Iman sejati."
+            &ldquo;Sebarkanlah Injil ke segala makhluk, sebab di situlah Iman sejati.&rdquo;
           </Text>
           <Text style={styles.verseRef}>— Markus 16:15</Text>
         </View>

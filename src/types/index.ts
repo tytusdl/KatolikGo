@@ -42,6 +42,13 @@ export interface UserData {
   weeklyXP: number;
   monthlyXP: number;
   levelProgress: Record<number, LevelProgress>;
+  // Engagement / gamification counters surfaced in the UI.
+  streakDays: number;
+  levelsCompleted: number[];
+  friendsCount: number;
+  /** 0–100 percentage. */
+  accuracy: number;
+  quizzesThisMonth: number;
   createdAt: number;
   updatedAt: number;
 }

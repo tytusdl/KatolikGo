@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
-import { TOTAL_LEVELS, CATEGORY_LABELS, DIFFICULTY_LABELS } from '@/types';
+import { TOTAL_LEVELS, CATEGORY_LABELS } from '@/types';
 import { QUESTIONS_STATS } from '@/services/quizService';
 import type { Difficulty, QuizCategory } from '@/types';
 import { useState } from 'react';

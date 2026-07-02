@@ -7,17 +7,22 @@ import {
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db, saveCredentials, getSavedCredentials, clearCredentials } from '@/config/firebase';
+import { auth, db } from '@/config/firebase';
 import type { UserData } from '@/types';
 
-export async function registerUser(email: string, password: string, displayName: string): Promise<UserData> {
-  const credential = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(credential.user, { displayName });
-
-  const userData: Omit<UserData, 'createdAt' | 'updatedAt'> = {
-    uid: credential.user.uid,
-    email,
-    displayName,
+/**
+ * Default skeleton for a brand-new user document.
+ * Centralised so every sign-in path (email/password, Google, Facebook)
+ * writes the same initial shape — adding a new field means one edit.
+ */
+function buildDefaultUserData(
+  firebaseUser: FirebaseUser,
+  overrides: { email?: string; displayName?: string } = {}
+): Omit<UserData, 'createdAt' | 'updatedAt'> {
+  return {
+    uid: firebaseUser.uid,
+    email: overrides.email ?? firebaseUser.email ?? '',
+    displayName: overrides.displayName ?? firebaseUser.displayName ?? 'Saudara',
     parishId: null,
     parishName: null,
     tokens: 10,
@@ -27,51 +32,123 @@ export async function registerUser(email: string, password: string, displayName:
     weeklyXP: 0,
     monthlyXP: 0,
     levelProgress: {},
+    streakDays: 0,
+    levelsCompleted: [],
+    friendsCount: 0,
+    accuracy: 0,
+    quizzesThisMonth: 0,
   };
+}
 
-  await setDoc(doc(db, 'users', credential.user.uid), {
-    ...userData,
+/**
+ * Ensures a Firestore user document exists for the given Firebase user.
+ * Creates one with starter values if missing. Safe to call repeatedly
+ * (idempotent — existing docs are read back, not overwritten).
+ */
+export async function ensureUserDocument(
+  firebaseUser: FirebaseUser,
+  overrides: { email?: string; displayName?: string } = {}
+): Promise<UserData> {
+  const userRef = doc(db, 'users', firebaseUser.uid);
+  const snap = await getDoc(userRef);
+  if (snap.exists()) {
+    return { uid: firebaseUser.uid, ...(snap.data() as Omit<UserData, 'uid'>) };
+  }
+  const data = buildDefaultUserData(firebaseUser, overrides);
+  await setDoc(userRef, {
+    ...data,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
-
-  await saveCredentials(email, password);
-
-  return { ...userData, createdAt: Date.now(), updatedAt: Date.now() };
+  return { ...data, createdAt: Date.now(), updatedAt: Date.now() };
 }
 
-export async function loginUser(email: string, password: string) {
-  await signInWithEmailAndPassword(auth, email, password);
-  await saveCredentials(email, password);
+/**
+ * Register a brand-new account with email + password, sync the
+ * Firebase profile displayName, and create the user document.
+ */
+export async function registerUser(
+  email: string,
+  password: string,
+  displayName: string
+): Promise<UserData> {
+  const credential = await createUserWithEmailAndPassword(auth, email, password);
+  await updateProfile(credential.user, { displayName });
+  return ensureUserDocument(credential.user, { email, displayName });
 }
 
-export async function signOut() {
+/**
+ * Sign in with email + password. Persistence is handled natively by
+ * Firebase Auth (via `initializeAuth` + AsyncStorage). No more manual
+ * credential caching.
+ */
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<FirebaseUser> {
+  const credential = await signInWithEmailAndPassword(auth, email, password);
+  return credential.user;
+}
+
+export async function signOut(): Promise<void> {
   await firebaseSignOut(auth);
-  await clearCredentials();
-}
-
-export async function autoLogin(): Promise<boolean> {
-  const creds = await getSavedCredentials();
-  if (!creds) return false;
-  try {
-    await signInWithEmailAndPassword(auth, creds.email, creds.password);
-    return true;
-  } catch {
-    await clearCredentials();
-    return false;
-  }
 }
 
 export async function getUserData(uid: string): Promise<UserData | null> {
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
-  return { uid, ...snap.data() } as UserData;
+  return { uid, ...(snap.data() as Omit<UserData, 'uid'>) };
 }
 
-export async function updateUserData(uid: string, data: Partial<UserData>) {
-  await setDoc(doc(db, 'users', uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+export async function updateUserData(
+  uid: string,
+  data: Partial<UserData>
+): Promise<void> {
+  await setDoc(
+    doc(db, 'users', uid),
+    { ...data, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
 }
 
-export function onAuthChange(callback: (user: FirebaseUser | null) => void) {
+/**
+ * Translate Firebase Auth errors into user-friendly Malay messages.
+ * Falls back to the raw error message for unknown codes.
+ */
+export function friendlyAuthError(err: unknown): string {
+  const code = (err as { code?: string })?.code ?? '';
+  switch (code) {
+    case 'auth/invalid-email':
+      return 'Format emel tidak sah.';
+    case 'auth/user-disabled':
+      return 'Akaun ini telah dinyahaktifkan.';
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':
+      return 'Emel atau kata laluan salah.';
+    case 'auth/email-already-in-use':
+      return 'Emel ini sudah berdaftar. Sila log masuk.';
+    case 'auth/weak-password':
+      return 'Kata laluan terlalu lemah (minimum 6 aksara).';
+    case 'auth/network-request-failed':
+      return 'Tiada sambungan internet. Cuba lagi.';
+    case 'auth/too-many-requests':
+      return 'Terlalu banyak percubaan. Sila tunggu sebentar.';
+    case 'auth/popup-closed-by-user':
+      return 'Tetingkap log masuk ditutup sebelum selesai.';
+    case 'auth/popup-blocked':
+    case 'auth/cancelled-popup-request':
+      return 'Log masuk dibatalkan.';
+    default:
+      return (err as Error)?.message ?? 'Ralat tidak dijangka. Cuba lagi.';
+  }
+}
+
+/**
+ * Subscribe to auth state changes. Returns an unsubscribe function.
+ */
+export function onAuthChange(
+  callback: (user: FirebaseUser | null) => void
+): () => void {
   return onAuthStateChanged(auth, callback);
 }
