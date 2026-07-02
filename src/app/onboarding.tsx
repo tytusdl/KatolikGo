@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import { markOnboarded } from '@/utils/onboarding';
 
 type OnboardingSlide = {
   id: number;
@@ -51,7 +50,7 @@ const SLIDES: OnboardingSlide[] = [
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, markOnboarded } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = async () => {
@@ -59,8 +58,9 @@ export default function OnboardingScreen() {
       setCurrentSlide(currentSlide + 1);
       return;
     }
-    // Last slide: persist "onboarded" flag, then let AuthGate route based
-    // on whether we're signed in.
+    // Last slide: persist "onboarded" flag (AsyncStorage + in-memory state
+    // via AuthContext), then let AuthGate route based on whether we're
+    // signed in.
     await markOnboarded();
     if (user) {
       router.replace('/(tabs)/index');

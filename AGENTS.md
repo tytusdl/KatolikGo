@@ -100,8 +100,8 @@ The auth state machine is non-obvious. Read `src/contexts/AuthContext.tsx` and `
 
 - File-based, default to Stack at root.
 - Layout groups `(auth)`, `(tabs)`, `onboarding` are siblings in the Stack.
-- When redirecting from AuthGate, always use the **explicit child path**, e.g. `router.replace('/(tabs)/index')`. The bare `router.replace('/(tabs)')` triggers a development warning ("action not handled by any navigator") in expo-router v6 because the parenthesized name is ambiguous to the runtime action dispatcher.
-- `router.replace('/')` from auth screens is **forbidden** — it races with AuthGate. Remove the call; let AuthGate handle it.
+- **Do NOT register layout groups as `<Stack.Screen>` in the root `_layout.tsx`.** In expo-router v6, `(tabs)/index` normalizes to URL `/`, but a Stack.Screen named `"(tabs)"` is looked up by the literal parens-prefixed segment. The mismatch surfaces as "Unmatched Route — Page could not be found." when the user lands at `/` after login. Layout groups are auto-discovered from the file system; explicit Stack.Screen entries for them break the resolver. See `src/app/_layout.tsx` for the current (correct) pattern — only `onboarding`, `quiz/[level]`, `quiz/result` are registered; `(auth)` and `(tabs)` are NOT.
+- When redirecting from AuthGate, use the explicit child path `router.replace('/(tabs)/index')`. Auth screens (`login.tsx`, `register.tsx`) must NOT call `router.replace` after sign-in — they will race with AuthGate.
 
 ---
 
