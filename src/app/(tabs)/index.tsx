@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ScreenContainer } from '@/components/ScreenContainer';
+import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 
@@ -22,6 +23,11 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer scroll>
+      {/* Guest banner — only renders for Firebase anonymous ("Tetamu")
+          users. Sits at the very top so the consequence of guest mode
+          (no XP / tokens / leaderboard) is the first thing they see. */}
+      {userData?.isGuest && <GuestModeBanner />}
+
       {/* Header with greeting */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>

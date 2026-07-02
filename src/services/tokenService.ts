@@ -3,6 +3,14 @@ import { db } from '@/config/firebase';
 import type { UserData } from '@/types';
 import { TOTAL_LEVELS, PASSING_SCORE } from '@/types';
 
+/**
+ * Error code thrown by spendToken when a guest (Firebase anonymous) user
+ * tries to use a powerup. The screen surfaces this through
+ * `friendlyGuestError` so the user sees a Malay "Sila daftar atau log
+ * masuk" prompt instead of a raw `Error`.
+ */
+export const GUEST_SPEND_BLOCKED = 'GUEST_SPEND_BLOCKED';
+
 export async function spendToken(
   userId: string,
   amount: number,
@@ -14,7 +22,25 @@ export async function spendToken(
     const freshSnap = await transaction.get(userRef);
     const freshData = freshSnap.data() as UserData;
 
-    if (!freshData || freshData.tokens < amount) {
+    if (!freshData) {
+      throw new Error('Akaun tidak dijumpai. Sila log masuk semula.');
+    }
+
+    // Guest users get no tokens (levelService.submitLevelCompletion
+    // skips the reward for them) and shouldn't be able to spend any
+    // either — the whole point of the gate is to push them toward
+    // registering. Block at the source so the UI can prompt with
+    // Daftar / Log Masuk buttons instead of an "Insufficient tokens"
+    // error that wouldn't make sense.
+    if (freshData.isGuest) {
+      const err = new Error(
+        'Pengguna tetamu tidak boleh menggunakan token. Sila daftar atau log masuk.'
+      ) as Error & { code: string };
+      err.code = GUEST_SPEND_BLOCKED;
+      throw err;
+    }
+
+    if (freshData.tokens < amount) {
       throw new Error('Insufficient tokens');
     }
 
@@ -63,6 +89,10 @@ export async function unlockLevelWithToken(
   targetLevel: number,
   userData: UserData
 ): Promise<{ success: boolean; newLevel: number }> {
+  if (userData.isGuest) {
+    return { success: false, newLevel: userData.currentLevel };
+  }
+
   if (targetLevel > TOTAL_LEVELS) {
     return { success: false, newLevel: userData.currentLevel };
   }

@@ -17,7 +17,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { getQuizByLevel } from '@/services/quizService';
 import { submitLevelCompletion } from '@/services/levelService';
-import { spendToken } from '@/services/tokenService';
+import { spendToken, GUEST_SPEND_BLOCKED } from '@/services/tokenService';
+import { shuffleArray } from '@/utils/misc.utils';
+import { validateResponseTime, validateSessionTimings } from '@/utils/anti-cheat.utils';
+import { useGuestGuard } from '@/hooks/useGuestGuard';
 import type { Quiz } from '@/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -49,6 +52,7 @@ const BRAND = {
 export default function QuizPlayScreen() {
   const { level } = useLocalSearchParams<{ level: string }>();
   const { userData } = useAuth();
+  const { guard, isGuest } = useGuestGuard();
   const insets = useSafeAreaInsets();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,12 +74,25 @@ export default function QuizPlayScreen() {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Per-question analytics captured during play, then passed to
+  // `submitLevelCompletion` so XP / tokens reflect combo + perfect-score
+  // bonuses, not just a flat score × multiplier.
+  const questionStartTimeRef = useRef<number>(0);
+  const responseTimesRef = useRef<number[]>([]);
+  const correctCountRef = useRef<number>(0);
+  const currentComboRef = useRef<number>(0);
+  const maxComboRef = useRef<number>(0);
+
   const levelNum = parseInt(level || '1', 10);
   const totalQuestions = quiz?.questions.length ?? 0;
 
   useEffect(() => {
     if (!quiz || selectedAnswer !== null) return;
     startTimer();
+    // Reset per-question timer the moment a new question enters play.
+    // Late-state resets (mid-question) are filtered by the selectedAnswer
+    // guard above.
+    questionStartTimeRef.current = Date.now();
     return () => stopTimer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestion, quiz]);
@@ -104,8 +121,38 @@ export default function QuizPlayScreen() {
 
   const handleTimeUp = () => {
     if (selectedAnswer !== null) return;
+    // Timeouts count as a wrong answer at the full timer duration. This
+    // mirrors an explicit answer, so anti-cheat and XP math see the
+    // same shape either way.
+    const responseTime = Date.now() - questionStartTimeRef.current;
+    recordResponse(responseTime, false);
     setSelectedAnswer(-1); // sentinel for timeout
     setShowExplanation(true);
+  };
+
+  /**
+   * Capture per-question analytics + run a single-answer anti-cheat
+   * check. Cheaper to log here than to retro-fit the pattern check at
+   * the end of the session — a single too-fast answer is a strong
+   * signal even when the rest of the run looks human.
+   */
+  const recordResponse = (responseTimeMs: number, isCorrect: boolean) => {
+    const check = validateResponseTime(responseTimeMs);
+    if (!check.ok) {
+      console.warn(
+        `[quiz anti-cheat] q${currentQuestion + 1} response=${responseTimeMs}ms → ${check.reason}`
+      );
+    }
+    responseTimesRef.current.push(responseTimeMs);
+    if (isCorrect) {
+      correctCountRef.current += 1;
+      currentComboRef.current += 1;
+      if (currentComboRef.current > maxComboRef.current) {
+        maxComboRef.current = currentComboRef.current;
+      }
+    } else {
+      currentComboRef.current = 0;
+    }
   };
 
   const loadQuiz = useCallback(async () => {
@@ -113,6 +160,13 @@ export default function QuizPlayScreen() {
     try {
       const quizData = await getQuizByLevel(levelNum);
       setQuiz(quizData);
+      // Per-session analytics reset. Without this, a retry on the same
+      // mount (router back-and-forth into the same screen) would carry
+      // correctCount / maxCombo / responseTimes from the prior play.
+      responseTimesRef.current = [];
+      correctCountRef.current = 0;
+      currentComboRef.current = 0;
+      maxComboRef.current = 0;
     } catch {
       Alert.alert('Ralat', 'Gagal memuat kuiz');
     } finally {
@@ -141,7 +195,10 @@ export default function QuizPlayScreen() {
     setSelectedAnswer(index);
     setShowExplanation(true);
     stopTimer();
-    if (index !== quiz!.questions[currentQuestion].correctAnswer) {
+    const isCorrect = index === quiz!.questions[currentQuestion].correctAnswer;
+    const responseTimeMs = Date.now() - questionStartTimeRef.current;
+    recordResponse(responseTimeMs, isCorrect);
+    if (!isCorrect) {
       triggerShake();
     }
   };
@@ -152,6 +209,13 @@ export default function QuizPlayScreen() {
     if (!quiz || fiftyFiftyUsed || fiftyFiftyActive || selectedAnswer !== null) return;
     if (!userData) {
       Alert.alert('Log masuk diperlukan', 'Sila log masuk untuk menggunakan hint.');
+      return;
+    }
+    // Guest gate: block the powerup with a friendly Daftar / Log Masuk
+    // prompt before we even attempt the spend. The service-side check
+    // in `spendToken` is the canonical gate; this is a UX nudge.
+    if (isGuest) {
+      guard(() => undefined, 'Powerup 50/50');
       return;
     }
     if (userData.tokens < FIFTY_FIFTY_COST) {
@@ -165,12 +229,20 @@ export default function QuizPlayScreen() {
       const wrongIndices = q.options
         .map((_, i) => i)
         .filter((i) => i !== q.correctAnswer);
-      // shuffle and take 2
-      const shuffled = wrongIndices.sort(() => Math.random() - 0.5).slice(0, 2);
+      // Proper Fisher-Yates shuffle (was `sort(() => Math.random() - 0.5)`
+      // — biased toward short arrays and not uniform).
+      const shuffled = shuffleArray(wrongIndices).slice(0, 2);
       setHiddenOptions(shuffled);
       setFiftyFiftyUsed(true);
       setFiftyFiftyActive(true);
     } catch (err: any) {
+      // `GUEST_SPEND_BLOCKED` is surfaced by the service if a guest slips
+      // past the pre-check (e.g. session flip mid-play). Translate to the
+      // friendly Daftar / Log Masuk prompt instead of "Insufficient tokens".
+      if (err?.code === GUEST_SPEND_BLOCKED) {
+        guard(() => undefined, 'Powerup 50/50');
+        return;
+      }
       Alert.alert('Ralat', err.message ?? 'Tidak dapat menggunakan 50/50.');
     }
   };
@@ -179,6 +251,10 @@ export default function QuizPlayScreen() {
     if (!quiz || hintUsed || hintRevealed || selectedAnswer !== null) return;
     if (!userData) {
       Alert.alert('Log masuk diperlukan', 'Sila log masuk untuk menggunakan hint.');
+      return;
+    }
+    if (isGuest) {
+      guard(() => undefined, 'Hint');
       return;
     }
     if (userData.tokens < HINT_COST) {
@@ -190,6 +266,10 @@ export default function QuizPlayScreen() {
       setHintUsed(true);
       setHintRevealed(true);
     } catch (err: any) {
+      if (err?.code === GUEST_SPEND_BLOCKED) {
+        guard(() => undefined, 'Hint');
+        return;
+      }
       Alert.alert('Ralat', err.message ?? 'Tidak dapat menunjukkan hint.');
     }
   };
@@ -260,12 +340,30 @@ export default function QuizPlayScreen() {
       return;
     }
 
+    // Run the session-level anti-cheat pattern check before reporting
+    // the result. Per-answer checks already ran during play; this
+    // catches suspicious uniform-fast timing that a too-fast single
+    // answer wouldn't (e.g. a paced bot).
+    const sessionCheck = validateSessionTimings(responseTimesRef.current);
+    if (!sessionCheck.pattern.ok) {
+      console.warn(
+        `[quiz anti-cheat] session pattern flagged: ${sessionCheck.pattern.reason}`
+      );
+    }
+
     try {
       const { tokensEarned, nextLevelUnlocked } = await submitLevelCompletion(
         userData.uid,
         levelNum,
         percentage,
-        userData
+        userData,
+        {
+          questionCount: quiz!.questions.length,
+          correctCount: correctCountRef.current,
+          maxCombo: maxComboRef.current,
+          hintsUsed: hintUsed ? 1 : 0,
+          skipsUsed: freePassUsed ? 1 : 0,
+        }
       );
 
       router.replace({

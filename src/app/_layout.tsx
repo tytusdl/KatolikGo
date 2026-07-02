@@ -1,10 +1,10 @@
 import '../global.css';
-import { useEffect } from 'react';
-import { Stack, useRouter, usePathname } from 'expo-router';
-import { ActivityIndicator, StatusBar, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Slot, useRouter, usePathname } from 'expo-router';
+import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { Colors } from '@/constants/theme';
+import { Colors, FontSize, Spacing } from '@/constants/theme';
 import { seedQuizzesIfEmpty } from '@/services/seedService';
 
 function AuthGate() {
@@ -17,21 +17,21 @@ function AuthGate() {
   } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
+    // Wait until auth and onboarding flag have settled so the redirect
+    // decision is based on real state, not initial defaults.
     if (loading || userDataLoading || !onboardingChecked) return;
 
-    // Detect the current screen via pathname (URL with layout-group parens
-    // stripped). Don't rely on `segments[0] === '(auth)'` — in expo-router
-    // v6 the layout-group identifier doesn't always survive in segments
-    // and the check is silently false, which previously wedged users on
-    // the login screen after a successful sign-in.
+    // Layout-group parens are stripped from the pathname in expo-router v6,
+    // so we can use it directly to decide which screen we're on.
     const inAuthGroup = pathname === '/login' || pathname === '/register';
     const isOnboarding = pathname === '/onboarding';
 
     if (isOnboarding) {
-      // Authenticated users and already-onboarded users should never replay
-      // the intro slides. Push them to where they actually belong.
+      // Returning users and authenticated users should never replay the
+      // intro slides. Push them to where they actually belong.
       if (user) {
         router.replace('/(tabs)/index');
       } else if (onboarded) {
@@ -57,26 +57,50 @@ function AuthGate() {
 
   if (loading || userDataLoading || !onboardingChecked) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={styles.loadingContainer}>
+        {/* Override the root's `dark-content` while the dark-blue splash
+            is showing — white time/battery icons here on `#0e2a4d`
+            stays readable. See /AGENTS.md §"Status bar" for the rules. */}
+        <StatusBar barStyle="light-content" backgroundColor="#0e2a4d" />
+        {/* Try the real brand asset first; fall back to a JS cross if the
+            image hasn't prebundled yet (1.3MB can race on first cold start). */}
+        {imageFailed ? (
+          <View style={styles.loadingCircle}>
+            <Text style={styles.loadingCross}>✝</Text>
+          </View>
+        ) : (
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.loadingLogo}
+            resizeMode="contain"
+            onError={() => setImageFailed(true)}
+          />
+        )}
+        <Text style={styles.loadingTitle}>KatolikGo</Text>
+        <Text style={styles.loadingTagline}>Belajar · Bermain · Bertumbuh dalam Iman</Text>
+        <View style={styles.loadingSpinnerRow}>
+          <ActivityIndicator size="small" color="#d4a437" />
+          <Text style={styles.loadingSpinnerText}>Memuatkan…</Text>
+        </View>
       </View>
     );
   }
 
-  return (
-    // Layout groups `(auth)` / `(tabs)` are auto-discovered. We only register
-    // explicit Stack.Screen entries for routes that need options or that we
-    // want to be reachable as the literal Stack name. The root URL itself
-    // is served by `(tabs)/index.tsx`.
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="onboarding" />
-      <Stack.Screen name="quiz/[level]" />
-      <Stack.Screen name="quiz/result" />
-      {/* `(auth)` and `(tabs)` are layout groups — auto-discovered from the
-          file system, never registered as Stack.Screen (parens-prefixed name
-          vs. normalized URL causes "Unmatched Route" at `/`). */}
-    </Stack>
-  );
+  // <Slot /> rather than <Stack /> here, per the official expo-router v6
+  // auth flow pattern. Slot has no navigator of its own — it just renders
+  // whatever route matches the current URL, leaving the layout-group
+  // navigators ((auth)/_layout.tsx's <Stack>, (tabs)/_layout.tsx's <Tabs>,
+  // quiz/_layout.tsx's <Stack>) to own their own screens and screenOptions.
+  //
+  // Why not <Stack> with explicit children? In v6, registering ANY sibling
+  // Stack.Screen (including `name="onboarding"`, `name="quiz/[level]"`)
+  // shadows the auto-resolved URL '/' that maps to (tabs)/index.tsx,
+  // surfacing "Unmatched Route — Page could not be found" after login.
+  //
+  // The branded overlay rendered above already called SplashScreen.hideAsync()
+  // in its own effect — we don't need another transition here. The Slot
+  // takes over seamlessly once ready flips true.
+  return <Slot />;
 }
 
 export default function RootLayout() {
@@ -86,10 +110,70 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+      {/*
+        Default: dark-content so the time / battery icons stay legible on
+        the light backgrounds used by (tabs), (auth), onboarding, and
+        the result screen. The splash block below and the quiz play
+        screen override this with their own `<StatusBar barStyle="light-content">`
+        where they need white icons against dark backgrounds — the last
+        StatusBar mounted in the tree wins per RN's contract.
+      */}
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <AuthProvider>
         <AuthGate />
       </AuthProvider>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0e2a4d',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.xl,
+  },
+  loadingCircle: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingLogo: {
+    width: 220,
+    height: 220,
+  },
+  loadingCross: {
+    fontSize: 64,
+    color: '#0e2a4d',
+    fontWeight: '700',
+  },
+  loadingTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: Colors.white,
+    letterSpacing: 1,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  loadingTagline: {
+    fontSize: FontSize.md,
+    color: 'rgba(255, 255, 255, 0.78)',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  loadingSpinnerRow: {
+    marginTop: Spacing.xxl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  loadingSpinnerText: {
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontSize: FontSize.sm,
+    fontWeight: '500',
+  },
+});

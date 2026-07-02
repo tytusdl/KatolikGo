@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KatolikGo — Belajar Iman Katolik dengan Cara yang Seronok</title>
+  <meta name="description" content="Aplikasi kuiz Katolik untuk Belajar, Berkompetisi, dan Berkembang dalam iman. Sertai paroki anda, kumpul token, naiki level." />
+
+  <!-- Fonts: Playfair Display (display/editorial) + Inter (body/UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              50:  '#f0f4f9',
+              100: '#d9e2ee',
+              200: '#b3c5dd',
+              300: '#7d9bc1',
+              400: '#4d73a1',
+              500: '#1a3a5c',  // brand primary
+              600: '#142f4a',
+              700: '#0f2540',
+              800: '#0a1a2d',
+              900: '#060f1a',
+            },
+            gold: {
+              50:  '#fbf7e8',
+              100: '#f6ecc4',
+              200: '#efdc8c',
+              300: '#e0bd4d',
+              400: '#c9a227',  // brand accent
+              500: '#a8841d',
+              600: '#806614',
+            },
+            stone: {
+              50:  '#fafaf9',
+              100: '#f5f5f4',
+              200: '#e7e5e4',
+              300: '#d6d3d1',
+              400: '#a8a29e',
+              500: '#78716c',
+              600: '#57534e',
+            },
+          },
+          boxShadow: {
+            'soft':   '0 4px 16px -2px rgb(26 58 92 / 0.08)',
+            'lift':   '0 16px 40px -8px rgb(26 58 92 / 0.18)',
+            'gold':   '0 8px 24px -6px rgb(201 162 39 / 0.45)',
+          },
+          animation: {
+            'float':   'float 6s ease-in-out infinite',
+            'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%':      { transform: 'translateY(-12px)' },
+            },
+            'pulse-soft': {
+              '0%, 100%': { opacity: '0.6' },
+              '50%':      { opacity: '1' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    /* accessibility: respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* focus-visible for keyboard nav */
+    :focus-visible {
+      outline: 2px solid #c9a227;
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* subtle paper texture using gradient noise */
+    .paper {
+      background-color: #fafaf9;
+      background-image:
+        radial-gradient(circle at 20% 10%, rgba(201, 162, 39, 0.06), transparent 40%),
+        radial-gradient(circle at 80% 60%, rgba(26, 58, 92, 0.05), transparent 40%);
+    }
+  </style>
+</head>
+
+<body class="font-sans bg-stone-50 text-navy-700 antialiased">
+
+  <!-- ============ NAV ============ -->
+  <header class="sticky top-0 z-30 bg-stone-50/80 backdrop-blur border-b border-stone-200">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2 cursor-pointer">
+        <span class="w-9 h-9 rounded-xl bg-navy-500 grid place-items-center shadow-soft">
+          <!-- SVG icon: dove/cross mark -->
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-gold-300" fill="currentColor" aria-hidden="true">
+            <path d="M12 2 13.5 8.5 20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2Z"/>
+          </svg>
+        </span>
+        <span class="font-display text-xl font-bold tracking-tight">KatolikGo</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-navy-500">
+        <a href="#features" class="hover:text-gold-400 transition cursor-pointer">Ciri-ciri</a>
+        <a href="#how"     class="hover:text-gold-400 transition cursor-pointer">Cara Main</a>
+        <a href="#parish"  class="hover:text-gold-400 transition cursor-pointer">Paroki</a>
+        <a href="#faq"     class="hover:text-gold-400 transition cursor-pointer">Soalan</a>
+      </div>
+
+      <a href="#download"
+         class="inline-flex items-center gap-2 bg-navy-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-navy-600 transition cursor-pointer shadow-soft">
+        Muat Turun
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+
+  <!-- ============ HERO ============ -->
+  <section class="paper relative overflow-hidden">
+    <!-- decorative gold ring -->
+    <div aria-hidden="true" class="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full border border-gold-200 animate-pulse-soft"></div>
+    <div aria-hidden="true" class="absolute -top-16 -right-16 w-[320px] h-[320px] rounded-full border border-gold-200"></div>
+
+    <div class="relative max-w-6xl mx-auto px-6 pt-16 pb-24 grid lg:grid-cols-2 gap-12 items-center">
+      <!-- copy -->
+      <div>
+        <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-gold-500 bg-gold-50 border border-gold-100 px-3 py-1 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
+          Aplikasi Kuiz Katolik #1 di Malaysia
+        </span>
+
+        <h1 class="mt-6 font-display text-5xl md:text-6xl font-bold leading-[1.05] text-navy-700">
+          Belajar iman Katolik,<br />
+          <span class="text-gold-400 italic font-semibold">dengan cara yang seronok.</span>
+        </h1>
+
+        <p class="mt-6 text-lg text-stone-600 max-w-lg leading-relaxed">
+          Kuiz harian tentang Katekismus, Alkitab, dan tradisi Gereja. Kumpul token, naik level, dan berlumba dengan paroki anda — semua dalam Bahasa Melayu.
+        </p>
+
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          <a href="#download"
+             class="inline-flex items-center justify-center gap-2 bg-gold-400 text-navy-700 px-6 py-3.5 rounded-xl font-semibold hover:bg-gold-300 transition cursor-pointer shadow-gold">
+            Mula Main Sekarang
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z"/></svg>
+          </a>
+          <a href="#how"
+             class="inline-flex items-center justify-center gap-2 bg-white text-navy-500 border border-stone-200 px-6 py-3.5 rounded-xl font-semibold hover:border-navy-300 transition cursor-pointer">
+            Lihat Cara Main
+          </a>
+        </div>
+
+        <div class="mt-10 flex items-center gap-6 text-sm text-stone-500">
+          <div class="flex -space-x-2">
+            <div class="w-9 h-9 rounded-full bg-navy-200 border-2 border-white"></div>
+            <div class="w-9 h-9 rounded-full bg-gold-200  border-2 border-white"></div>
+            <div class="w-9 h-9 rounded-full bg-stone-300 border-2 border-white"></div>
+            <div class="w-9 h-9 rounded-full bg-navy-300  border-2 border-white"></div>
+          </div>
+          <p><span class="font-semibold text-navy-600">2,400+</span> umat Katolik sudah sertai</p>
+        </div>
+      </div>
+
+      <!-- phone mockup -->
+      <div class="relative mx-auto">
+        <div class="relative w-[300px] h-[600px] mx-auto bg-navy-700 rounded-[44px] shadow-lift p-3 animate-float">
+          <div class="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-6 bg-navy-700 rounded-b-2xl z-10"></div>
+          <div class="w-full h-full bg-stone-50 rounded-[34px] overflow-hidden flex flex-col">
+            <!-- mini status -->
+            <div class="flex items-center justify-between px-5 py-3 text-[10px] text-stone-500 font-semibold">
+              <span>9:41</span>
+              <span class="flex gap-1">
+                <span class="w-3 h-1.5 bg-stone-400 rounded-sm"></span>
+                <span class="w-3 h-1.5 bg-stone-400 rounded-sm"></span>
+                <span class="w-4 h-1.5 bg-stone-400 rounded-sm"></span>
+              </span>
+            </div>
+            <!-- header -->
+            <div class="px-5 pb-3">
+              <p class="text-[11px] text-stone-500">Selamat datang kembali,</p>
+              <h3 class="font-display text-xl font-bold text-navy-700">Maria</h3>
+              <div class="mt-3 flex items-center justify-between bg-white border border-stone-200 rounded-xl px-3 py-2.5 shadow-soft">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-gold-100 grid place-items-center text-gold-500">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
+                  </span>
+                  <div>
+                    <p class="text-[10px] text-stone-500 leading-none">Token</p>
+                    <p class="text-sm font-bold text-navy-700 leading-tight">1,240</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-navy-100 grid place-items-center text-navy-500">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4Z"/></svg>
+                  </span>
+                  <div>
+                    <p class="text-[10px] text-stone-500 leading-none">Level</p>
+                    <p class="text-sm font-bold text-navy-700 leading-tight">12</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- quiz card -->
+            <div class="px-5 flex-1 flex flex-col gap-3">
+              <div class="bg-white rounded-2xl p-4 shadow-soft border border-stone-200">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-[10px] font-bold tracking-wider text-gold-500 bg-gold-50 px-2 py-0.5 rounded-full">LEVEL 7 · KATEKISMUS</span>
+                  <span class="text-[10px] text-stone-500">Soalan 3/10</span>
+                </div>
+                <p class="font-display text-[15px] font-semibold text-navy-700 leading-snug">
+                  Apakah tujuh sakramen utama dalam Gereja Katolik?
+                </p>
+                <div class="mt-3 space-y-2">
+                  <div class="text-[11px] px-3 py-2 rounded-lg bg-stone-100 text-stone-600">Baptis, Krisma, Ekaristi</div>
+                  <div class="text-[11px] px-3 py-2 rounded-lg bg-navy-500 text-white font-semibold border-2 border-gold-400">Baptis, Krisma, Ekaristi, Tobat, Krisis…</div>
+                  <div class="text-[11px] px-3 py-2 rounded-lg bg-stone-100 text-stone-600">Baptis, Nikah, Pangkat</div>
+                </div>
+              </div>
+              <!-- progress -->
+              <div class="bg-white rounded-xl p-3 shadow-soft border border-stone-200">
+                <div class="flex justify-between text-[10px] mb-1.5">
+                  <span class="font-semibold text-navy-600">Kemajuan Tahap</span>
+                  <span class="text-gold-500 font-bold">68%</span>
+                </div>
+                <div class="h-2 bg-stone-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-gold-300 to-gold-400 rounded-full" style="width: 68%"></div>
+                </div>
+              </div>
+            </div>
+            <!-- tab bar -->
+            <div class="mt-2 border-t border-stone-200 bg-white px-6 py-3 flex justify-between text-stone-400">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 text-navy-500" fill="currentColor" aria-hidden="true"><path d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3L12 3Z"/></svg>
+              <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Zm-1-13h2v6h-2Zm0 8h2v2h-2Z"/></svg>
+              <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M3 3h18v4H3Zm0 7h18v4H3Zm0 7h18v4H3Z"/></svg>
+              <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0Z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- floating token chip -->
+        <div class="absolute -left-6 top-32 bg-white shadow-lift rounded-2xl px-3 py-2 flex items-center gap-2 border border-stone-200 animate-float" style="animation-delay: -2s;">
+          <span class="w-7 h-7 rounded-full bg-gold-400 grid place-items-center">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="currentColor" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4Z"/></svg>
+          </span>
+          <div>
+            <p class="text-[10px] text-stone-500 leading-none">Token</p>
+            <p class="text-xs font-bold text-navy-700 leading-tight">+50</p>
+          </div>
+        </div>
+
+        <!-- floating streak chip -->
+        <div class="absolute -right-2 bottom-32 bg-white shadow-lift rounded-2xl px-3 py-2 flex items-center gap-2 border border-stone-200 animate-float" style="animation-delay: -4s;">
+          <span class="w-7 h-7 rounded-full bg-rose-100 grid place-items-center text-rose-500">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor" aria-hidden="true"><path d="M12 2s4 4 4 8a4 4 0 0 1-8 0c0-2 1-3 1-3s-3 1-3 5a6 6 0 0 0 12 0c0-6-6-10-6-10Z"/></svg>
+          </span>
+          <div>
+            <p class="text-[10px] text-stone-500 leading-none">Streak</p>
+            <p class="text-xs font-bold text-navy-700 leading-tight">7 hari</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ FEATURES (BENTO GRID) ============ -->
+  <section id="features" class="py-24 bg-white border-y border-stone-200">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold tracking-widest uppercase text-gold-500">Ciri-ciri</p>
+        <h2 class="mt-3 font-display text-4xl md:text-5xl font-bold text-navy-700">
+          Empat cara untuk <span class="italic text-gold-400">mendalam</span> iman anda.
+        </h2>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-3 gap-5 auto-rows-fr">
+        <!-- big card -->
+        <article class="md:col-span-2 row-span-2 bg-navy-500 text-white rounded-3xl p-8 relative overflow-hidden cursor-pointer hover:shadow-lift transition">
+          <div aria-hidden="true" class="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-navy-400/40"></div>
+          <div aria-hidden="true" class="absolute -bottom-16 -left-8 w-72 h-72 rounded-full border border-navy-400/30"></div>
+          <div class="relative h-full flex flex-col justify-between">
+            <div>
+              <span class="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-gold-300 bg-navy-600/60 px-3 py-1 rounded-full">
+                Kuiz · Katekismus
+              </span>
+              <h3 class="mt-6 font-display text-3xl md:text-4xl font-bold leading-tight">
+                Lebih 100 tahap kuiz,<br />dalam Bahasa Melayu.
+              </h3>
+              <p class="mt-4 text-stone-200 max-w-md leading-relaxed">
+                Dari perintah Allah hingga kisah para santo — soalan disusun oleh paderi dan catechist tempatan untuk jemaah Malaysia.
+              </p>
+            </div>
+            <div class="mt-8 grid grid-cols-3 gap-3 text-center">
+              <div class="bg-navy-600/50 rounded-xl p-3 border border-navy-400/30">
+                <p class="font-display text-2xl font-bold text-gold-300">100+</p>
+                <p class="text-[10px] text-stone-300 uppercase tracking-wider">Tahap</p>
+              </div>
+              <div class="bg-navy-600/50 rounded-xl p-3 border border-navy-400/30">
+                <p class="font-display text-2xl font-bold text-gold-300">5K+</p>
+                <p class="text-[10px] text-stone-300 uppercase tracking-wider">Soalan</p>
+              </div>
+              <div class="bg-navy-600/50 rounded-xl p-3 border border-navy-400/30">
+                <p class="font-display text-2xl font-bold text-gold-300">BM</p>
+                <p class="text-[10px] text-stone-300 uppercase tracking-wider">Penuh</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- token card -->
+        <article class="bg-stone-50 rounded-3xl p-6 border border-stone-200 cursor-pointer hover:shadow-lift transition">
+          <span class="w-11 h-11 rounded-2xl bg-gold-100 grid place-items-center text-gold-500">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="currentColor" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4Z"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-xl font-bold text-navy-700">Kumpul token, buka tahap.</h3>
+          <p class="mt-2 text-sm text-stone-500 leading-relaxed">
+            Setiap jawapan betul menambah token. Guna untuk unlock tahap sukar atau ciri premium.
+          </p>
+        </article>
+
+        <!-- streak card -->
+        <article class="bg-stone-50 rounded-3xl p-6 border border-stone-200 cursor-pointer hover:shadow-lift transition">
+          <span class="w-11 h-11 rounded-2xl bg-rose-100 grid place-items-center text-rose-500">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="currentColor" aria-hidden="true"><path d="M12 2s4 4 4 8a4 4 0 0 1-8 0c0-2 1-3 1-3s-3 1-3 5a6 6 0 0 0 12 0c0-6-6-10-6-10Z"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-xl font-bold text-navy-700">Streak harian.</h3>
+          <p class="mt-2 text-sm text-stone-500 leading-relaxed">
+            Main setiap hari untuk kekalkan streak. 7 hari berturut-turut = bonus token berganda.
+          </p>
+        </article>
+
+        <!-- leaderboard card -->
+        <article class="md:col-span-3 bg-gradient-to-br from-stone-50 to-gold-50 rounded-3xl p-8 border border-gold-100 cursor-pointer hover:shadow-lift transition">
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <span class="text-xs font-bold tracking-wider uppercase text-gold-500">Paroki</span>
+              <h3 class="mt-3 font-display text-2xl md:text-3xl font-bold text-navy-700">
+                Berlumba dengan paroki anda.
+              </h3>
+              <p class="mt-3 text-stone-600 leading-relaxed">
+                Pilih paroki semasa pendaftaran — lihat ranking mingguan dan bandingkan dengan paroki seluruh Malaysia dalam satu papan.
+              </p>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-soft border border-stone-200">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-bold tracking-wider uppercase text-stone-500">Top 5 Paroki · Minggu Ini</p>
+                <span class="text-[10px] text-stone-400">Dikemas kini 2 minit lalu</span>
+              </div>
+              <ol class="space-y-2.5">
+                <li class="flex items-center gap-3"><span class="w-6 text-center font-display font-bold text-gold-500">1</span><span class="flex-1 text-sm text-navy-700 font-medium">St. John, KL</span><span class="text-sm font-bold text-navy-500">12,480</span></li>
+                <li class="flex items-center gap-3"><span class="w-6 text-center font-display font-bold text-stone-500">2</span><span class="flex-1 text-sm text-navy-700 font-medium">Holy Family, PJ</span><span class="text-sm font-bold text-navy-500">11,920</span></li>
+                <li class="flex items-center gap-3"><span class="w-6 text-center font-display font-bold text-stone-500">3</span><span class="flex-1 text-sm text-navy-700 font-medium">Sacred Heart, JB</span><span class="text-sm font-bold text-navy-500">10,341</span></li>
+                <li class="flex items-center gap-3"><span class="w-6 text-center font-display font-bold text-stone-500">4</span><span class="flex-1 text-sm text-navy-700 font-medium">Our Lady, Penang</span><span class="text-sm font-bold text-navy-500">9,876</span></li>
+                <li class="flex items-center gap-3"><span class="w-6 text-center font-display font-bold text-stone-500">5</span><span class="flex-1 text-sm text-navy-700 font-medium">Christ the King, KK</span><span class="text-sm font-bold text-navy-500">8,520</span></li>
+              </ol>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" class="py-24 bg-stone-50">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold tracking-widest uppercase text-gold-500">Cara Main</p>
+        <h2 class="mt-3 font-display text-4xl md:text-5xl font-bold text-navy-700">
+          Tiga langkah. <span class="italic text-gold-400">Lima minit sehari.</span>
+        </h2>
+      </div>
+
+      <div class="mt-14 grid md:grid-cols-3 gap-6 relative">
+        <!-- connector line (desktop only) -->
+        <div aria-hidden="true" class="hidden md:block absolute top-12 left-[16%] right-[16%] h-px border-t border-dashed border-stone-300"></div>
+
+        <article class="relative bg-white rounded-3xl p-7 border border-stone-200">
+          <div class="flex items-center gap-3">
+            <span class="w-12 h-12 rounded-2xl bg-navy-500 grid place-items-center font-display text-xl font-bold text-gold-300">1</span>
+            <span class="font-display text-lg font-semibold text-navy-700">Daftar</span>
+          </div>
+          <p class="mt-4 text-stone-600 leading-relaxed">
+            Cipta akaun dengan emel atau Google. Pilih paroki anda supaya dapat masuk leaderboard dengan betul.
+          </p>
+        </article>
+
+        <article class="relative bg-white rounded-3xl p-7 border border-stone-200">
+          <div class="flex items-center gap-3">
+            <span class="w-12 h-12 rounded-2xl bg-navy-500 grid place-items-center font-display text-xl font-bold text-gold-300">2</span>
+            <span class="font-display text-lg font-semibold text-navy-700">Pilih Tahap</span>
+          </div>
+          <p class="mt-4 text-stone-600 leading-relaxed">
+            Mula dari Level 1 atau teruskan dari level terakhir anda. Soalan bertambah susah secara berperingkat.
+          </p>
+        </article>
+
+        <article class="relative bg-white rounded-3xl p-7 border border-stone-200">
+          <div class="flex items-center gap-3">
+            <span class="w-12 h-12 rounded-2xl bg-navy-500 grid place-items-center font-display text-xl font-bold text-gold-300">3</span>
+            <span class="font-display text-lg font-semibold text-navy-700">Kumpul & Naik</span>
+          </div>
+          <p class="mt-4 text-stone-600 leading-relaxed">
+            Setiap level tamat = token + XP. Streak hari panjang = bonus. Rebut kedudukan paroki anda.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ TESTIMONIAL ============ -->
+  <section class="py-24 bg-navy-500 text-white relative overflow-hidden">
+    <div aria-hidden="true" class="absolute top-0 right-0 w-96 h-96 rounded-full bg-navy-400/30 -translate-y-1/2 translate-x-1/3"></div>
+    <div aria-hidden="true" class="absolute bottom-0 left-0 w-80 h-80 rounded-full border border-navy-400/30 translate-y-1/3 -translate-x-1/4"></div>
+
+    <div class="relative max-w-4xl mx-auto px-6 text-center">
+      <svg viewBox="0 0 24 24" class="w-12 h-12 mx-auto text-gold-400" fill="currentColor" aria-hidden="true">
+        <path d="M7 7h4v4H8c0 2 1 3 3 3v3c-4 0-6-2-6-6V7Zm9 0h4v4h-3c0 2 1 3 3 3v3c-4 0-6-2-6-6V7Z"/>
+      </svg>
+      <blockquote class="mt-6 font-display text-2xl md:text-3xl font-medium leading-snug">
+        "Akhirnya anak-anak saya nampak belajar Katekismus bukan sekadar hafalan — mereka <span class="text-gold-300 italic">tertibut nak main</span> tiap-tiap malam."
+      </blockquote>
+      <figcaption class="mt-8 flex items-center justify-center gap-3">
+        <div class="w-11 h-11 rounded-full bg-gold-300 grid place-items-center font-display font-bold text-navy-700">AF</div>
+        <div class="text-left">
+          <p class="font-semibold text-sm">Anthony Francis</p>
+          <p class="text-xs text-stone-300">Catechist · Paroki Holy Family, PJ</p>
+        </div>
+      </figcaption>
+    </div>
+  </section>
+
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" class="py-24 bg-white">
+    <div class="max-w-3xl mx-auto px-6">
+      <p class="text-xs font-semibold tracking-widest uppercase text-gold-500">Soalan Lazim</p>
+      <h2 class="mt-3 font-display text-4xl font-bold text-navy-700">
+        Sebelum anda mula.
+      </h2>
+
+      <div class="mt-10 space-y-3">
+        <details class="group bg-stone-50 rounded-2xl border border-stone-200 px-5 py-4 cursor-pointer">
+          <summary class="flex items-center justify-between font-semibold text-navy-700 list-none">
+            Adakah percuma?
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-stone-400 group-open:rotate-180 transition" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <p class="mt-3 text-stone-600 leading-relaxed">
+            Ya — 100+ soalan pertama percuma sepenuhnya. Token premium dan tahap khas adalah optional untuk yang mahukan lebih.
+          </p>
+        </details>
+
+        <details class="group bg-stone-50 rounded-2xl border border-stone-200 px-5 py-4 cursor-pointer">
+          <summary class="flex items-center justify-between font-semibold text-navy-700 list-none">
+            Boleh tukar paroki kemudian?
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-stone-400 group-open:rotate-180 transition" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <p class="mt-3 text-stone-600 leading-relaxed">
+            Boleh — pergi ke Profil → Paroki. Tukar paroki menukar kedudukan leaderboard anda serta-merta.
+          </p>
+        </details>
+
+        <details class="group bg-stone-50 rounded-2xl border border-stone-200 px-5 py-4 cursor-pointer">
+          <summary class="flex items-center justify-between font-semibold text-navy-700 list-none">
+            Platform apa yang disokong?
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-stone-400 group-open:rotate-180 transition" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <p class="mt-3 text-stone-600 leading-relaxed">
+            iOS dan Android melalui Expo. Akaun anda kekal di kedua-dua platform selepas login.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ CTA / DOWNLOAD ============ -->
+  <section id="download" class="py-24 bg-stone-50">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="bg-navy-500 rounded-3xl p-10 md:p-14 text-white text-center shadow-lift relative overflow-hidden">
+        <div aria-hidden="true" class="absolute inset-0 opacity-30">
+          <div class="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-gold-400/30 blur-3xl"></div>
+          <div class="absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-gold-300/20 blur-3xl"></div>
+        </div>
+        <div class="relative">
+          <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight">
+            Sedia untuk <span class="italic text-gold-300">mendalam</span> iman anda?
+          </h2>
+          <p class="mt-4 text-stone-200 max-w-xl mx-auto">
+            Muat turun KatolikGo hari ini dan sertai ribuan umat Katolik yang sedang belajar setiap hari.
+          </p>
+          <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="#"
+               class="inline-flex items-center justify-center gap-2 bg-white text-navy-700 px-6 py-3.5 rounded-xl font-semibold hover:bg-stone-100 transition cursor-pointer">
+              <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M17.5 12.5a3.5 3.5 0 0 1 1.7-3 3.6 3.6 0 0 0-2.8-1.5c-1.2-.1-2.4.7-3 .7s-1.5-.7-2.5-.7a3.8 3.8 0 0 0-3.2 1.9c-1.4 2.4-.4 5.9 1 7.8.7 1 1.5 2 2.5 2s1.4-.6 2.6-.6 1.5.6 2.6.6 1.8-1 2.5-2a8 8 0 0 0 1-2.3 3.4 3.4 0 0 1-2.4-2.9ZM15.4 5.5a3.4 3.4 0 0 0 .8-2.4 3.5 3.5 0 0 0-2.3 1.2 3.2 3.2 0 0 0-.8 2.3 2.9 2.9 0 0 0 2.3-1.1Z"/></svg>
+              App Store
+            </a>
+            <a href="#"
+               class="inline-flex items-center justify-center gap-2 bg-gold-400 text-navy-700 px-6 py-3.5 rounded-xl font-semibold hover:bg-gold-300 transition cursor-pointer shadow-gold">
+              <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M3 20.5V3.5c0-.4.2-.7.5-.9l9.7 9.4L3.5 21.4c-.3-.2-.5-.5-.5-.9Zm12.4-7.5L18 13.5l3-1.7c.7-.4.7-1.2 0-1.6L18 8.5l-2.6 4.5ZM5 2.4l11.3 6.4-2.4 2.4L5 2.4Zm0 19.2 8.9-8.8 2.4 2.4L5 21.6Z"/></svg>
+              Google Play
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="bg-navy-700 text-stone-300 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-9 h-9 rounded-xl bg-navy-500 grid place-items-center">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-gold-300" fill="currentColor" aria-hidden="true">
+              <path d="M12 2 13.5 8.5 20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2Z"/>
+            </svg>
+          </span>
+          <span class="font-display text-xl font-bold text-white">KatolikGo</span>
+        </div>
+        <p class="mt-4 text-sm leading-relaxed max-w-xs">
+          Aplikasi kuiz Katolik dalam Bahasa Melayu — untuk umat, oleh umat.
+        </p>
+      </div>
+
+      <div>
+        <p class="font-semibold text-white text-sm mb-3">Produk</p>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#features" class="hover:text-gold-300 transition cursor-pointer">Ciri-ciri</a></li>
+          <li><a href="#how" class="hover:text-gold-300 transition cursor-pointer">Cara Main</a></li>
+          <li><a href="#faq" class="hover:text-gold-300 transition cursor-pointer">Soalan Lazim</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-semibold text-white text-sm mb-3">Hubungi</p>
+        <ul class="space-y-2 text-sm">
+          <li><a href="mailto:hello@katolikgo.app" class="hover:text-gold-300 transition cursor-pointer">hello@katolikgo.app</a></li>
+          <li><a href="#" class="hover:text-gold-300 transition cursor-pointer">Privasi</a></li>
+          <li><a href="#" class="hover:text-gold-300 transition cursor-pointer">Syarat Penggunaan</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-6 border-t border-navy-500 max-w-6xl mx-auto px-6 text-xs text-stone-400 flex flex-col md:flex-row justify-between gap-3">
+      <p>© 2026 KatolikGo. Dibuat dengan ❤️ untuk umat Katolik Malaysia.</p>
+      <p>Dibina dengan Expo · Firebase</p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Link } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function QuizResultScreen() {
   const { level, score, tokens, unlocked } = useLocalSearchParams<{
@@ -10,7 +11,9 @@ export default function QuizResultScreen() {
     tokens: string;
     unlocked: string;
   }>();
+  const { userData } = useAuth();
   const insets = useSafeAreaInsets();
+  const isGuest = userData?.isGuest === true;
 
   const scoreNum = parseInt(score || '0', 10);
   const tokensNum = parseInt(tokens || '0', 10);
@@ -104,6 +107,29 @@ export default function QuizResultScreen() {
           <View style={styles.unlockedBanner}>
             <Text style={styles.unlockedEmoji}>🔓</Text>
             <Text style={styles.unlockedText}>Tahap {levelNum + 1} dibuka!</Text>
+          </View>
+        )}
+
+        {/* Guest nudge: only shown when the player is a guest (XP/tokens
+            were not awarded) so they understand why the reward pill is
+            missing and get a clear path forward. */}
+        {isGuest && (
+          <View style={styles.guestNudge}>
+            <Text style={styles.guestNudgeText}>
+              Skor ini tidak disimpan kerana anda log masuk sebagai Tetamu.
+            </Text>
+            <View style={styles.guestNudgeActions}>
+              <Link href="/(auth)/register" asChild>
+                <TouchableOpacity style={styles.guestNudgePrimary}>
+                  <Text style={styles.guestNudgePrimaryText}>Daftar</Text>
+                </TouchableOpacity>
+              </Link>
+              <Link href="/(auth)/login" asChild>
+                <TouchableOpacity style={styles.guestNudgeSecondary}>
+                  <Text style={styles.guestNudgeSecondaryText}>Log Masuk</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
           </View>
         )}
 
@@ -297,6 +323,56 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: 'bold',
     color: Colors.success,
+  },
+
+  // Guest result-screen nudge
+  guestNudge: {
+    width: '100%',
+    backgroundColor: '#FFF8EC',
+    borderColor: Colors.accent,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    alignItems: 'center',
+  },
+  guestNudgeText: {
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+    fontWeight: '500',
+  },
+  guestNudgeActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    width: '100%',
+  },
+  guestNudgePrimary: {
+    flex: 1,
+    backgroundColor: Colors.accent,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  guestNudgePrimaryText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+  },
+  guestNudgeSecondary: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: Colors.accent,
+  },
+  guestNudgeSecondaryText: {
+    color: Colors.accent,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
   },
   actions: {
     width: '100%',

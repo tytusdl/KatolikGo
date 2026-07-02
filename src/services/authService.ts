@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInAnonymously,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   updateProfile,
@@ -12,8 +13,14 @@ import type { UserData } from '@/types';
 
 /**
  * Default skeleton for a brand-new user document.
- * Centralised so every sign-in path (email/password, Google, Facebook)
- * writes the same initial shape — adding a new field means one edit.
+ * Centralised so every sign-in path (email/password, Google, Facebook,
+ * Apple, guest/anonymous) writes the same initial shape — adding a new
+ * field means one edit.
+ *
+ * `isGuest` is auto-derived from `firebaseUser.isAnonymous` so the
+ * loginAsGuest path doesn't have to remember to set it. Email/password,
+ * Google, Facebook, and Apple users all have `isAnonymous === false`,
+ * so they default to `isGuest: false`.
  */
 function buildDefaultUserData(
   firebaseUser: FirebaseUser,
@@ -37,6 +44,7 @@ function buildDefaultUserData(
     friendsCount: 0,
     accuracy: 0,
     quizzesThisMonth: 0,
+    isGuest: firebaseUser.isAnonymous,
   };
 }
 
@@ -92,6 +100,26 @@ export async function loginUser(
 
 export async function signOut(): Promise<void> {
   await firebaseSignOut(auth);
+}
+
+/**
+ * Sign in as an anonymous (guest) user. No email/password required — the
+ * user gets a real Firebase account under the hood but with no identifying
+ * credentials. Used by the "Terus sebagai Tetamu" flow on the auth screen.
+ *
+ * Firebase Anonymous Auth must be enabled in the Firebase Console
+ * (Authentication → Sign-in method → Anonymous). If it's disabled, this
+ * throws `auth/operation-not-allowed` and the screen surfaces the error
+ * via `friendlyAuthError`.
+ *
+ * The guest profile gets a generated display name so it doesn't show up
+ * as an empty string in leaderboards / profile screens.
+ */
+export async function loginAsGuest(): Promise<UserData> {
+  const credential = await signInAnonymously(auth);
+  const guestName = `Tetamu ${credential.user.uid.slice(0, 4).toUpperCase()}`;
+  await updateProfile(credential.user, { displayName: guestName });
+  return ensureUserDocument(credential.user, { displayName: guestName });
 }
 
 export async function getUserData(uid: string): Promise<UserData | null> {

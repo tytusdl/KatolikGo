@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRouter, useNavigation } from 'expo-router';
+import { useState, useLayoutEffect } from 'react';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -50,8 +50,16 @@ const SLIDES: OnboardingSlide[] = [
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { user, markOnboarded } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Root layout uses <Slot /> instead of <Stack />, so this screen has no
+  // parent Stack to inherit header options from. Set them inline so the
+  // native-stack header doesn't appear over the onboarding artwork.
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   const handleNext = async () => {
     if (currentSlide < SLIDES.length - 1) {

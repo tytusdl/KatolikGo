@@ -49,6 +49,18 @@ export interface UserData {
   /** 0–100 percentage. */
   accuracy: number;
   quizzesThisMonth: number;
+  /**
+   * True for Firebase anonymous ("guest") users — `loginAsGuest` flow.
+   * Guest users can play quizzes for the trial experience, but services
+   * gate XP / token awards, token spending, and leaderboard visibility
+   * because their account is device-bound and gets wiped on uninstall.
+   * UI surfaces a banner encouraging them to register / sign in.
+   *
+   * Defaults to `false` for email/password + Google + Apple users. The
+   * field is auto-set from `firebaseUser.isAnonymous` in
+   * `ensureUserDocument`, so callers don't need to pass it explicitly.
+   */
+  isGuest?: boolean;
   createdAt: number;
   updatedAt: number;
 }

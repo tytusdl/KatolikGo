@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/services/authService';
+import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 
 export default function ProfileScreen() {
@@ -42,6 +43,15 @@ export default function ProfileScreen() {
             <Text style={styles.settingsIcon}>⚙</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Guest banner — compact variant to leave room for the rest
+            of the profile content. Renders only for Firebase anonymous
+            users. */}
+        {userData?.isGuest && (
+          <View style={{ paddingHorizontal: Spacing.lg }}>
+            <GuestModeBanner compact />
+          </View>
+        )}
 
         {/* Avatar + Name */}
         <View style={styles.profileSection}>
