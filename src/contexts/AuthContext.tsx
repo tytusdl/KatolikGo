@@ -13,11 +13,13 @@ import {
   onAuthChange,
   getUserData,
   ensureUserDocument,
+  signOut,
 } from '@/services/authService';
 import {
   markOnboarded as persistOnboarded,
   hasOnboarded,
 } from '@/utils/onboarding';
+import { getRememberMe } from '@/utils/rememberMe';
 import type { UserData } from '@/types';
 
 interface AuthContextType {
@@ -146,6 +148,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(firebaseUser);
 
       if (firebaseUser) {
+        // Honor the "Remember Me" choice from the last sign-in. If the
+        // user opted out, sign the restored session out before
+        // touching userData / loading state — that way AuthGate sees
+        // `user === null` on cold start and routes to /login instead
+        // of /home. Reads the flag asynchronously; if it resolves to
+        // `false`, we sign out and let the listener fire again with
+        // `firebaseUser = null` (the unsubscription is still active).
+        const remember = await getRememberMe();
+        if (cancelled) return;
+        if (!remember) {
+          try {
+            await signOut();
+          } catch (err) {
+            console.warn('[Auth] remember-me signOut failed', err);
+          }
+          // Fall through to the null branch on the next listener
+          // invocation. For this call, leave userData null and clear
+          // the loading flags so the UI doesn't sit on a spinner.
+          userRef.current = null;
+          setUser(null);
+          setUserData(null);
+          setUserDataLoading(false);
+          setLoading(false);
+          return;
+        }
+
         // Any time a user is authenticated — fresh sign-in, re-login, or
         // persisted session restored on cold start — make sure the onboarding
         // flag is set so AuthGate won't loop them back to the intro slides.
@@ -161,7 +189,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserData(data);
         } catch (err) {
           console.warn('[Auth] failed to load user data', err);
-          if (!cancelled) setUserData(null);
+          if (cancelled) return;
+          setUserData(null);
         } finally {
           if (cancelled) return;
           setUserDataLoading(false);
@@ -173,7 +202,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     });
-
     return () => {
       cancelled = true;
       unsub();

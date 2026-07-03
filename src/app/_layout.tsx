@@ -1,5 +1,5 @@
 import '../global.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Slot, useRouter, usePathname } from 'expo-router';
 import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -19,10 +19,26 @@ function AuthGate() {
   const router = useRouter();
   const [imageFailed, setImageFailed] = useState(false);
 
+  // Track the user we saw on the previous effect run so we can detect
+  // mid-session sign-in transitions (null → anon, null → registered).
+  // On the very first run after mount, `isFirstRoutingRun` is true —
+  // cold-start session restore looks like a null → non-null flip too,
+  // and we don't want to "kick" the user from /home to /home on mount.
+  const prevUserRef = useRef<typeof user>(null);
+  const isFirstRoutingRun = useRef(true);
+
   useEffect(() => {
     // Wait until auth and onboarding flag have settled so the redirect
     // decision is based on real state, not initial defaults.
     if (loading || userDataLoading || !onboardingChecked) return;
+
+    // Snapshot + advance the prev-state refs up front so they accurately
+    // reflect the previous effect run regardless of which branch we
+    // take below.
+    const prevUser = prevUserRef.current;
+    const firstRun = isFirstRoutingRun.current;
+    isFirstRoutingRun.current = false;
+    prevUserRef.current = user;
 
     // Layout-group parens are stripped from the pathname in expo-router v6,
     // so we can use it directly to decide which screen we're on.
@@ -40,9 +56,41 @@ function AuthGate() {
       return;
     }
 
+    // Mid-session sign-in (register / login / "Terus sebagai Tetamu"):
+    // user went null → non-null while the app was already running, and
+    // they're still sitting on the auth screen where the action happened.
+    // Land them on home regardless of whether `user.isAnonymous` is true
+    // or false — covers both anonymous guest sign-in AND register/login
+    // flips from null user.
+    //
+    // Cold-start persistence restore sees `user` go null → non-null too,
+    // but we ignore those via `firstRun` so a user opening the app on
+    // /home doesn't get a useless redirect from /home to /home.
+    //
+    // Manual navigation from /home → /register for an already-authed
+    // guest does NOT change `user`, so this branch doesn't fire there.
+    const justGotUser =
+      !firstRun && prevUser === null && user !== null && !isOnboarding;
+    if (justGotUser && pathname !== '/') {
+      router.replace('/(tabs)/index');
+      return;
+    }
+
     if (user) {
-      // Authenticated users always go to the main app, regardless of
-      // whether they finished onboarding.
+      if (user.isAnonymous) {
+        // Guest (Firebase anonymous / "Tetamu") — allowed to remain on
+        // /login and /register so they can convert to a registered
+        // account via the banner buttons in GuestModeBanner.
+        // Firebase anonymous users are real `User` objects, so plain
+        // `if (user)` redirects would silently trap them on those
+        // screens without ever rendering the form.
+        //
+        // Post-conversion (their user object flips to non-anonymous),
+        // the registered branch below kicks them to home automatically.
+        return;
+      }
+      // Registered (non-anonymous) users always go to the main app,
+      // regardless of whether they finished onboarding.
       if (inAuthGroup) router.replace('/(tabs)/index');
       return;
     }

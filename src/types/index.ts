@@ -33,6 +33,23 @@ export interface UserData {
   uid: string;
   email: string;
   displayName: string;
+  /**
+   * User-chosen login handle, lowercase, unique across registered users.
+   * Allows signing in with display handle (e.g. `mikael.b`) instead of
+   * the underlying email. Always stored as-is (so the original case
+   * style chosen by the user can be displayed back), but uniqueness
+   * is enforced by querying `username_lowercase` — never `username`
+   * directly. Optional for guest (anonymous) accounts — they don't
+   * pick a username. Optional for legacy accounts created before
+   * the username feature shipped.
+   */
+  username?: string;
+  /**
+   * Lowercase mirror of `username`, used as the Firestore query key
+   * (`where('username_lowercase', '==', input)`). Kept separate so
+   * users can keep their preferred case in the UI.
+   */
+  username_lowercase?: string;
   parishId: string | null;
   parishName: string | null;
   tokens: number;

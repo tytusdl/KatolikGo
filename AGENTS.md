@@ -67,7 +67,11 @@ src/
     onboarding.ts            # markOnboarded(), hasOnboarded()
     misc.utils.ts            # shuffleArray (Fisher-Yates), randomItems, clamp
     anti-cheat.utils.ts      # validateResponseTime / validateSessionTimings, see §Anti-cheat
-scripts/                     # One-off admin / seed scripts (uses firebase-admin)
+scripts/                     # One-off admin / seed scripts
+  admin.mjs                  # Firebase Admin SDK CLI — find-user, delete-user, dump-leaderboard
+  lib/admin-firebase.mjs     # Shared admin SDK init (loads serviceAccountKey.json)
+  seed-quizzes.ts            # Seeds Firestore quizzes (uses client SDK + anonymous sign-in)
+  dump-leaderboard.mjs       # Read-only leaderboard dump via client SDK + anon sign-in (no key needed)
 ```
 
 ---
@@ -95,9 +99,16 @@ The auth state machine is non-obvious. Read `src/contexts/AuthContext.tsx` and `
 - `onAuthChange` callback awaits `getUserData` and `ensureUserDocument`. While that promise is pending, the context exposes `userDataLoading: true`. AuthGate waits on both `loading` and `userDataLoading` before redirecting — this prevents a race where a freshly-signed-in user lands on a tab with `userData: null`.
 - `onboarded` state lives in `AuthContext` (not `_layout.tsx`). The context exposes a `markOnboarded()` action that writes to AsyncStorage AND updates the in-memory state synchronously. AuthGate and `onboarding.tsx` both call this — that's what stops hot logout from looping the user back into the intro slides.
 - Every successful authentication (fresh login, re-login, persisted session restore) calls the context `markOnboarded` action. Idempotent. Combined with the AsyncStorage read on cold start (`onboarded` is read once when AuthContext mounts), this means `hasOnboarded` is `true` for any user who has either finished/skip'd onboarding OR has ever logged in.
-- AuthGate (`src/app/_layout.tsx`) is the only place that calls `router.replace` for auth-driven navigation. Auth screens (`login.tsx`, `register.tsx`) must NOT call `router.replace` after sign-in — they will race with AuthGate. Sign-in handlers should only `await` the auth function and let the context propagate.
+- AuthGate (`src/app/_layout.tsx`) is the canonical owner of auth-driven navigation. The registered sign-in flow (email/password / Google / Apple) lets AuthGate do the redirect: `handleSubmit` only awaits the auth function and lets the context propagate. The guest flow (`handleGuest` in `AuthScreen.tsx`) is the one targeted exception — AuthGate's `if (user.isAnonymous) return` branch intentionally keeps anon users on /login or /register so they can convert via GuestModeBanner, which means AuthGate does NOT auto-redirect after `signInAnonymously` resolves. `handleGuest` navigates explicitly via `router.replace('/(tabs)/index')` after the await. Do not delete that line as part of a generic "auth screens shouldn't navigate" refactor; guests will end up stranded on /login again.
 
 **Persisted password storage was removed.** Earlier versions stored plaintext passwords in AsyncStorage (`saveCredentials` / `getSavedCredentials` / `autoLogin`). All deleted. Do not reintroduce.
+
+## Username + Remember Me
+
+Two features layered on top of the standard email/password flow:
+
+- **Username login.** Registered accounts (`isGuest === false`) pick a unique username (3-20 chars, lowercase letters/numbers/dot/underscore, must start with a letter) at register. Original case is preserved in `users.username` for display; `users.username_lowercase` is the Firestore query key. `loginUser` in `src/services/authService.ts` accepts either an email or a username — `isEmailLike` is the heuristic — and resolves a username to its email via `findEmailByUsername` before calling `signInWithEmailAndPassword`. Validation: `validateUsername(input)`. Uniqueness: `isUsernameTaken(username)` queries the same `where('username_lowercase', '==', n) where('isGuest', '==', false)` path. Add a Firestore single-field index on `username_lowercase` (the default ascent on a new collection usually covers it; verify under Firestore → Indexes if `findEmailByUsername` ever logs a missing-index error).
+- **Remember Me.** Login form checkbox (default `true`) on `AuthScreen`. After a successful email/password sign-in, `setRememberMe(rememberMe)` writes `'true'|'false'` to AsyncStorage under `katolikgo.remember_me`. AuthContext's `onAuthChange` callback reads that flag on cold start; if it's `false`, it signs the restored session out before `setUserData(...)` runs, so AuthGate sees `user === null` and routes to `/login`. Switching Firebase's persistence mode at runtime (`reactNativeLocalPersistence` ⇄ `inMemoryPersistence`) would also work but requires recreating the auth instance — this one-shot sign-out gets the same UX without that cost.
 
 ---
 
@@ -287,6 +298,52 @@ Default Expo Metro config (no `metro.config.js`) handles `.ttf` as an asset. Do 
 
 ---
 
+## Admin tooling (`scripts/admin.mjs`)
+
+For one-off operations the app can't do via Firestore rules — `delete-user`, `find-user` by partial name, raw `dump-leaderboard` with admin stats — there's a Firebase Admin SDK CLI at `scripts/admin.mjs`. **Bypasses rules** (uses admin credentials) so destructive ops work.
+
+**Setup (one-time) — pick a path:**
+
+> **PATH A — service account JSON** (if your Org Policy allows it)
+> 1. Firebase Console → Project Settings → **Service Accounts** → "Generate new private key".
+> 2. Save the downloaded JSON as `serviceAccountKey.json` at the project root. Already in `.gitignore` (along with `*firebase-adminsdk*.json`).
+> 3. (Optional) override path via `FIREBASE_ADMIN_KEY_PATH=<path>` or `GOOGLE_APPLICATION_CREDENTIALS=<path>`.
+
+> **PATH B — gcloud ADC** (works under any Org Policy, including ones that block service-account key creation)
+> 1. Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install-windows
+> 2. `gcloud init` — login dengan Google account, pilih project `katolikgo-mobile`.
+> 3. `gcloud auth application-default login` — OAuth browser login untuk ADC file.
+> 4. Run any subcommand. Script auto-detects the ADC file at `%APPDATA%\gcloud\application_default_credentials.json`.
+
+`scripts/lib/admin-firebase.mjs` searches in this order:
+1. `FIREBASE_ADMIN_KEY_PATH` env var → service account JSON.
+2. `./serviceAccountKey.json` (project root) → service account JSON.
+3. `GOOGLE_APPLICATION_CREDENTIALS` env var → any credential JSON (service_account OR gcloud authorized_user).
+4. `%APPDATA%\gcloud\application_default_credentials.json` → gcloud ADC file.
+
+If none of those exist, the script throws a friendly error listing all four paths.
+
+**Subcommands:**
+| Command | What it does |
+|---|---|
+| `node scripts/admin.mjs find-user <query>` | Searches `users` by uid / email / displayName / username (case-insensitive substring). Direct uid lookup if the query looks like one (≥20 alnum chars). |
+| `node scripts/admin.mjs delete-user <uid> [--yes] [--dry-run]` | Deletes the Firestore doc **and** the Firebase Auth account. Refuses without `--yes`. Use `--dry-run` to preview. |
+| `node scripts/admin.mjs dump-leaderboard [--limit N]` | Top N by `totalXP` (default 50). Mirrors `filterAndRank` from `leaderboardService.ts` — registered users ranked, guest rows shown separately for awareness. |
+
+**Why firebase-admin and not the client SDK?** The Firestore rules in this repo only allow `read / create / update` on `users/{uid}` for the document owner — there's **no `delete` rule**, so even the user themselves can't remove their own doc via the app. The Console uses admin SDK under the hood, which is what we're replicating here.
+
+**Org Policy trap ("Key creation is not allowed on this service account").** Some Google Workspace / Org-managed accounts disable service-account key creation via the `iam.disableServiceAccountKeyCreation` constraint. If the Console's "Generate new private key" button fails with that error, switch to PATH B (gcloud ADC) — it uses your own user OAuth identity, no service-account key involved.
+
+**Order of operations for `delete-user`:** Firestore doc first (so the next session-read doesn't see a half-deleted user), then Firebase Auth. If Auth delete fails, Firestore is already gone — orphan Auth users are inert and can be retried later.
+
+**`find-user` is a top-200 XP scan**, not an indexed query. Fine while the user base is small; switch to composite queries (`where` + `orderBy`) when this scales past a few hundred users.
+
+**Adding a new admin subcommand:** add a new `case` in `scripts/admin.mjs`'s `switch` and a helper alongside `findUser` / `deleteUser` / `dumpLeaderboard`. Reuse `db`, `auth`, `projectId` from `lib/admin-firebase.mjs` — they handle init / credential loading for you.
+
+`dump-leaderboard.mjs` (the original, no admin access) still exists for quick read-only checks that don't require admin auth — uses client SDK + anonymous sign-in. Keep both.
+
+---
+
 ## Environment / tooling notes
 
 - Windows shell is PowerShell. Use `;` not `&&`, `Get-ChildItem` not `ls`, `Select-String` not `grep`. No `head` / `tail` / `wc`.
@@ -315,6 +372,8 @@ Default Expo Metro config (no `metro.config.js`) handles `.ttf` as an asset. Do 
 | 2026-07-02 | Added `authService.loginAsGuest()` (Firebase Anonymous Auth) + `socialAuthService.signInWithApple()` (iOS-only via `expo-apple-authentication`) | Unlocks the "Terus sebagai Tetamu" flow and Apple Sign-In button on the new auth screen. Apple module is lazy-loaded so Android bundles don't pull in the iOS-only native code |
 | 2026-07-02 | Removed Facebook from `(auth)` UI entirely | User-facing decision: only Google + Apple + Guest + email/password. `socialAuthService.useFacebookAuthRequest` / `signInWithFacebook` are still in the service so the integration can be re-enabled later without re-deriving the flow |
 | 2026-07-02 | Guest mode restrictions + UX nudge — `UserData.isGuest` (auto-derived from `firebaseUser.isAnonymous`); `submitLevelCompletion` returns 0 XP/tokens; `spendToken` throws `GUEST_SPEND_BLOCKED`; leaderboard queries strip guest rows via `filterAndRank`; `GuestModeBanner` renders on Home (full) + Profile (compact); `useGuestGuard` hook + friendly Alert with Daftar / Log Masuk / Batal wraps gated actions in `quiz/[level].tsx`; result screen shows a "Skor ini tidak disimpan" nudge for guest finishes | Firebase anonymous accounts are device-bound and wiped on uninstall, so XP/tokens/leaderboard would otherwise be polluted with throwaway data. The banner + modal nudge pushes guest users toward converting to a real account instead of silently losing progress |
+| 2026-07-03 | Added admin tooling (`scripts/admin.mjs` + `lib/admin-firebase.mjs`) — Firebase Admin SDK CLI with `find-user`, `delete-user`, `dump-leaderboard` subcommands; service account key gitignored (`serviceAccountKey.json`, `*firebase-adminsdk*.json`); documented in AGENTS.md | Firestore rules don't allow `delete` on `users/{uid}`, so the app can't remove accounts — needed admin SDK path for ops like cleaning up test accounts. `dump-leaderboard.mjs` (client SDK + anon sign-in) kept as the no-key-needed read-only alternative |
+| 2026-07-03 | `lib/admin-firebase.mjs` now supports both service-account JSON AND gcloud Application Default Credentials (auto-detected). Four-path search: `FIREBASE_ADMIN_KEY_PATH` → `./serviceAccountKey.json` → `GOOGLE_APPLICATION_CREDENTIALS` → `%APPDATA%\gcloud\application_default_credentials.json`. Friendly "tiada credentials" error when none of the four exist | Org Policy `iam.disableServiceAccountKeyCreation` blocks service-account key generation on Workspace-managed accounts. ADC via gcloud bypasses it — uses the user's own OAuth identity instead of a downloaded key. Org Policy trap documented in AGENTS.md "Admin tooling" section |
 
 ---
 
@@ -323,7 +382,7 @@ Default Expo Metro config (no `metro.config.js`) handles `.ttf` as an asset. Do 
 - The placeholders `streakDays`, `levelsCompleted`, `friendsCount`, `accuracy`, `quizzesThisMonth` are zeroed. Wiring real values is a feature, not a bug fix.
 - Facebook login is **intentionally disabled**. `FACEBOOK_APP_ID` is read from `EXPO_PUBLIC_FACEBOOK_APP_ID` env var; if empty, the Facebook button is disabled at runtime. Do not "fix" the placeholder strings.
 - Firestore security rules are not in this repo. Assume they need review but do not change app code based on guesses about them.
-- `seed-quizzes.ts` script under `scripts/` uses `firebase-admin` — runs outside the app. Do not auto-run during normal dev.
+- `seed-quizzes.ts` script under `scripts/` writes directly to Firestore using the client SDK + anonymous sign-in — runs outside the app. Do not auto-run during normal dev.
 
 ---
 

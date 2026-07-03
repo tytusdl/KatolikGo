@@ -433,7 +433,7 @@ export default function QuizPlayScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 24 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 200 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Question card */}
@@ -555,111 +555,21 @@ export default function QuizPlayScreen() {
         )}
       </ScrollView>
 
-      {/* Bottom action bar */}
-      <View style={[styles.actionBarWrap, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-        <LinearGradient
-          colors={[BRAND.actionOrange, BRAND.actionOrangeDeep]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.actionBar}
-        >
+      {/* Bottom area — sticky footer with the "Seterusnya" button on top
+          (only after the player answers) and the powerup action bar
+          always at the very bottom. Both are in normal column flow so
+          there's no absolute-positioning overlap or tap-through — the
+          previous absolute layout let the Seterusnya container's
+          transparent corners catch on the action bar below and trigger
+          a powerup instead. */}
+      <View style={[styles.bottomArea, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        {selectedAnswer !== null && (
           <TouchableOpacity
-            style={styles.actionItem}
-            onPress={handleFiftyFifty}
-            disabled={fiftyFiftyUsed || selectedAnswer !== null}
-            activeOpacity={0.85}
+            style={styles.nextButton}
+            onPress={handleNext}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <View style={[styles.actionIcon, fiftyFiftyUsed && styles.actionIconDisabled]}>
-              <Ionicons
-                name="grid-outline"
-                size={22}
-                color={fiftyFiftyUsed ? '#bda9d4' : '#fff'}
-              />
-            </View>
-            <Text style={[styles.actionLabel, fiftyFiftyUsed && styles.actionLabelDisabled]}>
-              50:50
-            </Text>
-            <Text style={[styles.actionSub, fiftyFiftyUsed && styles.actionLabelDisabled]}>
-              {fiftyFiftyUsed ? 'USED' : `${FIFTY_FIFTY_COST} TOKEN`}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionItem}
-            onPress={handleHint}
-            disabled={hintUsed || selectedAnswer !== null}
-            activeOpacity={0.85}
-          >
-            <View style={[styles.actionIcon, hintUsed && styles.actionIconDisabled]}>
-              <Ionicons
-                name="bulb-outline"
-                size={22}
-                color={hintUsed ? '#bda9d4' : '#fff'}
-              />
-            </View>
-            <Text style={[styles.actionLabel, hintUsed && styles.actionLabelDisabled]}>
-              HINT
-            </Text>
-            <Text style={[styles.actionSub, hintUsed && styles.actionLabelDisabled]}>
-              {hintUsed ? 'USED' : `${HINT_COST} TOKEN`}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionItem} activeOpacity={0.85} disabled>
-            <View style={[styles.actionIcon, styles.actionIconDisabled]}>
-              <Ionicons name="add-circle-outline" size={22} color="#bda9d4" />
-            </View>
-            <Text style={[styles.actionLabel, styles.actionLabelDisabled]}>BUY MORE</Text>
-            <Text style={[styles.actionSub, styles.actionLabelDisabled]}>SOON</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionItem}
-            onPress={skipUsed || freePassUsed ? undefined : handleFreePass}
-            disabled={selectedAnswer !== null || freePassUsed}
-            activeOpacity={0.85}
-          >
-            <View
-              style={[
-                styles.actionIcon,
-                (freePassUsed || skipUsed) && styles.actionIconDisabled,
-              ]}
-            >
-              <Ionicons
-                name="play-forward"
-                size={22}
-                color={freePassUsed || skipUsed ? '#bda9d4' : '#fff'}
-              />
-            </View>
-            <Text
-              style={[
-                styles.actionLabel,
-                (freePassUsed || skipUsed) && styles.actionLabelDisabled,
-              ]}
-            >
-              SKIP
-            </Text>
-            <Text
-              style={[
-                styles.actionSub,
-                (freePassUsed || skipUsed) && styles.actionLabelDisabled,
-              ]}
-            >
-              {freePassUsed || skipUsed ? 'USED' : 'FREE'}
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient>
-      </View>
-
-      {/* Sticky "Next" button after answering */}
-      {selectedAnswer !== null && (
-        <View
-          style={[
-            styles.nextButtonContainer,
-            { bottom: Math.max(insets.bottom, 12) + 84 },
-          ]}
-        >
-          <TouchableOpacity style={styles.nextButton} onPress={handleNext} activeOpacity={0.85}>
             <Text style={styles.nextButtonText}>
               {currentQuestion < quiz.questions.length - 1
                 ? 'Seterusnya'
@@ -672,8 +582,106 @@ export default function QuizPlayScreen() {
               style={{ marginLeft: 8 }}
             />
           </TouchableOpacity>
+        )}
+
+        <View style={styles.actionBarWrap}>
+          <LinearGradient
+            colors={[BRAND.actionOrange, BRAND.actionOrangeDeep]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.actionBar}
+          >
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleFiftyFifty}
+              disabled={fiftyFiftyUsed || selectedAnswer !== null}
+              activeOpacity={0.6}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+            >
+              <View style={[styles.actionIcon, fiftyFiftyUsed && styles.actionIconDisabled]}>
+                <Ionicons
+                  name="grid-outline"
+                  size={22}
+                  color={fiftyFiftyUsed ? '#bda9d4' : '#fff'}
+                />
+              </View>
+              <Text style={[styles.actionLabel, fiftyFiftyUsed && styles.actionLabelDisabled]}>
+                50:50
+              </Text>
+              <Text style={[styles.actionSub, fiftyFiftyUsed && styles.actionLabelDisabled]}>
+                {fiftyFiftyUsed ? 'USED' : `${FIFTY_FIFTY_COST} TOKEN`}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={handleHint}
+              disabled={hintUsed || selectedAnswer !== null}
+              activeOpacity={0.6}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+            >
+              <View style={[styles.actionIcon, hintUsed && styles.actionIconDisabled]}>
+                <Ionicons
+                  name="bulb-outline"
+                  size={22}
+                  color={hintUsed ? '#bda9d4' : '#fff'}
+                />
+              </View>
+              <Text style={[styles.actionLabel, hintUsed && styles.actionLabelDisabled]}>
+                HINT
+              </Text>
+              <Text style={[styles.actionSub, hintUsed && styles.actionLabelDisabled]}>
+                {hintUsed ? 'USED' : `${HINT_COST} TOKEN`}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionItem} activeOpacity={0.6} disabled>
+              <View style={[styles.actionIcon, styles.actionIconDisabled]}>
+                <Ionicons name="add-circle-outline" size={22} color="#bda9d4" />
+              </View>
+              <Text style={[styles.actionLabel, styles.actionLabelDisabled]}>BUY MORE</Text>
+              <Text style={[styles.actionSub, styles.actionLabelDisabled]}>SOON</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionItem}
+              onPress={skipUsed || freePassUsed ? undefined : handleFreePass}
+              disabled={selectedAnswer !== null || freePassUsed}
+              activeOpacity={0.6}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+            >
+              <View
+                style={[
+                  styles.actionIcon,
+                  (freePassUsed || skipUsed) && styles.actionIconDisabled,
+                ]}
+              >
+                <Ionicons
+                  name="play-forward"
+                  size={22}
+                  color={freePassUsed || skipUsed ? '#bda9d4' : '#fff'}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.actionLabel,
+                  (freePassUsed || skipUsed) && styles.actionLabelDisabled,
+                ]}
+              >
+                SKIP
+              </Text>
+              <Text
+                style={[
+                  styles.actionSub,
+                  (freePassUsed || skipUsed) && styles.actionLabelDisabled,
+                ]}
+              >
+                {freePassUsed || skipUsed ? 'USED' : 'FREE'}
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
-      )}
+      </View>
     </LinearGradient>
   );
 }
@@ -876,10 +884,15 @@ const styles = StyleSheet.create({
     color: BRAND.textBody,
   },
 
+  // Bottom area (sticky footer holding "Seterusnya" above the action bar)
+  bottomArea: {
+    paddingHorizontal: 18,
+    paddingTop: 8,
+  },
   // Action bar (bottom)
   actionBarWrap: {
-    paddingHorizontal: 14,
-    paddingTop: 6,
+    paddingHorizontal: 0,
+    paddingTop: 8,
   },
   actionBar: {
     flexDirection: 'row',
@@ -902,7 +915,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.22)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
@@ -926,12 +939,8 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.45)',
   },
 
-  // Next button
-  nextButtonContainer: {
-    position: 'absolute',
-    left: 18,
-    right: 18,
-  },
+  // "Seterusnya" / "Hantar Jawapan" button (sits above the action bar
+  // when an answer is selected)
   nextButton: {
     flexDirection: 'row',
     backgroundColor: '#1f2347',
@@ -939,6 +948,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 4,
     shadowColor: '#000',
     shadowOpacity: 0.25,
     shadowOffset: { width: 0, height: 6 },

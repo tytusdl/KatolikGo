@@ -3,9 +3,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
-import { TOTAL_LEVELS, CATEGORY_LABELS } from '@/types';
+import { TOTAL_LEVELS } from '@/types';
 import { QUESTIONS_STATS } from '@/services/quizService';
-import type { Difficulty, QuizCategory } from '@/types';
+import type { Difficulty } from '@/types';
 import { useState } from 'react';
 
 type GameMode = {
@@ -45,14 +45,6 @@ const GAME_MODES: GameMode[] = [
   },
 ];
 
-const CATEGORIES: { id: QuizCategory; emoji: string; color: string; bg: string }[] = [
-  { id: 'old_testament', emoji: '📜', color: '#92400E', bg: '#FEF3C7' },
-  { id: 'new_testament', emoji: '✝️', color: '#1E40AF', bg: '#DBEAFE' },
-  { id: 'ccc', emoji: '📖', color: '#15803D', bg: '#D1FAE5' },
-  { id: 'sacraments', emoji: '⛪', color: '#7E22CE', bg: '#FCE7F3' },
-  { id: 'liturgy', emoji: '🕯️', color: '#B45309', bg: '#FED7AA' },
-];
-
 export default function QuizScreen() {
   const { userData, loading } = useAuth();
   const router = useRouter();
@@ -71,10 +63,6 @@ export default function QuizScreen() {
     if (level <= unlockedLevel) {
       router.push(`/quiz/${level}` as any);
     }
-  };
-
-  const handleCategoryPress = (category: QuizCategory) => {
-    Alert.alert(CATEGORY_LABELS[category], 'Memuatkan soalan...');
   };
 
   if (loading && !userData) {
@@ -215,25 +203,13 @@ export default function QuizScreen() {
           </View>
         )}
 
-        {/* Categories */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Topik Pantas</Text>
-          <Text style={styles.sectionSubtitle}>Main ikut topik</Text>
-        </View>
-
-        <View style={styles.categoriesGrid}>
-          {CATEGORIES.map((cat) => (
-            <TouchableOpacity
-              key={cat.id}
-              style={[styles.categoryCard, { backgroundColor: cat.bg }]}
-              onPress={() => handleCategoryPress(cat.id)}
-            >
-              <Text style={styles.categoryEmoji}>{cat.emoji}</Text>
-              <Text style={[styles.categoryTitle, { color: cat.color }]}>
-                {CATEGORY_LABELS[cat.id]}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* Topik Pantas removed — game mode (Mod Permainan) already
+            covers all unlocked levels. Placeholder reserves the slot in
+            case a topic-based quick-play gets added back later. */}
+        <View style={styles.placeholderBox}>
+          <Text style={styles.placeholderEmoji}>🎯</Text>
+          <Text style={styles.placeholderTitle}>Mod Topik</Text>
+          <Text style={styles.placeholderHint}>Akan ditambah tidak lama lagi</Text>
         </View>
 
         {/* Daily Challenge */}
@@ -323,6 +299,35 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.light.textSecondary,
     marginTop: 2,
+  },
+
+  // Placeholder box (reserved slot for "Topik Pantas" — currently unused)
+  placeholderBox: {
+    backgroundColor: Colors.light.surfaceAlt,
+    borderWidth: 1.5,
+    borderColor: Colors.light.border,
+    borderStyle: 'dashed',
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  placeholderEmoji: {
+    fontSize: 28,
+    marginBottom: Spacing.xs,
+    opacity: 0.6,
+  },
+  placeholderTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.light.textSecondary,
+  },
+  placeholderHint: {
+    fontSize: FontSize.xs,
+    color: Colors.light.textSecondary,
+    marginTop: 2,
+    opacity: 0.8,
   },
   
   // Game Modes
@@ -497,27 +502,7 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
   },
-  
-  // Categories Grid
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
-  },
-  categoryCard: {
-    width: '48%',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-  },
-  categoryEmoji: { fontSize: 28, marginBottom: Spacing.xs },
-  categoryTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  
+
   // Daily Challenge
   dailyCard: {
     flexDirection: 'row',

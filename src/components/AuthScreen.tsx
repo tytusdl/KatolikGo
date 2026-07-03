@@ -27,7 +27,10 @@ import {
   registerUser,
   loginAsGuest,
   friendlyAuthError,
+  UsernameTakenError,
+  validateUsername,
 } from '@/services/authService';
+import { setRememberMe as persistRememberMe } from '@/utils/rememberMe';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -67,7 +70,13 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  // "Remember Me" only applies to the login flow. Default true so
+  // existing users keep their persistent session; unchecking writes
+  // `false` to AsyncStorage after a successful sign-in and the
+  // AuthContext restores-by-then-signs-out the next cold start.
+  const [rememberMe, setRememberMe] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [socialLoading, setSocialLoading] = useState<
     'google' | 'apple' | 'guest' | null
@@ -75,23 +84,30 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
 
   const [googleRequest, , googlePromptAsync] = useGoogleAuthRequest();
 
-  // Safety net mirroring the old login.tsx/register.tsx — AuthGate in
-  // _layout.tsx is the canonical redirect, but if for any reason it
-  // misses the post-login flip while this screen is mounted, fall back
-  // to an explicit replace. Same target as AuthGate, so no race.
+  // Safety net mirroring AuthGate in `_layout.tsx` — that gate is the
+  // canonical redirect, but if for any reason it misses the post-login
+  // flip while this screen is mounted, fall back to an explicit replace.
+  // Same target as AuthGate, so no race.
+  //
+  // Anonymous ("Tetamu") users are excluded from this redirect so they
+  // can reach /login or /register to convert — Firebase anonymous users
+  // are real User objects, so a plain `if (user)` check would yank
+  // them back to home before they ever see the form.
   useEffect(() => {
-    if (user) router.replace('/(tabs)/index');
+    if (user && !user.isAnonymous) {
+      router.replace('/(tabs)/index');
+    }
   }, [user, router]);
 
   const isRegister = tab === 'register';
 
   const handleSubmit = async () => {
-    if (!email || !password || (isRegister && !displayName)) {
+    if (!email || !password || (isRegister && (!displayName || !username))) {
       Alert.alert(
         'Ralat',
         isRegister
           ? 'Sila isi semua medan.'
-          : 'Sila isi emel dan kata laluan.'
+          : 'Sila isi emel (atau nama pengguna) dan kata laluan.'
       );
       return;
     }
@@ -99,16 +115,42 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
       Alert.alert('Ralat', 'Kata laluan mesti sekurang-kurangnya 6 aksara.');
       return;
     }
+    if (isRegister) {
+      // Validate before hitting the network — keeps the round-trip
+      // pattern-matching-friendly for the user and surfaces a precise
+      // Malay message instead of the generic "Gagal Daftar".
+      const usernameCheck = validateUsername(username);
+      if (!usernameCheck.valid) {
+        Alert.alert('Nama Pengguna', usernameCheck.error);
+        return;
+      }
+    }
     setSubmitting(true);
     try {
       if (isRegister) {
-        await registerUser(email, password, displayName.trim());
+        await registerUser(
+          email.trim(),
+          password,
+          displayName.trim(),
+          username.trim()
+        );
       } else {
-        await loginUser(email, password);
+        await loginUser(email.trim(), password);
+        // Persist the "Remember Me" choice so cold-start can honor it.
+        // Only meaningful on the login flow — register always implies
+        // "yes, remember me" because the user explicitly opted in by
+        // creating an account on this device.
+        await persistRememberMe(rememberMe);
       }
       // AuthGate observes the Firebase auth flip and redirects.
     } catch (error) {
       console.warn(`[auth] ${tab} failed`, error);
+      // Surface the username-taken case specifically — the generic
+      // AuthError mapping wouldn't know to escalate this one.
+      if (error instanceof UsernameTakenError) {
+        Alert.alert('Nama Pengguna', error.message);
+        return;
+      }
       Alert.alert(
         isRegister ? 'Gagal Daftar' : 'Gagal Log Masuk',
         friendlyAuthError(error)
@@ -169,6 +211,15 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
     setSocialLoading('guest');
     try {
       await loginAsGuest();
+      // AuthGate's `if (user.isAnonymous) return` branch intentionally
+      // lets anon ("Tetamu") users roam /login and /register so they
+      // can convert via the GuestModeBanner — that same branch means
+      // AuthGate doesn't auto-redirect us home after `signInAnonymously`
+      // resolves. So we navigate explicitly here. (Email/password
+      // flows in `handleSubmit` are handled by AuthGate's justGotUser
+      // branch + the registered-kick below; only the guest path needs
+      // this targeted exception.)
+      router.replace('/(tabs)/index');
     } catch (error) {
       Alert.alert('Gagal', friendlyAuthError(error));
     } finally {
@@ -240,31 +291,57 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
           {/* Form */}
           <View style={styles.form}>
             {isRegister && (
-              <View style={styles.field}>
-                <Text style={styles.label}>NAMA PENUH</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nama anda"
-                  placeholderTextColor="rgba(255,255,255,0.35)"
-                  value={displayName}
-                  onChangeText={setDisplayName}
-                  autoCapitalize="words"
-                  autoComplete="name"
-                />
-              </View>
+              <>
+                <View style={styles.field}>
+                  <Text style={styles.label}>NAMA PENUH</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Nama anda"
+                    placeholderTextColor="rgba(255,255,255,0.35)"
+                    value={displayName}
+                    onChangeText={setDisplayName}
+                    autoCapitalize="words"
+                    autoComplete="name"
+                  />
+                </View>
+
+                <View style={styles.field}>
+                  <Text style={styles.label}>NAMA PENGGUNA</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="mikael.b (3-20 aksara)"
+                    placeholderTextColor="rgba(255,255,255,0.35)"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    autoComplete="username"
+                  />
+                  <Text style={styles.fieldHint}>
+                    Huruf pertama mestilah huruf. Hanya huruf, nombor, titik, underscore.
+                  </Text>
+                </View>
+              </>
             )}
 
             <View style={styles.field}>
-              <Text style={styles.label}>E-MEL</Text>
+              <Text style={styles.label}>
+                {isRegister ? 'E-MEL' : 'E-MEL ATAU NAMA PENGGUNA'}
+              </Text>
               <TextInput
                 style={styles.input}
-                placeholder="contoh@emel.com"
+                placeholder={
+                  isRegister
+                    ? 'contoh@emel.com'
+                    : 'contoh@emel.com atau nama pengguna'
+                }
                 placeholderTextColor="rgba(255,255,255,0.35)"
                 value={email}
                 onChangeText={setEmail}
-                keyboardType="email-address"
+                keyboardType={isRegister ? 'email-address' : 'default'}
                 autoCapitalize="none"
-                autoComplete="email"
+                autoCorrect={false}
+                autoComplete={isRegister ? 'email' : 'username'}
               />
             </View>
 
@@ -296,6 +373,35 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
                 </Pressable>
               </View>
             </View>
+
+            {/* Remember Me — login only. Default checked so existing
+                users keep their persistent session; unchecking writes
+                `false` to AsyncStorage after sign-in and the next cold
+                start signs them out. */}
+            {!isRegister && (
+              <Pressable
+                style={styles.rememberRow}
+                onPress={() => setRememberMe(v => !v)}
+                hitSlop={8}
+                android_ripple={{ color: 'transparent' }}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: rememberMe }}
+              >
+                <View
+                  style={[
+                    styles.rememberCheckbox,
+                    rememberMe && styles.rememberCheckboxChecked,
+                  ]}
+                >
+                  {rememberMe && (
+                    <Ionicons name="checkmark" size={14} color="#0e2a4d" />
+                  )}
+                </View>
+                <Text style={styles.rememberLabel}>
+                  Ingat saya (kekal log masuk selepas tutup aplikasi)
+                </Text>
+              </Pressable>
+            )}
           </View>
 
           {/* Submit */}
@@ -454,6 +560,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: Spacing.xs + 2,
   },
+  fieldHint: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.45)',
+    marginTop: 6,
+    lineHeight: 14,
+  },
   input: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: BorderRadius.md,
@@ -461,6 +573,35 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: FontSize.md,
     color: Colors.white,
+  },
+
+  // Remember Me row (login only)
+  rememberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  rememberCheckbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.55)',
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rememberCheckboxChecked: {
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
+  },
+  rememberLabel: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: FontSize.sm,
+    fontWeight: '500',
+    flex: 1,
   },
   passwordRow: {
     flexDirection: 'row',
