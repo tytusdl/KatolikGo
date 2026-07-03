@@ -18,8 +18,9 @@ WebBrowser.maybeCompleteAuthSession();
 
 // Google: Web Client ID from Google Cloud Console.
 // https://console.cloud.google.com/apis/credentials
+// Read from EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID so rotating it doesn't require a binary update.
 const GOOGLE_WEB_CLIENT_ID =
-  '615054372997-mrprnf461bkdfbq2guh5lb8ossas1972.apps.googleusercontent.com';
+  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
 
 // Facebook App ID. Read from EXPO_PUBLIC_FACEBOOK_APP_ID so the placeholder
 // never ships to prod. Leave empty to disable Facebook entirely.

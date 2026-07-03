@@ -1,7 +1,7 @@
 /**
  * Standalone Quiz Seeding Script
  * Run with: node scripts/seedStandalone.js
- * 
+ *
  * Uses Firebase REST API (no service account needed)
  */
 
@@ -56,7 +56,7 @@ async function firestoreRequest(method, url, body = null) {
 async function deleteDocument(collection, docId) {
   try {
     await firestoreRequest('DELETE', `${BASE_URL}/${collection}/${docId}`);
-  } catch (e) {
+  } catch (_) {
     // Ignore not found
   }
 }
@@ -94,7 +94,7 @@ async function listDocuments(collection) {
   try {
     const result = await firestoreRequest('GET', `${BASE_URL}/${collection}`);
     return result.documents || [];
-  } catch (e) {
+  } catch (_) {
     return [];
   }
 }

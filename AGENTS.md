@@ -71,6 +71,7 @@ scripts/                     # One-off admin / seed scripts
   admin.mjs                  # Firebase Admin SDK CLI — find-user, delete-user, dump-leaderboard
   lib/admin-firebase.mjs     # Shared admin SDK init (loads serviceAccountKey.json)
   seed-quizzes.ts            # Seeds Firestore quizzes (uses client SDK + anonymous sign-in)
+  seedStandalone.js          # Seeds quizzes via REST API (no admin key needed)
   dump-leaderboard.mjs       # Read-only leaderboard dump via client SDK + anon sign-in (no key needed)
 ```
 
@@ -198,16 +199,17 @@ The `UserData.createdAt: number` type is a lie. Actually:
 
 If you add age-based logic (e.g. "user is 7 days old"), convert explicitly: `userData.createdAt?.toMillis?.() ?? Date.now()`. Same for `updatedAt`. The `Transaction` type in `types/index.ts` says `createdAt: number` but the actual value is a Timestamp — same caveat.
 
-### Hardcoded secrets
+### Hardcoded secrets — migrated to `.env` (2026-07-03)
 
-`src/services/socialAuthService.ts` line ~21 has the Google **web** client ID hardcoded:
+All config values previously hardcoded in source files are now read from environment variables via `process.env.EXPO_PUBLIC_*`. This makes rotation possible without a binary update and keeps secrets out of git history.
 
-```ts
-const GOOGLE_WEB_CLIENT_ID =
-  '615054372997-mrprnf461bkdfbq2guh5lb8ossas1972.apps.googleusercontent.com';
-```
+**Firebase config** (`src/config/firebase.ts`): `EXPO_PUBLIC_FIREBASE_API_KEY`, `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`, `EXPO_PUBLIC_FIREBASE_PROJECT_ID`, `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`, `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `EXPO_PUBLIC_FIREBASE_APP_ID`, `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID`.
 
-Android/iOS client IDs are correctly read from env vars (`EXPO_PUBLIC_GOOGLE_*_CLIENT_ID`). For consistency — and so rotating it doesn't require a binary update — move the web client ID to `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` and read via `process.env`. Not a credential leak (OAuth client IDs are public identifiers), but a code-hygiene smell. Worth fixing the next time you touch the social auth flow.
+**Google OAuth** (`src/services/socialAuthService.ts`): `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` (web), `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`.
+
+**Facebook OAuth**: `EXPO_PUBLIC_FACEBOOK_APP_ID`.
+
+All variables are defined in `.env` (gitignored) with placeholder template in `.env.example` (committed). Expo automatically injects `EXPO_PUBLIC_*` variables at build time — no extra config needed.
 
 ### Things services should NOT do
 
