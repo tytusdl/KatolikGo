@@ -1,19 +1,22 @@
 import { View, Text, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams, Link } from 'expo-router';
+import { useLocalSearchParams, Link, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function QuizResultScreen() {
-  const { level, score, tokens, unlocked } = useLocalSearchParams<{
+  const { level, score, tokens, unlocked, livesExhausted } = useLocalSearchParams<{
     level: string;
     score: string;
     tokens: string;
     unlocked: string;
+    livesExhausted?: string;
   }>();
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
   const isGuest = userData?.isGuest === true;
+  const livesFlippedToZero = livesExhausted === 'true';
 
   const scoreNum = parseInt(score || '0', 10);
   const tokensNum = parseInt(tokens || '0', 10);
@@ -133,14 +136,49 @@ export default function QuizResultScreen() {
           </View>
         )}
 
+        {/* Lives-exhausted nudge: shown when the quiz ended because
+            lives hit 0 mid-session. Explains why they can't continue
+            (no more "Tahap Seterusnya" button) and routes them to the
+            refill modal. Rendered above the action buttons. */}
+        {livesFlippedToZero && (
+          <View style={styles.livesNudge}>
+            <View style={styles.livesNudgeHeader}>
+              <Ionicons name="heart-dislike" size={18} color={Colors.error} />
+              <Text style={styles.livesNudgeTitle}>Nyawa Anda Sudah Habis</Text>
+            </View>
+            <Text style={styles.livesNudgeText}>
+              Kuiz ini ditamatkan awal kerana nyawa anda habis. Isi semula untuk terus bermain.
+            </Text>
+            <TouchableOpacity
+              style={styles.livesNudgeButton}
+              onPress={() => router.push('/quiz/lives-empty')}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.livesNudgeButtonText}>Isi Semula Nyawa</Text>
+              <Ionicons name="arrow-forward" size={14} color="#fff" style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Buttons */}
         <View style={styles.actions}>
-          {unlockedBool || isPassed ? (
+          {/* Hide "Tahap Seterusnya" when lives are exhausted — the
+              player physically can't start the next quiz. Show only
+              "Kembali ke Kuiz" so they can browse without an implicit
+              promise they can keep playing. */}
+          {unlockedBool && !livesFlippedToZero ? (
             <Link href="/(tabs)/quiz" asChild>
               <TouchableOpacity style={styles.primaryButton}>
                 <Text style={styles.primaryButtonText}>
-                  {unlockedBool ? `Tahap ${levelNum + 1} →` : 'Tahap Seterusnya →'}
+                  {`Tahap ${levelNum + 1} →`}
                 </Text>
+              </TouchableOpacity>
+            </Link>
+          ) : null}
+          {isPassed && !unlockedBool && !livesFlippedToZero ? (
+            <Link href="/(tabs)/quiz" asChild>
+              <TouchableOpacity style={styles.primaryButton}>
+                <Text style={styles.primaryButtonText}>Tahap Seterusnya →</Text>
               </TouchableOpacity>
             </Link>
           ) : null}
@@ -371,6 +409,53 @@ const styles = StyleSheet.create({
   },
   guestNudgeSecondaryText: {
     color: Colors.accent,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+  },
+
+  // Lives-exhausted nudge (mirrors guestNudge shape but for the
+  // lives system). Red-tinted to differentiate from the
+  // amber-accent guest nudge so the player doesn't confuse the two.
+  livesNudge: {
+    width: '100%',
+    backgroundColor: '#FEE2E2',
+    borderColor: Colors.error,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    alignItems: 'center',
+  },
+  livesNudgeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  livesNudgeTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.error,
+    marginLeft: 4,
+  },
+  livesNudgeText: {
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+    lineHeight: 19,
+  },
+  livesNudgeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.error,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
+  },
+  livesNudgeButtonText: {
+    color: '#fff',
     fontSize: FontSize.sm,
     fontWeight: '700',
   },

@@ -1,13 +1,16 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/services/authService';
 import { GuestModeBanner } from '@/components/GuestModeBanner';
+import { LivesIndicator, openLivesExhaustedModal } from '@/components/LivesIndicator';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 
 export default function ProfileScreen() {
   const { user, userData } = useAuth();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -52,6 +55,12 @@ export default function ProfileScreen() {
             <GuestModeBanner compact />
           </View>
         )}
+
+        {/* Lives card — same dark-blue + gold "NYAWA ANDA" surface as
+            the Home tab so the design language is consistent across
+            screens. Tapping the gold "Tambah" CTA jumps straight
+            into the lives-exhausted modal. */}
+        <LivesIndicator onPress={() => openLivesExhaustedModal(router)} />
 
         {/* Avatar + Name */}
         <View style={styles.profileSection}>
@@ -334,7 +343,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.white,
   },
-  
+
   // Sparkles
   sparkle: {
     position: 'absolute',

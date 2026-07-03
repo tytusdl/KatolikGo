@@ -21,6 +21,10 @@ import {
 } from '@/utils/onboarding';
 import { getRememberMe } from '@/utils/rememberMe';
 import type { UserData } from '@/types';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db as firebaseDb } from '@/config/firebase';
+import { LIVES_CONFIG } from '@/constants/xp.constants';
+import { notifyLivesFull, requestNotificationPermission } from '@/services/notificationService';
 
 interface AuthContextType {
   user: FirebaseUser | null;
@@ -207,6 +211,75 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsub();
     };
   }, [markOnboardedAction]);
+
+  // ---------------------------------------------------------------------
+  // Lives-full notification — listen to the `lives` field on the user
+  // doc and fire a local notification when it transitions from below
+  // MAX to MAX. Covers both refill pathways (time-based auto-refill
+  // and manual refill via tokens / ad) so the player gets a nudge
+  // whenever their lives bar tops off, not just the time-based case.
+  //
+  // Implementation notes:
+  //   - `onSnapshot` is the right tool here because it fires on every
+  //     doc update, including ones the client didn't initiate. This
+  //     catches refills that happen while the user is on a different
+  //     screen (or even a different device, if they multi-device).
+  //   - We track the *previous* lives value in a ref so we can detect
+  //     the transition. The first snapshot after subscription
+  //     represents the current state — we don't want to fire a noti
+  //     just because the user logged in with full lives. So we
+  //     initialize `prevLivesRef.current = null` and skip the first
+  //     emission (which is just the initial state, not a transition).
+  //   - Guest users are skipped — `notifyLivesFull` would fire for an
+  //     account that gets wiped on uninstall, which is wasted noise.
+  //     Filtered at the subscription level via `firebaseUser.isAnonymous`.
+  // ---------------------------------------------------------------------
+  const prevLivesRef = useRef<number | null>(null);
+
+  // Ask for notification permission once on mount. No-op if the user
+  // already denied or the platform doesn't support notifs. We don't
+  // gate UI on this — if denied, the rest of the app works as
+  // before and notis simply don't fire.
+  useEffect(() => {
+    void requestNotificationPermission();
+  }, []);
+
+  useEffect(() => {
+    const current = userRef.current;
+    if (!current || current.isAnonymous) return;
+    const userDocRef = doc(firebaseDb, 'users', current.uid);
+    const unsubSnapshot = onSnapshot(
+      userDocRef,
+      (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data() as Partial<UserData> | undefined;
+        const rawLives = data?.lives;
+        // Defensive: only treat finite numbers as a real state.
+        // If Firestore is mid-write or the field is missing, treat
+        // as "no signal" and don't touch the prev tracking.
+        if (typeof rawLives !== 'number' || !Number.isFinite(rawLives)) return;
+        const currentLives = rawLives;
+        const prevLives = prevLivesRef.current;
+        prevLivesRef.current = currentLives;
+        // First emission — just seed the ref, don't notify.
+        if (prevLives === null) return;
+        // The actual transition check: was strictly below MAX before,
+        // and at MAX now. Notifies on *any* path that tops the bar off
+        // (time-based refill, token spend, ad reward).
+        if (prevLives < LIVES_CONFIG.MAX && currentLives >= LIVES_CONFIG.MAX) {
+          void notifyLivesFull();
+        }
+      },
+      (err: Error) => {
+        // Snapshot errors (typically permission / offline) — log
+        // and let the next valid emission recover. The noti is
+        // best-effort by design (per AGENTS.md "Lives system"),
+        // so a missed emission isn't user-visible.
+        console.warn('[Auth] lives snapshot failed', err);
+      }
+    );
+    return () => unsubSnapshot();
+  }, [user?.uid, user?.isAnonymous]);
 
   const value = useMemo<AuthContextType>(
     () => ({

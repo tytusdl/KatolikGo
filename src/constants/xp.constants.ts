@@ -42,6 +42,62 @@ export const TOKEN_REWARDS = {
 } as const;
 
 /**
+ * Lives system config — the player gets 5 lives, loses one per wrong
+ * answer / timeout during a quiz, and refills over time + through
+ * token-spend / rewarded-ad escape hatches.
+ *
+ * "Lives" model: standard mobile-casual pattern (Candy Crush, Wordle,
+ * Duolingo's heart system). Adds enough friction to discourage
+ * brute-force guessing but doesn't permanently lock out a user — the
+ * time-based refill tick keeps the trial frictionless, and the token /
+ * ad escape hatches give paying / engaged players a fast path back in.
+ *
+ * The refill tick is *time-based*, NOT midnight-based — a player who
+ * loses a life at 14:00 gets their first auto-refill at 14:20, not at
+ * midnight. Smooth drip rather than a single midnight reset.
+ *
+ * Atomicity: every lives-changing operation runs inside a Firestore
+ * `runTransaction` (see `livesService.ts`) so concurrent quiz sessions
+ * (e.g. phone + tablet for the same account) can't double-decrement or
+ * race the refill tick.
+ */
+export const LIVES_CONFIG = {
+  /** Maximum lives a user can hold. Refills cap at this value. */
+  MAX: 5,
+  /**
+   * Minutes of real-time between each automatic life refill while the
+   * user has fewer than `MAX` lives. Default 20 min keeps the drip
+   * short enough that an engaged player who burns all 5 lives is back
+   * to full in ~1h 40m — long enough that lives still feel
+   * meaningful, short enough that the player doesn't feel locked out
+   * and walk away. The token / ad escape hatches sit on top for
+   * players who'd rather not wait.
+   *
+   * Tunable: 10 = very generous, 30 = classic-casual feel,
+   * 60 = Duolingo-tier harshness.
+   */
+  REFILL_MINUTES: 20,
+  /**
+   * Tokens required to refill 1 life via in-app spend. Matches the
+   * token reward rate for one correct answer (5) × 10 — pricey enough
+   * to discourage spam, cheap enough to feel reachable.
+   */
+  REFILL_TOKEN_COST: 50,
+  /**
+   * Minimum minutes between consecutive rewarded-ad refills. Caps ad
+   * abuse (spam-tapping the button) without making the cooldown so
+   * long that an engaged player feels rate-limited.
+   */
+  AD_COOLDOWN_MIN: 5,
+  /**
+   * Default lives value for legacy user docs that pre-date this field.
+   * Treated as "full health" so a returning player doesn't lose
+   * progress on the first session after this feature ships.
+   */
+  LEGACY_DEFAULT: 5,
+} as const;
+
+/**
  * Cumulative XP needed to *reach* `level` (i.e. the threshold you cross
  * to enter that level). `xpRequiredForLevel(1) === 0` — you're level 1
  * with zero XP.

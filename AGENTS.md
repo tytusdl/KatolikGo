@@ -275,6 +275,27 @@ When a Cloud Functions backend lands, move the same validators server-side and k
 
 ---
 
+## Lives system (5 lives, time-based refill + token/ad escape hatches)
+
+The player starts each account with 5 lives and loses one per wrong answer / timeout during a quiz. At 0 lives, new quiz starts are blocked; mid-quiz, the session ends immediately and routes to the result screen with `livesExhausted=true`. Three refill escape hatches surface in `src/app/quiz/lives-empty.tsx`:
+
+1. **Watch rewarded ad** → +1 life. `LIVES_CONFIG.AD_COOLDOWN_MIN` (5 min) between consecutive ad refills. Ad playback lives in `src/services/adsService.ts` — currently a **stub** that resolves `{completed: false, reason: 'stub_mode'}` until a real rewarded-ad SDK (AdMob / Expo Ads) is wired in. The stub is intentionally a labeled no-op so we don't fake a reward and inflate lives for free.
+2. **Spend tokens** → +1 life for `LIVES_CONFIG.REFILL_TOKEN_COST` (50 tokens). Throws `GUEST_REFILL_BLOCKED` for guest users — same pattern as `tokenService.spendToken` so the UI surfaces Daftar/Log Masuk instead of "Insufficient tokens".
+3. **Time-based refill** → +1 life every `LIVES_CONFIG.REFILL_MINUTES` (20 min), computed from the server-side `livesLastLostAt` anchor. Returning after a day tops the bar fully (not just +1 per tick). The `livesLastLostAt` anchor only clears when lives hit MAX — partial-refill ticks keep the same anchor so a player who keeps running out doesn't get a fresh 20-min window every time.
+
+**Guest users follow the same lives rules** as registered users — they can play, get blocked at 0, see the same refill options — but token-spend is still gated by `GUEST_REFILL_BLOCKED`. Guest lives data is throwaway along with the rest of the guest account.
+
+**Atomicity is non-negotiable.** Every lives-changing write runs inside `runTransaction` (`livesService.consumeLifeOnWrongAnswer`, `refillWithTokens`, `refillWithAd`, `refillIfNeeded`) so concurrent quiz sessions (phone + tablet) can't double-decrement and the time-based refill tick can't over-credit. The same race gotcha that affects `tokenService.awardTokens` (read-then-write) **does NOT** apply here — `livesService` is the correct reference pattern for any new atomic-counter fields on `users/{uid}`.
+
+**Touch points when extending:**
+- `src/constants/xp.constants.ts → LIVES_CONFIG` is the single source of truth for max/refillHours/cost/cooldown. Tuning any of those values is one edit.
+- `src/services/livesService.ts` is the only place that writes `users.lives`. Screens never call `setDoc(users/{uid}, {lives: ...})` directly — keep the service as the gate so the atomicity contract holds.
+- `src/components/LivesIndicator.tsx` renders the heart row + countdown on Home (compact+add button) and Profile (compact+`Tambah` button). Both call `refillIfNeeded` on mount so any pending tick is flushed to Firestore before display.
+- `src/app/quiz/[level].tsx` calls `getEffectiveLives` before letting a quiz start (bounces to `/quiz/lives-empty` if 0), and calls `consumeLifeOnWrongAnswer` from both `handleAnswerSelect` (wrong) and `handleTimeUp` (timeout). Setting `livesExhausted=true` ends the session early on the next `handleNext`.
+- `src/app/quiz/result.tsx` reads the `livesExhausted` URL param and renders a red "Nyawa Anda Sudah Habis" panel + "Isi Semula Nyawa" CTA. Hides the "Tahap Seterusnya" button in that state — the player can't start the next quiz anyway.
+
+**Legacy user docs** (created before this feature shipped) won't have a `lives` field. `livesService` treats missing `lives` as full health (`LIVES_CONFIG.LEGACY_DEFAULT = 5`) so returning players don't lose progress on the first session after this ships. `authService.buildDefaultUserData` now writes `lives: MAX, livesLastLostAt: null, lastAdRefillAt: null` on every new account, keeping the data shape consistent going forward.
+
 ## Firestore-rules design checklist (mirrors in `firestore.rules`)
 
 The repo does not deploy `firestore.rules` (AGENTS.md "Out of scope"), but the upstream `katolikgo-server` doc has rule patterns that should be mirrored as **client-side invariants** until rules land. Touch these when extending `levelService` / `tokenService`:
@@ -376,6 +397,7 @@ If none of those exist, the script throws a friendly error listing all four path
 | 2026-07-02 | Guest mode restrictions + UX nudge — `UserData.isGuest` (auto-derived from `firebaseUser.isAnonymous`); `submitLevelCompletion` returns 0 XP/tokens; `spendToken` throws `GUEST_SPEND_BLOCKED`; leaderboard queries strip guest rows via `filterAndRank`; `GuestModeBanner` renders on Home (full) + Profile (compact); `useGuestGuard` hook + friendly Alert with Daftar / Log Masuk / Batal wraps gated actions in `quiz/[level].tsx`; result screen shows a "Skor ini tidak disimpan" nudge for guest finishes | Firebase anonymous accounts are device-bound and wiped on uninstall, so XP/tokens/leaderboard would otherwise be polluted with throwaway data. The banner + modal nudge pushes guest users toward converting to a real account instead of silently losing progress |
 | 2026-07-03 | Added admin tooling (`scripts/admin.mjs` + `lib/admin-firebase.mjs`) — Firebase Admin SDK CLI with `find-user`, `delete-user`, `dump-leaderboard` subcommands; service account key gitignored (`serviceAccountKey.json`, `*firebase-adminsdk*.json`); documented in AGENTS.md | Firestore rules don't allow `delete` on `users/{uid}`, so the app can't remove accounts — needed admin SDK path for ops like cleaning up test accounts. `dump-leaderboard.mjs` (client SDK + anon sign-in) kept as the no-key-needed read-only alternative |
 | 2026-07-03 | `lib/admin-firebase.mjs` now supports both service-account JSON AND gcloud Application Default Credentials (auto-detected). Four-path search: `FIREBASE_ADMIN_KEY_PATH` → `./serviceAccountKey.json` → `GOOGLE_APPLICATION_CREDENTIALS` → `%APPDATA%\gcloud\application_default_credentials.json`. Friendly "tiada credentials" error when none of the four exist | Org Policy `iam.disableServiceAccountKeyCreation` blocks service-account key generation on Workspace-managed accounts. ADC via gcloud bypasses it — uses the user's own OAuth identity instead of a downloaded key. Org Policy trap documented in AGENTS.md "Admin tooling" section |
+| 2026-07-03 | Added Lives system (`livesService.ts`, `LivesIndicator.tsx`, `quiz/lives-empty.tsx`, `adsService.ts` stub) — 5 lives per account, -1 per wrong answer / timeout, time-based refill (1 life / 2h), token-spend refill (50 tokens), rewarded-ad refill (5-min cooldown). Pre-quiz gate + mid-quiz early-end at lives=0. All writes transactional. Lives docs AGENTS.md section | Adds enough friction to discourage brute-force guessing without permanently locking players out. Atomic writes are required because the same phone+tablet race that bit `tokenService.awardTokens` would silently double-decrement lives without a transaction. Stub `adsService` returns `stub_mode` until a real ad SDK is wired in — no fake rewards |
 
 ---
 

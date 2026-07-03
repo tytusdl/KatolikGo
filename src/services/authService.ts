@@ -10,6 +10,7 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp, query, collection, where, limit, getDocs } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import type { UserData } from '@/types';
+import { LIVES_CONFIG } from '@/constants/xp.constants';
 
 /**
  * Default skeleton for a brand-new user document.
@@ -57,6 +58,15 @@ function buildDefaultUserData(
     accuracy: 0,
     quizzesThisMonth: 0,
     isGuest: firebaseUser.isAnonymous,
+    // Lives system — every new account starts at full health. Lives
+    // and refill anchors default to "no refill pending" so the player
+    // gets a fresh 5-life window on first login. Legacy docs without
+    // these fields are read back as full health by `livesService`
+    // (see `LIVES_CONFIG.LEGACY_DEFAULT`), but writing them on create
+    // keeps the data shape consistent for new accounts.
+    lives: LIVES_CONFIG.MAX,
+    livesLastLostAt: null,
+    lastAdRefillAt: null,
   };
   if (overrides.username !== undefined) {
     return {

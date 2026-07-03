@@ -78,6 +78,34 @@ export interface UserData {
    * `ensureUserDocument`, so callers don't need to pass it explicitly.
    */
   isGuest?: boolean;
+  /**
+   * Current remaining lives. Decrements by 1 on every wrong answer /
+   * timeout in `quiz/[level].tsx` via `livesService.consumeLife`. Bounded
+   * to [0, LIVES_MAX] by `livesService.refillIfNeeded`. Reaching 0
+   * blocks further quiz starts until the player refills via token
+   * spend, rewarded ad, or time-based auto-refill.
+   *
+   * Optional in the type because legacy user documents (created before
+   * this feature shipped) won't have the field — services treat a
+   * missing `lives` value as full health (5) and lazily backfill.
+   */
+  lives?: number;
+  /**
+   * Server-side timestamp (Firestore Timestamp) recording the most
+   * recent moment a life was lost — the anchor for the time-based
+   * auto-refill tick (1 life per `LIVES_CONFIG.REFILL_MINUTES` minutes after this
+   * timestamp). Nullable: never lost a life = no anchor = no
+   * pending refill. Cleared (set to null) on full-refill events
+   * (e.g. enough pending ticks accumulated to top the bar up).
+   */
+  livesLastLostAt?: number | null;
+  /**
+   * Server-side timestamp (Firestore Timestamp) recording the last
+   * rewarded-ad life refill. Used to enforce `LIVES_AD_COOLDOWN_MIN`
+   * between consecutive ad refills — prevents abuse from spam-pressing
+   * the "Tonton iklan" button.
+   */
+  lastAdRefillAt?: number | null;
   createdAt: number;
   updatedAt: number;
 }

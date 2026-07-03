@@ -18,6 +18,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getQuizByLevel } from '@/services/quizService';
 import { submitLevelCompletion } from '@/services/levelService';
 import { spendToken, GUEST_SPEND_BLOCKED } from '@/services/tokenService';
+import {
+  consumeLifeOnWrongAnswer,
+  getEffectiveLives,
+  type LivesState,
+} from '@/services/livesService';
+import { LivesIndicator, openLivesExhaustedModal } from '@/components/LivesIndicator';
+import { LIVES_CONFIG } from '@/constants/xp.constants';
 import { shuffleArray } from '@/utils/misc.utils';
 import { validateResponseTime, validateSessionTimings } from '@/utils/anti-cheat.utils';
 import { useGuestGuard } from '@/hooks/useGuestGuard';
@@ -82,6 +89,20 @@ export default function QuizPlayScreen() {
   const correctCountRef = useRef<number>(0);
   const currentComboRef = useRef<number>(0);
   const maxComboRef = useRef<number>(0);
+  // Pulse trigger for the banner lives indicator. Bumped each
+  // time a life is lost so the heart visibly "thumps" and the
+  // player gets immediate feedback. LivesIndicator reads
+  // `pulseToken` as a counter (not a value) — bumping it fires
+  // a single animation regardless of magnitude. The actual
+  // lives value comes from `userData.lives` via auth context
+  // (LivesIndicator reads it directly), so we don't need a
+  // local mirror anymore — that was only required when the
+  // lives pill was rendered inline with hard-coded props.
+  const [livesPulseToken, setLivesPulseToken] = useState<number>(0);
+  // True when lives hit 0 *during* this quiz — used to end the
+  // session early and route to the result screen with a flag that
+  // tells the result page to render the "habis lives" panel.
+  const [livesExhausted, setLivesExhausted] = useState<boolean>(false);
 
   const levelNum = parseInt(level || '1', 10);
   const totalQuestions = quiz?.questions.length ?? 0;
@@ -119,7 +140,7 @@ export default function QuizPlayScreen() {
     }
   };
 
-  const handleTimeUp = () => {
+  const handleTimeUp = async () => {
     if (selectedAnswer !== null) return;
     // Timeouts count as a wrong answer at the full timer duration. This
     // mirrors an explicit answer, so anti-cheat and XP math see the
@@ -128,6 +149,10 @@ export default function QuizPlayScreen() {
     recordResponse(responseTime, false);
     setSelectedAnswer(-1); // sentinel for timeout
     setShowExplanation(true);
+    // Timeouts also drain a life — same path as an explicit wrong
+    // answer. Without this, a player could idle through a quiz and
+    // never lose any lives.
+    await consumeLifeAfterWrongAnswer();
   };
 
   /**
@@ -158,6 +183,30 @@ export default function QuizPlayScreen() {
   const loadQuiz = useCallback(async () => {
     setLoading(true);
     try {
+      // Pre-quiz lives gate. Read the effective lives (with any
+      // pending time-based refill applied) before loading the quiz
+      // so we can short-circuit to the lives-exhausted modal when the
+      // user has 0. The banner indicator itself reads from auth
+      // context (`userData.lives`) so we don't need to mirror it
+      // locally — this is just the gate.
+      let effectiveLives: number = LIVES_CONFIG.MAX;
+      if (userData?.uid) {
+        try {
+          const state: LivesState = await getEffectiveLives(userData.uid);
+          effectiveLives = state.lives;
+        } catch {
+          // Network/perm error — fall back to "assume full health"
+          // rather than blocking the player from playing.
+          effectiveLives = LIVES_CONFIG.MAX;
+        }
+      }
+      if (effectiveLives <= 0) {
+        // Lives habis — bounce straight to the refill modal. We use
+        // `replace` so the quiz URL doesn't sit in the back stack;
+        // when the modal closes the user lands back on the quiz list.
+        router.replace('/quiz/lives-empty');
+        return;
+      }
       const quizData = await getQuizByLevel(levelNum);
       setQuiz(quizData);
       // Per-session analytics reset. Without this, a retry on the same
@@ -172,7 +221,7 @@ export default function QuizPlayScreen() {
     } finally {
       setLoading(false);
     }
-  }, [levelNum]);
+  }, [levelNum, userData?.uid]);
 
   useEffect(() => {
     loadQuiz();
@@ -189,7 +238,7 @@ export default function QuizPlayScreen() {
     ]).start();
   };
 
-  const handleAnswerSelect = (index: number) => {
+  const handleAnswerSelect = async (index: number) => {
     if (selectedAnswer !== null) return;
     if (hiddenOptions.includes(index)) return;
     setSelectedAnswer(index);
@@ -200,7 +249,42 @@ export default function QuizPlayScreen() {
     recordResponse(responseTimeMs, isCorrect);
     if (!isCorrect) {
       triggerShake();
+      // Drain a life via the transactional service. The local
+      // `lives` state is updated optimistically so the header row
+      // reflects the loss immediately; the Firestore write happens
+      // concurrently. If the user runs out mid-quiz we end the
+      // session early so the player isn't staring at the rest of
+      // the questions they can't pass anyway.
+      await consumeLifeAfterWrongAnswer();
     }
+  };
+
+  /**
+   * Decrement lives (one transaction in `livesService`) and update
+   * the local mirror state. If lives hit 0, mark the session as
+   * exhausted so the next "Seterusnya" press ends the quiz and
+   * routes to the result screen with the lives-exhausted flag.
+   */
+  const consumeLifeAfterWrongAnswer = async () => {
+    if (!userData?.uid) return;
+    try {
+      const next = await consumeLifeOnWrongAnswer(userData.uid);
+      if (next <= 0) {
+        setLivesExhausted(true);
+      }
+    } catch {
+      // Non-fatal — the banner shows the cached `userData.lives`
+      // value via auth context. The next wrong answer will retry
+      // the transaction. We intentionally don't block the quiz
+      // on a Firestore blip — worst case the player gets one
+      // extra question in before the next attempt to decrement
+      // catches up.
+    }
+    // Pulse the banner regardless of success so the player gets
+    // visible feedback even if Firestore is lagging. The counter
+    // only needs to differ from the last value, so a simple
+    // `prev => prev + 1` works.
+    setLivesPulseToken((prev) => prev + 1);
   };
 
   // --- Powerups ---
@@ -311,6 +395,15 @@ export default function QuizPlayScreen() {
       setScore(newScore);
     }
 
+    // Lives exhausted → end the session now regardless of which
+    // question we're on. Player keeps whatever score they've
+    // earned so far; the result screen will surface the
+    // "Nyawa habis" panel via the `livesExhausted` URL param.
+    if (livesExhausted) {
+      finishQuiz(newScore, true);
+      return;
+    }
+
     if (currentQuestion < quiz.questions.length - 1) {
       setCurrentQuestion((p) => p + 1);
       setSelectedAnswer(null);
@@ -321,10 +414,10 @@ export default function QuizPlayScreen() {
       return;
     }
 
-    finishQuiz(newScore);
+    finishQuiz(newScore, false);
   };
 
-  const finishQuiz = async (finalScore: number) => {
+  const finishQuiz = async (finalScore: number, livesFlippedToZero: boolean = false) => {
     const percentage = Math.round(finalScore);
 
     if (!userData) {
@@ -335,6 +428,7 @@ export default function QuizPlayScreen() {
           score: percentage.toString(),
           tokens: '0',
           unlocked: 'false',
+          livesExhausted: livesFlippedToZero ? 'true' : 'false',
         },
       });
       return;
@@ -373,6 +467,7 @@ export default function QuizPlayScreen() {
           score: percentage.toString(),
           tokens: tokensEarned.toString(),
           unlocked: nextLevelUnlocked.toString(),
+          livesExhausted: livesFlippedToZero ? 'true' : 'false',
         },
       });
     } catch {
@@ -383,6 +478,7 @@ export default function QuizPlayScreen() {
           score: percentage.toString(),
           tokens: '0',
           unlocked: 'false',
+          livesExhausted: livesFlippedToZero ? 'true' : 'false',
         },
       });
     }
@@ -423,12 +519,13 @@ export default function QuizPlayScreen() {
         <Text style={styles.headerTitle}>
           Soalan {currentQuestion + 1}/{totalQuestions}
         </Text>
-        <TouchableOpacity
-          style={styles.iconButton}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="book-outline" size={22} color={BRAND.textDark} />
-        </TouchableOpacity>
+        {/* Right side reserved for visual balance — the prominent
+            lives indicator now lives in the body (banner variant
+            below the question card) where the player can't miss
+            it during play. Previously the lives pill competed for
+            space here with the question number; now it's its own
+            thing. */}
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -436,6 +533,20 @@ export default function QuizPlayScreen() {
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 200 }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Prominent lives banner — sits at the top of the scroll
+            content so the player sees remaining lives at a glance
+            while answering. Bigger than the previous header pill
+            (~56px tall vs. 36px), self-shadowed so it pops off
+            the lavender gradient, and pulse-driven on every wrong
+            answer (see `livesPulseToken`). Tap routes to the
+            refill modal — gives the player a low-friction way to
+            top up without leaving the quiz mid-session. */}
+        <LivesIndicator
+          variant="banner"
+          pulseToken={livesPulseToken}
+          onPress={() => openLivesExhaustedModal(router)}
+        />
+
         {/* Question card */}
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{question.question}</Text>
@@ -730,6 +841,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Right-side balance block for the header — same width as the
+  // back-button (40px) so the question title stays optically
+  // centered. Lives no longer live here; the banner variant
+  // below the question card is the primary surface.
+  headerSpacer: {
+    width: 40,
+    height: 40,
+  },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
@@ -743,7 +862,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 18,
-    paddingTop: 10,
+    paddingTop: 14,
   },
 
   // Question card
