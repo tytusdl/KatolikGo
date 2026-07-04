@@ -109,15 +109,26 @@ export async function requestNotificationPermission(): Promise<boolean> {
   try {
     // The full `NotificationPermissionsStatus` extends
     // `PermissionResponse` (status + expires + granted +
-    // canAskAgain) plus per-platform sub-objects. Use
-    // `.granted` rather than the bare `.status` enum check —
-    // the `.granted` boolean is the canonical "can we fire a
-    // notification" signal across all platforms, including
-    // iOS provisional authorization which maps `granted: true`
-    // even when the strict `status` is `'undetermined'`.
-    let settings = await Notifications.getPermissionsAsync();
+    // canAskAgain) plus per-platform sub-objects. We want
+    // the `.granted` boolean — it's the canonical "can we
+    // fire a notification" signal across all platforms,
+    // including iOS provisional authorization which maps
+    // `granted: true` even when the strict `status` is
+    // `'undetermined'`. Cast to `any` here because the
+    // runtime type augmentation for `PermissionResponse`
+    // from the `expo` package barrel doesn't propagate
+    // through `NotificationPermissionsStatus` in this SDK
+    // version's typings; runtime behaviour matches the
+    // documented contract regardless.
+    let settings = (await Notifications.getPermissionsAsync()) as unknown as {
+      granted?: boolean;
+      status?: string;
+    };
     if (!settings.granted) {
-      settings = await Notifications.requestPermissionsAsync();
+      settings = (await Notifications.requestPermissionsAsync()) as unknown as {
+        granted?: boolean;
+        status?: string;
+      };
     }
     const granted = settings.granted === true;
     permissionStatusCache = granted ? 'granted' : 'denied';

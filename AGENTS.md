@@ -296,6 +296,78 @@ The player starts each account with 5 lives and loses one per wrong answer / tim
 
 **Legacy user docs** (created before this feature shipped) won't have a `lives` field. `livesService` treats missing `lives` as full health (`LIVES_CONFIG.LEGACY_DEFAULT = 5`) so returning players don't lose progress on the first session after this ships. `authService.buildDefaultUserData` now writes `lives: MAX, livesLastLostAt: null, lastAdRefillAt: null` on every new account, keeping the data shape consistent going forward.
 
+## In-app admin panel (`/admin`)
+
+Solo-developer convenience screen that lets you control your own account from inside the app — add tokens, refill lives, bump XP, set level, toggle premium, refresh from server, etc. Lives at `/admin` (file-based route at `src/app/admin/index.tsx`).
+
+**Promotion:** the developer's own account has `users/{uid}.isAdmin === true`. Flip it via the CLI:
+```
+node scripts/admin.mjs grant-admin <your-uid>         # enable
+node scripts/admin.mjs grant-admin <your-uid> --revoke # disable
+```
+Use `node scripts/admin.mjs find-user <partial-name-or-uid>` to look up your own uid. The promotion is intentionally CLI-only (Admin SDK) so admin status doesn't need to be hardcoded in source and the wrong person can't accidentally bump themselves to admin by reading the app bundle.
+
+**Surface:** `Profile` tab gets a new "🛠️ Panel Pentadbir" menu item that renders only when `userData.isAdmin === true`. Tapping pushes `/admin`. The screen itself also has a render-time `assertAdmin` gate — non-admins land on a friendly 🚫 screen rather than seeing empty panels.
+
+**Service layer** (`src/admin/adminService.ts`):
+- `assertAdmin(caller)` — single guard; `NOT_ADMIN`-coded error if caller isn't admin. Every admin function calls this first.
+- `grantTokens / setTokens` — runs in `runTransaction` (atomic balance read-modify-write, mirrors `tokenService.spendToken`). Negative deltas allowed but clamped so balance can't go below 0.
+- `grantXp / setXp` — three counters (total / weekly / monthly), all transactional.
+- `setCurrentLevel` — clamped to [1, 100]. Doesn't touch XP math; if you want XP-based level to match, also call `setXp`.
+- `refillLives / setLives / clearLivesCooldowns` — mirrors `livesService` semantics so the time-based refill tick behaves identically to in-game refills.
+- `setPremium / setOwnAdmin / fetchSnapshot` — convenience toggles + on-demand server refresh.
+
+**Security caveat (same as elsewhere):** client-side enforcement only. Firestore rules aren't deployed (AGENTS.md "Firestore rules design checklist"). A motivated attacker with dev tools could flip `isAdmin: true` on their own doc. Treat as a developer convenience, NOT a security boundary. When Cloud Functions land, the gate moves to a callable Function callable only by the developer UID.
+
+**Adding a new admin action:**
+1. Add a new exported function to `src/admin/adminService.ts` that calls `assertAdmin(caller)` first and wraps in `runTransaction` for any counter mutation.
+2. Drop a button into the relevant section in `src/app/admin/index.tsx`. Hook into the `run()` wrapper for consistent busy/alert/refresh UX.
+3. (Optional) Add a "custom amount" path by extending the existing shared modal — set `modal` state with `title` / `label` / `placeholder` / `submitLabel` / `onSubmit`, then call `showCustomModal(cfg)`.
+
+**Why not promote anyone from inside the app?** The CLI gate means promoting a second account requires the developer physically running the CLI on their machine — a non-zero friction that matches the threat model (this is a single-dev build, not multi-tenant SaaS).
+
+## Admin unlock passphrase (in-app backdoor)
+
+Solo-developer alternative to the CLI: two entry surfaces share one modal — one visible (auth screen), one hidden (avatar gesture).
+
+**Surfaces:**
+- **Auth screen** (`src/components/AuthScreen.tsx`) — small "🔐 Admin Access" text-link at the very bottom of the form, below the Guest button. Visible only when no user is signed in (or for guest users on the conversion path). The **only visible entry** for non-admin users.
+- **Profile tab** (`src/app/(tabs)/profile.tsx`) — **hidden long-press gesture on the avatar (5 s hold)**. No menu item, no text hint — the avatar is a `Pressable` that starts a 5-second timer on press-in. A thin gold progress bar fades in below the avatar mid-hold so the developer knows the gesture registered; release early and the bar drains back to 0. Only renders feedback when `isAdminUnlockConfigured()` is true AND the user isn't already admin — otherwise the gesture is a silent no-op (so users without `.env` configured don't see a visible-but-broken feature).
+
+Both surfaces → same `src/admin/AdminUnlockModal.tsx` modal asks for the env-configured admin passphrase → on success, sets `users/{uid}.isAdmin = true` → refreshes userData → offers to jump straight to `/admin`.
+
+**Setup (one-time, developer only):**
+1. Add a passphrase to `.env` (already has a placeholder line):
+   ```
+   EXPO_PUBLIC_ADMIN_PASSPHRASE=my-secret-phrase
+   ```
+   Empty/unset = the entire feature hides itself. The auth-screen text-link is gated on `isAdminUnlockConfigured()`; the avatar gesture's `startAvatarHold` short-circuits without feedback; and `grantAdminByPassphrase` throws `BAD_PASSPHRASE` rather than revealing whether the env var is set. Three independent layers all hide the same thing.
+2. Restart `npx expo start` (with `--clear` if `EXPO_PUBLIC_*` envs were just added — Expo caches them at startup).
+
+**When to use which (CLI vs in-app):**
+- **CLI** (`node scripts/admin.mjs grant-admin <uid>`): use when you have your UID handy, e.g. scripting from another shell, or automating for QA accounts.
+- **Auth screen passphrase**: use when you've never set up the dev account before, or want to flip admin on before a deep-link login. The **visible** in-app entry — small single text-link at the bottom of `/login` and `/register`.
+- **Profile avatar hold (5 s)**: use when already signed in as a non-admin (e.g. testing a regular user flow) and want to flip admin on without a logout roundtrip. The **hidden** entry — no UI hint, just the avatar itself. Tip: if you forget the gesture, sign out and use the auth-screen text-link instead.
+
+**All three paths write the same `users/{uid}.isAdmin = true` doc field**, so they're interchangeable once granted. The panel reads the same flag regardless of which path set it.
+
+**Security caveats (from `src/config/adminUnlock.ts`):**
+- `EXPO_PUBLIC_*` env vars are bundled into the JS. A determined attacker who decodes the bundle can read the passphrase directly. The constant-time compare (`XOR mismatch accumulator`) only slows down remote timing-attack enumeration, not local extraction.
+- Proper production fix is a Cloud Function callable only by the dev's account (allowlist in the function body). Until rules deploy, this client-side check is the best-effort placeholder.
+- "BAD_PASSPHRASE" is returned both for "wrong passphrase" AND "env not configured" — a probe can't enumerate which state the build is in.
+- The avatar gesture is **obscurity, not security** — anyone who decodes the bundle can find the trigger. It's there to keep the admin path out of regular users' casual discovery, not to resist a determined attacker. Cloud Functions remain the real fix.
+
+**Touch points:**
+- `src/config/adminUnlock.ts` — env read + constant-time compare.
+- `src/admin/adminService.ts → grantAdminByPassphrase` — the grant. Atomic transaction so concurrent attempts can't race.
+- `src/admin/AdminUnlockModal.tsx` — shared modal (props: `visible`, `onClose`, `user`, optional `onSuccess`).
+- `src/components/AuthScreen.tsx` — visible auth-screen trigger (`isAdminUnlockConfigured()` gate).
+- `src/app/(tabs)/profile.tsx → ADMIN_HOLD_DURATION_MS` + `startAvatarHold` / `cancelAvatarHold` — hidden 5 s avatar-hold gesture; `holdProgress` `Animated.Value` drives the gold progress bar that appears below the avatar mid-hold. Gated on env configured AND `!userData.isAdmin`.
+
+**Re-locking admin:** the same in-app modal can re-grant after a manual `grant-admin --revoke`. The CLI tool also works. Both write to the same boolean — there isn't a separate "lock out" code path beyond revoking.
+
+**Tuning the gesture:** change `ADMIN_HOLD_DURATION_MS` at the top of `profile.tsx` to make the hold shorter / longer. The Animated timing uses the same constant so the progress bar stays in sync.
+
 ## Firestore-rules design checklist (mirrors in `firestore.rules`)
 
 The repo does not deploy `firestore.rules` (AGENTS.md "Out of scope"), but the upstream `katolikgo-server` doc has rule patterns that should be mirrored as **client-side invariants** until rules land. Touch these when extending `levelService` / `tokenService`:
@@ -352,6 +424,7 @@ If none of those exist, the script throws a friendly error listing all four path
 | `node scripts/admin.mjs find-user <query>` | Searches `users` by uid / email / displayName / username (case-insensitive substring). Direct uid lookup if the query looks like one (≥20 alnum chars). |
 | `node scripts/admin.mjs delete-user <uid> [--yes] [--dry-run]` | Deletes the Firestore doc **and** the Firebase Auth account. Refuses without `--yes`. Use `--dry-run` to preview. |
 | `node scripts/admin.mjs dump-leaderboard [--limit N]` | Top N by `totalXP` (default 50). Mirrors `filterAndRank` from `leaderboardService.ts` — registered users ranked, guest rows shown separately for awareness. |
+| `node scripts/admin.mjs grant-admin <uid> [--revoke]` | Toggles the `isAdmin` flag on `users/{uid}` — unlocks the in-app `/admin` panel for that account. Default is GRANT (true). Pass `--revoke` to flip back off. |
 
 **Why firebase-admin and not the client SDK?** The Firestore rules in this repo only allow `read / create / update` on `users/{uid}` for the document owner — there's **no `delete` rule**, so even the user themselves can't remove their own doc via the app. The Console uses admin SDK under the hood, which is what we're replicating here.
 
@@ -398,6 +471,9 @@ If none of those exist, the script throws a friendly error listing all four path
 | 2026-07-03 | Added admin tooling (`scripts/admin.mjs` + `lib/admin-firebase.mjs`) — Firebase Admin SDK CLI with `find-user`, `delete-user`, `dump-leaderboard` subcommands; service account key gitignored (`serviceAccountKey.json`, `*firebase-adminsdk*.json`); documented in AGENTS.md | Firestore rules don't allow `delete` on `users/{uid}`, so the app can't remove accounts — needed admin SDK path for ops like cleaning up test accounts. `dump-leaderboard.mjs` (client SDK + anon sign-in) kept as the no-key-needed read-only alternative |
 | 2026-07-03 | `lib/admin-firebase.mjs` now supports both service-account JSON AND gcloud Application Default Credentials (auto-detected). Four-path search: `FIREBASE_ADMIN_KEY_PATH` → `./serviceAccountKey.json` → `GOOGLE_APPLICATION_CREDENTIALS` → `%APPDATA%\gcloud\application_default_credentials.json`. Friendly "tiada credentials" error when none of the four exist | Org Policy `iam.disableServiceAccountKeyCreation` blocks service-account key generation on Workspace-managed accounts. ADC via gcloud bypasses it — uses the user's own OAuth identity instead of a downloaded key. Org Policy trap documented in AGENTS.md "Admin tooling" section |
 | 2026-07-03 | Added Lives system (`livesService.ts`, `LivesIndicator.tsx`, `quiz/lives-empty.tsx`, `adsService.ts` stub) — 5 lives per account, -1 per wrong answer / timeout, time-based refill (1 life / 2h), token-spend refill (50 tokens), rewarded-ad refill (5-min cooldown). Pre-quiz gate + mid-quiz early-end at lives=0. All writes transactional. Lives docs AGENTS.md section | Adds enough friction to discourage brute-force guessing without permanently locking players out. Atomic writes are required because the same phone+tablet race that bit `tokenService.awardTokens` would silently double-decrement lives without a transaction. Stub `adsService` returns `stub_mode` until a real ad SDK is wired in — no fake rewards |
+| 2026-07-03 | Added in-app Admin panel (`src/admin/adminService.ts`, `src/app/admin/index.tsx`) + `users.{isAdmin}` flag + `node scripts/admin.mjs grant-admin <uid>` CLI subcommand — developer-only controls for token / XP / level / lives / premium / refresh; all mutations guarded by `assertAdmin(caller)` and wrapped in `runTransaction`. Profile tab gets a "Panel Pentadbir" entry point that only renders when `isAdmin === true`. Documented in AGENTS.md "In-app admin panel" section | Solo-dev convenience — control the running app from inside without touching Firebase Console. CLI gate on promotion keeps admin status out of the bundle and prevents accidental self-promotion. Client-side enforcement only — proper server-side gating belongs in Cloud Functions once those land |
+| 2026-07-03 | Added admin unlock passphrase backdoor — `EXPO_PUBLIC_ADMIN_PASSPHRASE` env var + `src/config/adminUnlock.ts` (constant-time compare) + `grantAdminByPassphrase` service + "🔐 Admin Access" link + modal in `AuthScreen`. Empty env = feature hides entirely. Both CLI and in-app path flip the same `users/{uid}.isAdmin` boolean | Lets the dev self-promote without opening a terminal — same flip as `grant-admin`, just from inside the app. Client-side only — passphrase is bundled into the JS so it's discoverable by anyone who decodes the bundle. Proper fix is Cloud Functions + server-side check; this is a best-effort placeholder until then |
+| 2026-07-04 | Hid Profile-tab "🔐 Aktifkan Mod Pentadbir" menu item in favour of a hidden 5 s long-press gesture on the avatar — `ADMIN_HOLD_DURATION_MS` constant + `Animated.Value` driven progress bar that fades in below the avatar mid-hold + Pressable on the avatar itself. Gated on `isAdminUnlockConfigured()` AND `!userData.isAdmin`; otherwise the gesture is a silent no-op so users without `.env` configured don't see a visible-but-broken feature | Visible menu items leak the admin path to regular users. Long-press is obscurity not security (anyone who decodes the bundle can find the trigger), but it keeps casual discovery out and the Auth-screen text-link remains as the visible fallback. AGENTS.md "Admin unlock passphrase" section updated to call out the new hidden trigger |
 
 ---
 

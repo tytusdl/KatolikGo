@@ -26,15 +26,25 @@
  *     filterAndRank logic the app uses. Includes guest rows in a
  *     separate section for awareness.
  *
+ *   grant-admin <uid> [--revoke]
+ *     Toggle the `isAdmin` flag on a user document. Required to
+ *     unlock the in-app `/admin` panel — the app reads the flag off
+ *     `users/{uid}` and only shows the entry point if it's `true`.
+ *     Pass `--revoke` to flip it back off. Idempotent — re-running
+ *     with the same intent is a no-op aside from the Firestore
+ *     write stamp.
+ *
  * Examples:
  *   node scripts/admin.mjs find-user "Tetamu PCC6"
  *   node scripts/admin.mjs find-user PCc6sW5nGzSixZ7qytI5anjQQX53
  *   node scripts/admin.mjs delete-user PCc6sW5nGzSixZ7qytI5anjQQX53 --dry-run
  *   node scripts/admin.mjs delete-user PCc6sW5nGzSixZ7qytI5anjQQX53 --yes
  *   node scripts/admin.mjs dump-leaderboard --limit 20
+ *   node scripts/admin.mjs grant-admin PCc6sW5nGzSixZ7qytI5anjQQX53
+ *   node scripts/admin.mjs grant-admin PCc6sW5nGzSixZ7qytI5anjQQX53 --revoke
  */
 
-import { getDb, getAuth, getProjectId } from './lib/admin-firebase.mjs';
+import { getDb, getAuth, getProjectId, FieldValue } from './lib/admin-firebase.mjs';
 
 // ---------- arg parsing ----------------------------------------------------
 
@@ -60,11 +70,13 @@ function usage() {
       '  delete-user <uid> [--yes] [--dry-run]',
       '                                  Delete Firestore doc + Auth user',
       '  dump-leaderboard [--limit N]    Top N by totalXP (default 50)',
+      '  grant-admin <uid> [--revoke]    Toggle the isAdmin flag on users/{uid}',
       '',
       'Flags:',
       '  --yes                           Confirm destructive action (delete-user)',
       '  --dry-run                       Show what would happen without changing data',
       '  --limit N                       Limit results (dump-leaderboard)',
+      '  --revoke                        Reverse action (grant-admin → revoke)',
     ].join('\n')
   );
   process.exit(1);
@@ -317,6 +329,51 @@ async function dumpLeaderboard(limitArg) {
   console.log('\nSelesai.');
 }
 
+/**
+ * Toggle the `isAdmin` flag on a user document. Required to unlock
+ * the in-app `/admin` panel — the app reads the flag off
+ * `users/{uid}` and only shows the entry point if it's `true`.
+ *
+ * Default is GRANT (true). Pass `--revoke` to set it back to
+ * false (e.g. after a test session, or to hand the role to someone
+ * else). Idempotent — re-running is safe, just bumps updatedAt.
+ *
+ * Refuses to run on a non-existent doc (no point creating a fake
+ * admin profile if the user never registered).
+ */
+async function grantAdmin(uid) {
+  if (!uid) usage();
+
+  const db = getDb();
+  const target = flag('--revoke') ? false : true;
+  const userRef = db.collection('users').doc(uid);
+  const userDoc = await userRef.get();
+
+  if (!userDoc.exists) {
+    console.log(`Tiada dokumen untuk uid=${uid} — daftar dulu dalam app, kemudian grant-admin.`);
+    return;
+  }
+
+  const data = userDoc.data();
+  console.log(`Project : ${getProjectId()}`);
+  console.log(`Target  : ${uid}`);
+  console.log(`Email   : ${data.email || '(empty)'}`);
+  console.log(`Name    : ${data.displayName || '(empty)'}`);
+  console.log(`Current : isAdmin = ${!!data.isAdmin}`);
+  console.log(`Action  : isAdmin → ${target}`);
+
+  await userRef.update({
+    isAdmin: target,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  const verify = await userRef.get();
+  console.log(`\n✓ Done. New isAdmin = ${!!verify.get('isAdmin')}`);
+  if (target) {
+    console.log('\nNow sign in to the app as this user, then tap "Pentadbir" under Profil.');
+  }
+}
+
 // ---------- main ---------------------------------------------------------
 
 const [sub, ...rest] = positional;
@@ -332,6 +389,9 @@ try {
       break;
     case 'dump-leaderboard':
       await dumpLeaderboard(limitFlag);
+      break;
+    case 'grant-admin':
+      await grantAdmin(rest[0]);
       break;
     case undefined:
     case 'help':

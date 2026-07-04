@@ -79,6 +79,19 @@ export interface UserData {
    */
   isGuest?: boolean;
   /**
+   * Developer admin flag — unlocks the in-app `/admin` panel for the
+   * current user. Promoted via the `node scripts/admin.mjs
+   * grant-admin <uid>` CLI subcommand (Firebase Admin SDK) so it
+   * doesn't need to live in source code as a hardcoded UID list.
+   *
+   * Client-side enforcement only — Firestore rules aren't deployed
+   * yet (per AGENTS.md "Firestore rules design checklist"). Proper
+   * server-side gating belongs behind Cloud Functions when those
+   * land. Until then, treat this as a developer convenience, NOT a
+   * security boundary.
+   */
+  isAdmin?: boolean;
+  /**
    * Current remaining lives. Decrements by 1 on every wrong answer /
    * timeout in `quiz/[level].tsx` via `livesService.consumeLife`. Bounded
    * to [0, LIVES_MAX] by `livesService.refillIfNeeded`. Reaching 0

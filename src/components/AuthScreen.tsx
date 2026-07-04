@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -33,6 +33,8 @@ import {
 import { setRememberMe as persistRememberMe } from '@/utils/rememberMe';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import { isAdminUnlockConfigured } from '@/config/adminUnlock';
+import { AdminUnlockModal } from '@/admin/AdminUnlockModal';
 
 type Tab = 'login' | 'register';
 
@@ -81,6 +83,14 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
   const [socialLoading, setSocialLoading] = useState<
     'google' | 'apple' | 'guest' | null
   >(null);
+
+  // Admin unlock — surfaced only when EXPO_PUBLIC_ADMIN_PASSPHRASE
+  // is set in the build env. When unset the entry point hides
+  // entirely; we don't want a non-functional button visible to
+  // end users. The modal is shared with the Profile tab — see
+  // `src/admin/AdminUnlockModal.tsx`.
+  const adminUnlockAvailable = isAdminUnlockConfigured();
+  const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   const [googleRequest, , googlePromptAsync] = useGoogleAuthRequest();
 
@@ -226,6 +236,14 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
       setSocialLoading(null);
     }
   };
+
+  const openAdminModal = useCallback(() => {
+    setAdminModalOpen(true);
+  }, []);
+
+  const closeAdminModal = useCallback(() => {
+    setAdminModalOpen(false);
+  }, []);
 
   const anyLoading = submitting || socialLoading !== null;
 
@@ -483,8 +501,37 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
               </>
             )}
           </TouchableOpacity>
+
+          {/* Developer-only "Admin Access" — surfaces only when the
+              passphrase env var is configured. Visually muted so
+              normal users don't fixate on it; the dev knows it's
+              there. Tap opens a modal that asks for the passphrase
+              and grants `isAdmin: true` on the current user doc. */}
+          {adminUnlockAvailable && (
+            <TouchableOpacity
+              style={styles.adminBtn}
+              onPress={openAdminModal}
+              activeOpacity={0.6}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={14}
+                color="rgba(255,255,255,0.5)"
+              />
+              <Text style={styles.adminBtnText}>Admin Access</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </LinearGradient>
+
+      {/* Admin unlock modal — extracted to `@/admin/AdminUnlockModal`
+          so the same component is reachable from the Profile tab.
+          Caller (this screen) only owns visibility + user ref. */}
+      <AdminUnlockModal
+        visible={adminModalOpen}
+        onClose={closeAdminModal}
+        user={user}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -685,5 +732,26 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.75)',
     fontSize: FontSize.sm,
     fontWeight: '500',
+  },
+
+  // ---- Admin Access entry point (button only — modal lives in
+  // `@/admin/AdminUnlockModal`) ----
+  // Intentionally small + muted so it doesn't fight with the
+  // primary CTAs (Log Masuk, Google, Guest). The dev knows it's
+  // there; end users shouldn't fixate on it.
+  adminBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    marginTop: Spacing.md,
+  },
+  adminBtnText: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textDecorationLine: 'underline',
   },
 });
