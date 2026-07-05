@@ -1,0 +1,2914 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KatolikGo · Mockup v1 / v2 / v3 (Trio comparison)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       GLOBAL
+       ============================================================ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+      background:
+        radial-gradient(at 0% 0%, #c7d8ff 0%, transparent 50%),
+        radial-gradient(at 100% 100%, #ffe8e3 0%, transparent 50%),
+        #f0f4ff;
+      min-height: 100vh;
+      color: #1a1a2e;
+      padding: 36px 16px 60px;
+    }
+
+    .preview-label {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .preview-label h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 30px;
+      color: #1c5fe0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .preview-label h1 .accent { color: #c9a227; }
+    .preview-label p {
+      color: #6b7280;
+      font-size: 13px;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .preview-label .tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 5px 14px;
+      background: #c9a227;
+      color: #1a3a5c;
+      border-radius: 999px;
+      font-family: 'Fredoka';
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .phone-pair {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 32px;
+      flex-wrap: wrap;
+      max-width: 1180px;
+      margin: 28px auto 0;
+    }
+    .phone-half {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .phone-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: 'Fredoka';
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      box-shadow: 0 6px 16px rgba(20, 40, 80, 0.08);
+    }
+    .phone-label.v1 { background: linear-gradient(135deg, #d6e8ff, #b3d4ff); color: #1a3a5c; }
+    .phone-label.v2 { background: linear-gradient(135deg, #1c5fe0, #4d8bff); color: white; }
+    .phone-label.v3 { background: linear-gradient(135deg, #ff6b35, #ffa45c); color: white; }
+
+    /* Shared phone frame */
+    .phone {
+      width: 340px;
+      height: 740px;
+      border-radius: 44px;
+      padding: 14px;
+      overflow: hidden;
+      box-shadow:
+        0 14px 36px rgba(20, 40, 80, 0.18),
+        0 0 0 4px rgba(26, 58, 92, 0.06);
+    }
+    .phone-v1 {
+      background: #ffffff;
+      box-shadow:
+        0 14px 36px rgba(20, 40, 80, 0.18),
+        0 0 0 4px #1a1a2e0a;
+    }
+    .phone-v2 {
+      background: #0a1f3c;
+      box-shadow:
+        0 14px 36px rgba(20, 40, 80, 0.28),
+        0 0 0 4px rgba(26, 58, 92, 0.06),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.04);
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 30px;
+      overflow: hidden;
+      position: relative;
+    }
+.phone-screen.v1 { background: #eaf0fb; }
+.phone-screen.v2 { background: #1c5fe0; }
+.phone-screen.v3 { background: #fff6e5; }
+
+    /* ============================================================
+       v1 TOKENS + TAB SYSTEM
+       ============================================================ */
+    .phone-screen.v1 {
+      --primary: #1a3a5c;
+      --primary-light: #2a5a8c;
+      --accent: #c9a227;
+      --accent-light: #e0bd4d;
+      --bg: #eaf0fb;
+      --card-bg: #ffffff;
+      --hero-blue: #4a90e2;
+      --tile-pink: #ff6b9d;
+      --tile-teal: #2dd4bf;
+      --lives: #ef4444;
+      --level: #8b5cf6;
+      --hints: #f59e0b;
+      --ff: #a855f7;
+      --success: #10b981;
+      --text: #1a1a2e;
+      --text-sec: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 6px 16px rgba(20, 40, 80, 0.08);
+      --shadow-deep: 0 12px 32px rgba(20, 40, 80, 0.18);
+    }
+    /* ============================================================
+       v2 TOKENS + TAB SYSTEM
+       ============================================================ */
+    .phone-screen.v2 {
+      --primary: #1c5fe0;
+      --primary-dark: #1249b6;
+      --primary-light: #4d8bff;
+      --primary-pale: #e8f0ff;
+      --navy: #1a3a5c;
+      --navy-deep: #0f2540;
+      --accent: #c9a227;
+      --accent-light: #e0bd4d;
+      --cta: #ffcc1f;
+      --cta-dark: #f5b800;
+      --token: #ff6b9d;
+      --lives: #ff5577;
+      --selected: #a855f7;
+      --selected-dark: #7e22ce;
+      --correct: #34d399;
+      --correct-dark: #10b981;
+      --wrong: #ff5577;
+      --online: #22c55e;
+      --card-bg: #ffffff;
+      --text: #1a3a5c;
+      --text-sec: #6b7280;
+      --shadow: 0 6px 16px rgba(20, 40, 80, 0.08);
+      --shadow-deep: 0 12px 32px rgba(20, 40, 80, 0.18);
+    }
+
+    /* Shared tab system across both phones */
+    .tab-screen {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      scrollbar-width: none;
+    }
+    .tab-screen::-webkit-scrollbar { display: none; }
+    .tab-screen.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .tab-bar {
+      position: absolute;
+      bottom: 12px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+    /* v1 tab-bar - floating pill, matches mockup-v1.html */
+    .phone-screen.v1 .tab-bar {
+      left: 14px;
+      right: 14px;
+      height: 58px;
+      background: white;
+      border-radius: 22px;
+      padding: 0 6px;
+      box-shadow: var(--shadow-deep);
+    }
+    /* v2 tab-bar - floating pill, matches mockup-v2.html */
+    .phone-screen.v2 .tab-bar {
+      left: 14px;
+      right: 14px;
+      height: 60px;
+      background: white;
+      border-radius: 24px;
+      padding: 0 4px;
+      box-shadow: var(--shadow-deep);
+    }
+
+    /* v1 tab-item - icon-only 44x44 grid (per mockup-v1.html) */
+    .phone-screen.v1 .tab-item {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      font-size: 20px;
+      color: var(--text-sec);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      flex: none;
+      padding: 0;
+      gap: 0;
+    }
+    .phone-screen.v1 .tab-item:active { transform: scale(0.94); }
+    .phone-screen.v1 .tab-item.active {
+      background: var(--bg);
+      color: var(--primary);
+    }
+    .phone-screen.v1 .tab-item .tab-icon,
+    .phone-screen.v1 .tab-item .t-icon {
+      width: auto;
+      height: auto;
+      background: transparent;
+      border-radius: 0;
+      color: inherit;
+      display: contents;
+    }
+    .phone-screen.v1 .tab-item .tab-label,
+    .phone-screen.v1 .tab-item .t-label {
+      display: none;
+    }
+
+    /* v2 tab-item - icon+label 50px column (per mockup-v2.html) */
+    .phone-screen.v2 .tab-item {
+      width: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      padding: 6px 0;
+      position: relative;
+      transition: transform 0.15s ease;
+    }
+    .phone-screen.v2 .tab-item:active { transform: scale(0.94); }
+    .phone-screen.v2 .tab-item .t-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--text-sec);
+      background: transparent;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .phone-screen.v2 .tab-item.active .t-icon {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 10px rgba(28, 95, 224, 0.3);
+    }
+    .phone-screen.v2 .tab-item .t-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--text-sec);
+      letter-spacing: 0.3px;
+      transition: color 0.2s ease;
+    }
+    .phone-screen.v2 .tab-item.active .t-label {
+      color: var(--primary);
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+.phone-screen.v1 .status-bar { color: var(--primary); }
+.phone-screen.v2 .status-bar {
+      color: white;
+      position: relative;
+      z-index: 5;
+    }
+.phone-screen.v3 .status-bar { color: #1a1a1a; }
+.status-icons { display: flex; gap: 3px; align-items: center; }
+
+    /* ============================================================
+       v3 TOKENS + PHONE FRAME + TAB-BAR
+       ============================================================ */
+.phone-screen.v3 {
+      --orange: #ff6b35;
+      --orange-dark: #e85a2a;
+      --orange-light: #ffa45c;
+      --orange-soft: #ffd4b8;
+      --cream: #fff6e5;
+      --cream-deep: #fdebc8;
+      --gold: #ffb627;
+      --gold-deep: #d9951a;
+      --black: #1a1a1a;
+      --text: #1a1a1a;
+      --text-sec: #8b8b8b;
+      --card-bg: #ffffff;
+      --shadow-card: 0 6px 18px rgba(255, 107, 53, 0.12);
+      --shadow-deep: 0 12px 32px rgba(20, 20, 20, 0.18);
+    }
+.phone-v3 {
+      background: #ffffff;
+      box-shadow:
+        0 14px 36px rgba(20, 40, 80, 0.18),
+        0 0 0 4px rgba(255, 107, 53, 0.10);
+    }
+
+    /* v3 tab-bar — Black floating pill (matches v3 design) */
+.phone-screen.v3 .tab-bar.v3-tab-bar {
+      left: 18px;
+      right: 18px;
+      height: 62px;
+      background: var(--black);
+      border-radius: 999px;
+      padding: 6px;
+      gap: 0;
+    }
+.phone-screen.v3 .tab-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease;
+      padding: 0;
+      width: auto;
+      height: 100%;
+    }
+.phone-screen.v3 .tab-item:active { transform: scale(0.94); }
+.phone-screen.v3 .tab-item .v3.ti-icon,
+.phone-screen.v3 .tab-item .v3.ti-label {
+      color: rgba(255,255,255,0.6);
+      transition: color 0.18s ease;
+    }
+.phone-screen.v3 .tab-item.active {
+      background: var(--orange);
+    }
+.phone-screen.v3 .tab-item.active .v3.ti-icon,
+.phone-screen.v3 .tab-item.active .v3.ti-label { color: white; }
+.phone-screen.v3 .tab-item .v3.ti-icon { font-size: 20px; }
+.phone-screen.v3 .tab-item .v3.ti-label {
+      font-size: 11px;
+      font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      letter-spacing: 0.2px;
+      display: none;
+    }
+.phone-screen.v3 .tab-item.active .v3.ti-label { display: inline; }
+
+    /* ============================================================
+       v3 SCREEN TOKENS
+       ============================================================ */
+.v3 { font-family: 'Nunito', sans-serif; color: var(--text); }
+.v3 * { box-sizing: border-box; }
+
+.v3.home-content {
+      padding: 0 16px 100px;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+.v3.home-content::-webkit-scrollbar { display: none; }
+
+.v3.home-top {
+      display: flex; align-items: center; gap: 12px;
+      padding: 4px 0 18px;
+    }
+.v3.avatar-bible {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--orange-light), var(--orange));
+      display: grid; place-items: center;
+      box-shadow: 0 4px 12px rgba(255,107,53,0.35);
+    }
+.v3.home-greeting { flex: 1; }
+.v3.home-greeting .hello { font-weight: 800; font-size: 15px; color: #1a1a1a; }
+.v3.home-greeting .sub { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+
+.v3.coins-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: white;
+      border: 1.5px solid var(--orange-soft);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--orange-dark);
+      box-shadow: var(--shadow-card);
+    }
+
+.v3.cta-card {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      border-radius: 24px;
+      padding: 22px 18px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(255,107,53,0.35);
+    }
+.v3.cta-glow {
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,182,39,0.4) 0%, transparent 70%);
+    }
+.v3.cta-content { position: relative; z-index: 1; }
+.v3.cta-eyebrow {
+      color: rgba(255,255,255,0.85);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+.v3.cta-title {
+      color: white;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+.v3.cta-btn {
+      width: 100%;
+      background: white;
+      color: var(--orange-dark);
+      border: 0;
+      padding: 12px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+    }
+.v3.cta-arrow { font-size: 18px; }
+
+.v3.home-search {
+      display: flex; align-items: center; gap: 8px;
+      background: white;
+      border: 1.5px solid var(--orange-soft);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+    }
+.v3.search-icon { font-size: 14px; }
+.v3.search-input {
+      flex: 1; border: 0; outline: 0;
+      background: transparent;
+      font-size: 13px; font-family: 'Nunito';
+      color: var(--text);
+    }
+
+.v3.section-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin: 4px 2px 12px;
+    }
+.v3.section-title {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--text);
+    }
+.v3.section-link {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--orange);
+    }
+
+.v3.topic-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+.v3.topic-card {
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow-card);
+      display: flex; flex-direction: column; gap: 6px;
+      cursor: pointer;
+    }
+.v3.topic-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      font-size: 22px;
+      background: linear-gradient(135deg, var(--orange-soft), #fff6e5);
+    }
+.v3.topic-icon.alkitab { background: linear-gradient(135deg, #ffd4b8, #fff6e5); }
+.v3.topic-icon.katekismus { background: linear-gradient(135deg, #d1fae5, #f0fdf4); }
+.v3.topic-icon.sakramen { background: linear-gradient(135deg, #fee2e2, #fff1f2); }
+.v3.topic-icon.santo { background: linear-gradient(135deg, #ddd6fe, #f5f3ff); }
+.v3.topic-name { font-weight: 800; font-size: 13px; color: var(--text); }
+.v3.topic-count { font-size: 10px; color: var(--text-sec); font-weight: 600; }
+
+.v3.recent-list { display: flex; flex-direction: column; gap: 8px; }
+.v3.recent-item {
+      display: flex; align-items: center; gap: 12px;
+      background: white;
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-card);
+    }
+.v3.recent-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: 18px;
+    }
+.v3.recent-icon.alkitab-bg { background: #fff6e5; }
+.v3.recent-icon.katekismus-bg { background: #d1fae5; }
+.v3.recent-info { flex: 1; }
+.v3.recent-name { font-weight: 700; font-size: 12px; }
+.v3.recent-meta { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
+.v3.recent-score {
+      font-weight: 800; font-size: 12px;
+      padding: 4px 10px; border-radius: 999px;
+    }
+.v3.recent-score.ok { background: #d1fae5; color: #065f46; }
+.v3.recent-score.good { background: var(--orange-soft); color: var(--orange-dark); }
+
+    /* ============================================================
+       v3 KUIZ SCREEN
+       ============================================================ */
+.tab-screen.v3-kuiz { padding: 0 16px 16px; }
+.v3.kuiz-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 4px 14px;
+    }
+.v3.back-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: white; border: 0;
+      font-size: 22px;
+      display: grid; place-items: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+    }
+.v3.kuiz-progress { font-weight: 800; font-size: 13px; }
+.v3.kuiz-progress b { color: var(--orange); font-size: 16px; }
+.v3.lives-mini {
+      font-size: 12px;
+      font-weight: 800;
+      color: #ef4444;
+    }
+.v3.timer-bar {
+      width: 100%; height: 6px;
+      background: rgba(255,107,53,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+.v3.timer-fill {
+      width: 65%; height: 100%;
+      background: linear-gradient(90deg, var(--orange), #ff8559);
+      border-radius: 3px;
+    }
+.v3.question-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+    }
+.v3.question-cat {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+.v3.question-text {
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 18px;
+    }
+.v3.answer-list { display: flex; flex-direction: column; gap: 10px; }
+.v3.answer-btn {
+      background: #fff;
+      border: 2px solid var(--orange-soft);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+      font-family: 'Nunito';
+      font-size: 14px;
+      text-align: left;
+      color: var(--text);
+    }
+.v3.answer-btn b {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      background: var(--orange-soft);
+      color: var(--orange-dark);
+      display: grid; place-items: center;
+      font-size: 13px;
+    }
+.v3.answer-btn.correct {
+      border-color: #16a34a;
+      background: #d1fae5;
+    }
+.v3.answer-btn.correct b { background: #16a34a; color: white; }
+.v3.answer-tick {
+      margin-left: auto;
+      color: #16a34a;
+      font-weight: 800;
+    }
+.v3.powerup-row {
+      display: flex; gap: 8px;
+      margin: 18px 0;
+    }
+.v3.powerup {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      border: 0;
+      background: white;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      font-family: 'Nunito';
+    }
+.v3.powerup.half { color: #a855f7; }
+.v3.powerup.hint { color: var(--gold-deep); }
+.v3.next-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: var(--orange);
+      color: white;
+      border: 0;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: 'Nunito';
+      box-shadow: 0 6px 16px rgba(255,107,53,0.4);
+    }
+
+    /* ============================================================
+       v3 PROFIL SCREEN
+       ============================================================ */
+.tab-screen.v3-profil { padding: 0 16px 100px; overflow-y: auto; }
+.tab-screen.v3-profil::-webkit-scrollbar { display: none; }
+.v3.profile-hero {
+      text-align: center;
+      padding: 8px 0 16px;
+    }
+.v3.profile-avatar {
+      display: inline-block;
+      padding: 4px;
+      border-radius: 50%;
+      margin-bottom: 8px;
+    }
+.v3.profile-name {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+.v3.profile-handle {
+      font-size: 12px;
+      color: var(--orange);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+.v3.stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+.v3.stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--shadow-card);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+.v3.stat-emoji { font-size: 20px; }
+.v3.stat-val {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+    }
+.v3.stat-label { font-size: 10px; color: var(--text-sec); font-weight: 600; line-height: 1.3; }
+.v3.progress-card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow-card);
+    }
+.v3.progress-head {
+      display: flex; flex-direction: column; gap: 4px;
+      font-size: 11px; color: var(--text-sec);
+    }
+.v3.progress-head b { color: var(--text); font-size: 13px; }
+.v3.progress-info { font-size: 10px; color: var(--text-sec); margin-top: 4px; }
+.v3.menu-list { display: flex; flex-direction: column; gap: 6px; }
+.v3.menu-item {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: var(--shadow-card);
+    }
+.v3.menu-item.premium {
+      background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+      color: white;
+      justify-content: space-between;
+    }
+.v3.pro-pill {
+      background: white;
+      color: var(--orange);
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+.v3.menu-item.danger { color: #ef4444; }
+
+    /* ============================================================
+       v3 PAPAN SCREEN
+       ============================================================ */
+.tab-screen.v3-papan {
+      background: linear-gradient(180deg, #fff6e5 0%, #fdebc8 50%, #fff6e5 100%);
+    }
+.v3.papan-title-bar {
+      padding: 6px 16px 18px;
+      text-align: center;
+    }
+.v3.papan-title-bar h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      color: var(--text);
+    }
+.v3.podium {
+      display: flex; align-items: flex-end; justify-content: center; gap: 8px;
+      padding: 0 16px 22px;
+      position: relative;
+    }
+.v3.podium-slot { text-align: center; flex: 1; }
+.v3.podium-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: white;
+      display: grid; place-items: center;
+      margin: 0 auto 4px;
+      font-size: 28px;
+      box-shadow: var(--shadow-card);
+    }
+.v3.podium-slot.first .podium-avatar {
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      transform: scale(1.2);
+      margin-bottom: 8px;
+    }
+.v3.podium-name {
+      font-weight: 800; font-size: 11px;
+      margin-bottom: 6px;
+    }
+.v3.podium-bar {
+      height: 70px;
+      border-radius: 12px 12px 4px 4px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+    }
+.v3.podium-slot.first .podium-bar { height: 92px; background: linear-gradient(180deg, var(--orange) 0%, var(--orange-dark) 100%); }
+.v3.podium-slot.second .podium-bar { background: #4d8bff; }
+.v3.podium-slot.third .podium-bar { background: #16a34a; height: 56px; }
+
+.v3.papan-list {
+      padding: 0 16px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+.v3.rank-row {
+      background: white;
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px;
+      box-shadow: var(--shadow-card);
+    }
+.v3.rank-row.highlight {
+      background: linear-gradient(90deg, var(--orange-soft), white);
+      border: 1.5px solid var(--orange);
+    }
+.v3.rank-num {
+      width: 22px;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      color: var(--orange);
+      font-size: 14px;
+    }
+.v3.rank-avatar { font-size: 20px; }
+.v3.rank-name { flex: 1; font-weight: 700; }
+.v3.rank-pts { font-weight: 800; font-size: 11px; color: var(--orange); }
+
+    /* ============================================================
+       v3 RESULT MODAL — reuses v2 modal styles, mostly identical
+       ============================================================ */
+.v3-result-modal .result-card {
+      padding: 26px 22px;
+    }
+.v3.result-trophy {
+      font-size: 56px;
+      margin: 0 auto 8px;
+      width: 80px; height: 80px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      box-shadow: 0 8px 20px rgba(255, 182, 39, 0.5);
+    }
+.v3-result-modal .result-title { color: var(--text); }
+.v3-result-modal .result-confetti {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, var(--gold) 0, transparent 6%),
+        radial-gradient(circle at 80% 40%, var(--orange) 0, transparent 5%),
+        radial-gradient(circle at 50% 80%, #34d399 0, transparent 5%);
+      opacity: 0.4;
+    }
+
+    /* ============================================================
+       v1 - HOME STYLES
+       ============================================================ */
+    .v1 .home-content {
+      padding: 0 12px 12px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .v1 .home-hero {
+      background: linear-gradient(135deg, #b3d4ff 0%, #d6e8ff 100%);
+      border-radius: 0 0 24px 24px;
+      padding: 14px 16px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .v1 .home-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 90% 20%, rgba(255,255,255,0.55) 0%, transparent 25%),
+        radial-gradient(circle at 10% 80%, rgba(255,255,255,0.5) 0%, transparent 30%);
+      pointer-events: none;
+    }
+    .v1 .greeting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .v1 .greeting-left { display: flex; align-items: center; gap: 10px; }
+    .v1 .avatar-circle {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      display: grid; place-items: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      border: 3px solid white;
+      box-shadow: 0 3px 10px rgba(201, 162, 39, 0.4);
+    }
+    .v1 .greeting-text { color: var(--primary); }
+    .v1 .greeting-text .hello { font-size: 13px; font-weight: 700; line-height: 1; }
+    .v1 .greeting-text .name {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-top: 2px;
+      color: var(--primary);
+      letter-spacing: -0.2px;
+    }
+    .v1 .greeting-text .cta  { font-size: 9px; opacity: 0.7; margin-top: 2px; }
+    .v1 .bell-icon {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: white;
+      display: grid; place-items: center;
+      box-shadow: var(--shadow);
+      position: relative;
+      cursor: pointer;
+    }
+    .v1 .bell-dot {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 14px; height: 14px;
+      background: var(--lives);
+      border-radius: 50%;
+      border: 2px solid white;
+      font-size: 8px;
+      color: white;
+      display: grid; place-items: center;
+      font-weight: 800;
+    }
+    .v1 .resource-card {
+      background: white;
+      border-radius: 22px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      z-index: 5;
+    }
+    .v1 .rc-level-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
+    }
+    .v1 .rc-level-left { display: flex; align-items: center; gap: 8px; }
+    .v1 .rc-level-badge {
+      background: linear-gradient(135deg, var(--level), #c084fc);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      box-shadow: 0 3px 6px rgba(139, 92, 246, 0.3);
+    }
+    .v1 .rc-level-name { font-size: 12px; font-weight: 800; color: var(--primary); }
+    .v1 .rc-xp-percent { font-size: 13px; font-weight: 800; color: var(--accent); }
+    .v1 .rc-xp-bar {
+      height: 8px; background: #f0f4ff;
+      border-radius: 999px; overflow: hidden; margin-bottom: 4px;
+    }
+    .v1 .rc-xp-fill {
+      height: 100%; width: 65%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      border-radius: 999px;
+    }
+    .v1 .rc-xp-text {
+      font-size: 9px; color: var(--text-sec);
+      text-align: right; font-weight: 600;
+    }
+    .v1 .rc-divider { height: 1px; background: #eef1f7; margin: 12px 0; }
+    .v1 .rc-lives-row {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .v1 .rc-hearts { display: flex; gap: 4px; }
+    .v1 .rc-heart { font-size: 18px; filter: drop-shadow(0 1px 2px rgba(239,68,68,0.3)); }
+    .v1 .rc-refill-btn {
+      background: linear-gradient(135deg, #ff6b6b, var(--lives));
+      color: white;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      box-shadow: 0 3px 8px rgba(239, 68, 68, 0.3);
+      cursor: pointer;
+    }
+    .v1 .rc-lives-timer {
+      display: flex; align-items: center; gap: 10px;
+      background: #fff5f5;
+      border: 1px solid #ffd6d6;
+      border-radius: 12px;
+      padding: 8px 12px; margin-top: 10px;
+    }
+    .v1 .rc-timer-icon { font-size: 18px; color: var(--lives); }
+    .v1 .rc-timer-info { flex: 1; }
+    .v1 .rc-timer-label {
+      font-size: 9px; font-weight: 700; color: var(--lives);
+      text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;
+    }
+    .v1 .rc-timer-count {
+      font-size: 12px; font-weight: 800; color: var(--primary);
+      margin-top: 3px; line-height: 1;
+    }
+    .v1 .rc-timer-fill {
+      width: 50px; height: 6px; background: #fecaca;
+      border-radius: 999px; overflow: hidden;
+    }
+    .v1 .rc-timer-fill-bar {
+      width: 62%; height: 100%;
+      background: linear-gradient(90deg, #ff6b6b, var(--lives));
+      border-radius: 999px;
+    }
+    .v1 .rc-secondary-row { display: flex; gap: 8px; margin-top: 12px; }
+    .v1 .rc-secondary-block {
+      flex: 1; display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: #f8faff; border-radius: 14px;
+      border: 1px solid #eef1f7;
+    }
+    .v1 .rc-secondary-emoji {
+      font-size: 22px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+    .v1 .rc-secondary-value {
+      font-size: 14px; font-weight: 800; color: var(--primary); line-height: 1;
+    }
+    .v1 .rc-secondary-label {
+      font-size: 9px; font-weight: 700; color: var(--text-sec);
+      text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px;
+    }
+    .v1 .section-title {
+      font-size: 14px; font-weight: 800; color: var(--primary);
+      margin: 14px 0 8px;
+    }
+    .v1 .subject-row { display: flex; gap: 10px; padding: 0 4px; }
+    .v1 .subject-card {
+      flex: 1; border-radius: 20px; padding: 12px 10px;
+      min-height: 110px; display: flex; flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-deep);
+      cursor: pointer; position: relative; overflow: hidden;
+      color: white;
+    }
+    .v1 .subject-card.scripture { background: linear-gradient(145deg, #ff7eb0 0%, #ff5e8e 100%); }
+    .v1 .subject-card.catechism { background: linear-gradient(145deg, #34e0c1 0%, #14b8a6 100%); }
+    .v1 .subject-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 1;
+    }
+    .v1 .subject-title { font-size: 13px; font-weight: 800; line-height: 1.1; }
+    .v1 .subject-count {
+      font-size: 9px; background: rgba(255,255,255,0.25);
+      padding: 2px 7px; border-radius: 999px; font-weight: 700;
+    }
+    .v1 .subject-visual {
+      height: 48px; display: grid; place-items: center;
+      font-size: 42px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.18));
+    }
+    .v1 .quiz-list {
+      display: flex; flex-direction: column; gap: 8px;
+      padding-bottom: 90px;
+    }
+    .v1 .quiz-item {
+      background: white; border-radius: 14px; padding: 10px 12px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow); cursor: pointer;
+    }
+    .v1 .quiz-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 17px; flex-shrink: 0;
+    }
+    .v1 .quiz-icon.scripture  { background: #f3e8ff; }
+    .v1 .quiz-icon.sakramen    { background: #dbeafe; }
+    .v1 .quiz-icon.liturgi     { background: #fef3c7; }
+    .v1 .quiz-icon.katekismus  { background: #d1fae5; }
+    .v1 .quiz-info { flex: 1; min-width: 0; }
+    .v1 .quiz-name { font-size: 12px; font-weight: 700; color: var(--primary); }
+    .v1 .quiz-status { font-size: 9px; color: var(--text-sec); margin-top: 1px; }
+    .v1 .quiz-progress-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 9px; font-weight: 800; color: var(--primary);
+    }
+    .v1 .quiz-progress-circle.pending { background: conic-gradient(var(--tile-pink) 25%, #ffe3ee 25%); }
+    .v1 .quiz-progress-circle.completed { background: var(--success); color: white; }
+
+    /* v1 KUIZ LIST */
+    .v1 .quiz-screen-content { padding: 14px 14px 100px; }
+    .v1 .quiz-screen-title {
+      font-size: 22px; font-weight: 800; color: var(--primary);
+      letter-spacing: -0.3px; margin-bottom: 4px;
+    }
+    .v1 .quiz-screen-sub {
+      font-size: 12px; color: var(--text-sec);
+      font-weight: 600; margin-bottom: 14px;
+    }
+    .v1 .quiz-category-tabs {
+      display: flex; gap: 6px; overflow-x: auto;
+      margin-bottom: 14px; scrollbar-width: none;
+    }
+    .v1 .quiz-category-tabs::-webkit-scrollbar { display: none; }
+    .v1 .quiz-cat-chip {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 999px;
+      background: white; color: var(--primary);
+      font-weight: 800; font-size: 12px;
+      box-shadow: var(--shadow); cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      border: 2px solid transparent;
+    }
+    .v1 .quiz-cat-chip.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: white; border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
+    }
+    .v1 .quiz-cat-chip .chip-emoji {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--bg); display: grid; place-items: center; font-size: 12px;
+    }
+    .v1 .quiz-cat-chip.active .chip-emoji { background: rgba(255,255,255,0.3); }
+    .v1 .level-list { display: flex; flex-direction: column; gap: 10px; }
+    .v1 .level-card {
+      background: white; border-radius: 16px; padding: 14px;
+      box-shadow: var(--shadow); cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .v1 .level-card.locked {
+      background: linear-gradient(135deg, #f5f7fa, #e8eaf0);
+      opacity: 0.7; cursor: not-allowed;
+    }
+    .v1 .level-card-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .v1 .level-num {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white; font-size: 16px; font-weight: 800;
+      display: grid; place-items: center;
+      box-shadow: 0 3px 8px rgba(26, 58, 92, 0.3);
+    }
+    .v1 .level-card.locked .level-num { background: linear-gradient(135deg, #b0b8c5, #8b92a1); }
+    .v1 .level-cat-tag {
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 9px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .v1 .level-cat-tag.alkitab { background: #f3e8ff; color: #6b21a8; }
+    .v1 .level-cat-tag.sakramen { background: #dbeafe; color: #1e40af; }
+    .v1 .level-cat-tag.liturgi { background: #fef3c7; color: #92400e; }
+    .v1 .level-cat-tag.katekismus { background: #d1fae5; color: #065f46; }
+    .v1 .level-title {
+      font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 6px;
+    }
+    .v1 .level-meta {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: var(--text-sec); font-weight: 700;
+    }
+    .v1 .level-difficulty {
+      padding: 2px 8px; border-radius: 999px;
+      font-size: 9px; font-weight: 700;
+    }
+    .v1 .level-difficulty.mudah { background: #d1fae5; color: #065f46; }
+    .v1 .level-difficulty.sederhana { background: #fef3c7; color: #92400e; }
+    .v1 .level-locked-icon {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 16px; color: var(--text-sec);
+    }
+
+    /* v1 KEDUDUKAN */
+    .v1 .lb-content { padding: 0 14px 100px; }
+    .v1 .lb-top-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0 14px; gap: 6px;
+    }
+    .v1 .lb-stat {
+      display: flex; align-items: center; gap: 5px;
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.18), rgba(74, 144, 226, 0.08));
+      padding: 5px 10px; border-radius: 999px;
+      color: var(--primary); font-size: 11px; font-weight: 800;
+      border: 1px solid rgba(74, 144, 226, 0.2);
+    }
+    .v1 .lb-stat.lives { background: rgba(239, 68, 68, 0.15); color: var(--lives); border-color: rgba(239, 68, 68, 0.25); }
+    .v1 .lb-stat.lvl   { background: rgba(139, 92, 246, 0.15); color: var(--level); border-color: rgba(139, 92, 246, 0.25); }
+    .v1 .lb-stat.xp    { background: rgba(201, 162, 39, 0.18); color: #8a6f1a; border-color: rgba(201, 162, 39, 0.35); }
+    .v1 .lb-title-row {
+      background: linear-gradient(135deg, var(--hero-blue), #5a9eea);
+      border-radius: 20px; padding: 14px 16px;
+      color: white; text-align: center;
+      box-shadow: 0 6px 18px rgba(74, 144, 226, 0.32);
+      margin-bottom: 16px;
+    }
+    .v1 .lb-title-row h2 {
+      font-size: 18px; font-weight: 800; letter-spacing: -0.2px;
+    }
+    .v1 .lb-title-row p {
+      font-size: 11px; opacity: 0.85; font-weight: 600; margin-top: 2px;
+    }
+    .v1 .lb-podium {
+      display: flex; justify-content: center;
+      align-items: flex-end; gap: 8px; margin: 4px 0 18px;
+    }
+    .v1 .lb-podium-slot { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .v1 .lb-podium-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 22px;
+      background: white; border: 3px solid white;
+      box-shadow: var(--shadow); position: relative;
+    }
+    .v1 .lb-podium-avatar.gold { border-color: var(--accent); }
+    .v1 .lb-podium-avatar.silver { border-color: #c0c8d4; }
+    .v1 .lb-podium-avatar.bronze { border-color: #cd7f32; }
+    .v1 .lb-podium-crown {
+      position: absolute; top: -22px; left: 50%;
+      transform: translateX(-50%); font-size: 20px;
+    }
+    .v1 .lb-podium-name {
+      font-size: 11px; font-weight: 800; color: var(--primary);
+      max-width: 70px; text-align: center;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      margin-top: 4px;
+    }
+    .v1 .lb-podium-bar {
+      width: 80px; border-radius: 12px 12px 0 0;
+      display: grid; place-items: center; color: white;
+      font-weight: 800; font-size: 22px;
+      padding: 8px 0; margin-top: 2px;
+    }
+    .v1 .lb-podium-bar.gold   { background: linear-gradient(180deg, #ffd700, #c89e00); height: 80px; box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4); }
+    .v1 .lb-podium-bar.silver { background: linear-gradient(180deg, #d8dde7, #a8b0bf); height: 64px; }
+    .v1 .lb-podium-bar.bronze { background: linear-gradient(180deg, #cd7f32, #9d5e22); height: 50px; }
+    .v1 .lb-podium-bar .bar-rank {
+      font-size: 12px; opacity: 0.9; margin-bottom: 2px;
+    }
+    .v1 .lb-list {
+      background: white; border-radius: 18px 18px 0 0;
+      padding: 12px 12px 0; box-shadow: var(--shadow);
+    }
+    .v1 .lb-list-title {
+      font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 10px;
+    }
+    .v1 .lb-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 8px; border-radius: 12px;
+      background: #f8faff; margin-bottom: 6px;
+    }
+    .v1 .lb-row.me {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white; box-shadow: 0 4px 12px rgba(26, 58, 92, 0.3);
+    }
+    .v1 .lb-row .lb-rank {
+      width: 24px; text-align: center;
+      font-size: 11px; font-weight: 800; color: var(--text-sec);
+    }
+    .v1 .lb-row.me .lb-rank { color: white; }
+    .v1 .lb-row .lb-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: white; display: grid; place-items: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .v1 .lb-row .lb-name {
+      flex: 1; font-size: 12px; font-weight: 700; color: var(--primary);
+    }
+    .v1 .lb-row.me .lb-name { color: white; }
+    .v1 .lb-row .lb-xp {
+      font-size: 10px; font-weight: 800; color: var(--accent);
+      background: rgba(201, 162, 39, 0.15);
+      padding: 3px 8px; border-radius: 999px;
+    }
+    .v1 .lb-row.me .lb-xp {
+      background: rgba(255, 255, 255, 0.2); color: white;
+    }
+
+    /* v1 PROFIL */
+    .v1 .profile-content { padding: 0 0 100px; }
+    .v1 .profile-hero {
+      background: linear-gradient(180deg, var(--hero-blue), #5a9eea);
+      padding: 20px 18px 50px; color: white;
+      text-align: center; overflow: hidden;
+    }
+    .v1 .prof-avatar-lg {
+      width: 86px; height: 86px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      display: grid; place-items: center; font-size: 36px;
+      color: white; font-weight: 800;
+      border: 4px solid white;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.2);
+      margin: 0 auto;
+    }
+    .v1 .prof-name {
+      font-size: 22px; font-weight: 800; margin-top: 12px;
+      letter-spacing: -0.3px;
+    }
+    .v1 .prof-handle {
+      font-size: 12px; opacity: 0.85; font-weight: 700;
+    }
+    .v1 .prof-level-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.22); backdrop-filter: blur(4px);
+      padding: 4px 12px; border-radius: 999px;
+      margin-top: 8px; font-size: 11px; font-weight: 700;
+    }
+    .v1 .profile-stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; padding: 0 14px;
+      margin-top: -32px; position: relative; z-index: 3;
+    }
+    .v1 .prof-stat-card {
+      background: white; border-radius: 16px;
+      padding: 14px 12px; box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .v1 .prof-stat-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; padding: 0 14px; margin-top: 10px;
+    }
+    .v1 .prof-stat-emoji { font-size: 22px; margin-bottom: 4px; }
+    .v1 .prof-stat-value {
+      font-size: 18px; font-weight: 800; color: var(--primary); line-height: 1;
+    }
+    .v1 .prof-stat-label {
+      font-size: 10px; font-weight: 700; color: var(--text-sec);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;
+    }
+    .v1 .prof-section { padding: 18px 14px 0; }
+    .v1 .prof-section-title {
+      font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 10px;
+    }
+    .v1 .prof-premium-card {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light) 50%, #b88e1a);
+      border-radius: 18px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 8px 22px rgba(201, 162, 39, 0.35);
+      color: var(--primary); cursor: pointer;
+    }
+    .v1 .prof-premium-icon {
+      width: 44px; height: 44px; background: white;
+      border-radius: 12px; display: grid; place-items: center;
+      font-size: 22px; color: var(--accent);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1); flex-shrink: 0;
+    }
+    .v1 .prof-premium-info { flex: 1; }
+    .v1 .prof-premium-info h4 { font-size: 14px; font-weight: 800; }
+    .v1 .prof-premium-info p { font-size: 11px; font-weight: 700; color: rgba(26,58,92,0.85); margin-top: 2px; }
+    .v1 .prof-premium-cta {
+      background: var(--primary); color: var(--accent);
+      padding: 8px 14px; border-radius: 12px;
+      font-size: 11px; font-weight: 800;
+    }
+    .v1 .prof-monthly-progress {
+      background: white; border-radius: 16px; padding: 14px;
+      box-shadow: var(--shadow); margin-top: 12px;
+    }
+    .v1 .prof-mp-header {
+      display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
+    }
+    .v1 .prof-mp-title { font-size: 13px; font-weight: 800; color: var(--primary); }
+    .v1 .prof-mp-percent { font-size: 18px; font-weight: 800; color: var(--accent); }
+    .v1 .prof-mp-bar {
+      height: 10px; background: #f0f4ff;
+      border-radius: 999px; overflow: hidden; margin-bottom: 6px;
+    }
+    .v1 .prof-mp-fill {
+      height: 100%; width: 65%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      border-radius: 999px;
+    }
+    .v1 .prof-mp-text {
+      font-size: 10px; color: var(--text-sec); font-weight: 700;
+    }
+    .v1 .prof-menu-list { display: flex; flex-direction: column; gap: 6px; }
+    .v1 .prof-menu-item {
+      background: white; border-radius: 14px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow); cursor: pointer;
+    }
+    .v1 .prof-menu-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--bg); display: grid; place-items: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .v1 .prof-menu-info { flex: 1; }
+    .v1 .prof-menu-name { font-size: 13px; font-weight: 700; color: var(--primary); }
+    .v1 .prof-menu-sub { font-size: 10px; color: var(--text-sec); font-weight: 600; margin-top: 2px; }
+    .v1 .prof-menu-arrow { color: var(--text-sec); font-size: 18px; }
+    .v1 .prof-version {
+      text-align: center; font-size: 10px; color: var(--text-sec);
+      font-weight: 700; padding: 16px 0 8px; letter-spacing: 0.5px;
+    }
+
+    /* ============================================================
+       v2 - HOME STYLES (Brain Rush - bright blue saturated)
+       ============================================================ */
+    .v2 .home-screen {
+      width: 100%; height: 100%;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary) 38%, var(--primary-pale) 38%, var(--primary-pale) 100%);
+      color: var(--navy);
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .v2 .home-header {
+      padding: 8px 20px 18px; color: white; position: relative;
+    }
+    .v2 .home-greeting {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+    }
+    .v2 .home-hello {
+      font-family: 'Fredoka'; font-size: 22px; font-weight: 700; line-height: 1.1;
+    }
+    .v2 .home-hello .name { color: var(--cta); }
+    .v2 .home-bell {
+      width: 38px; height: 38px; background: white;
+      border-radius: 50%; display: grid; place-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative;
+      cursor: pointer;
+    }
+    .v2 .home-bell-dot {
+      position: absolute; top: 0; right: 0;
+      width: 18px; height: 18px; background: var(--token);
+      color: white; border-radius: 50%;
+      border: 2px solid var(--primary);
+      font-size: 9px; font-weight: 800;
+      display: grid; place-items: center;
+    }
+    .v2 .home-stats-pills {
+      display: flex; gap: 8px;
+      justify-content: space-between; margin-bottom: 12px;
+    }
+    .v2 .home-pill {
+      flex: 1; background: rgba(255,255,255,0.18); backdrop-filter: blur(4px);
+      border-radius: 14px; padding: 8px 6px;
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+    }
+    .v2 .home-pill .p-emoji {
+      width: 28px; height: 28px; background: white;
+      border-radius: 50%; display: grid; place-items: center; font-size: 16px;
+    }
+    .v2 .home-pill .p-text { line-height: 1; }
+    .v2 .home-pill .p-val {
+      font-family: 'Fredoka'; font-weight: 700; font-size: 14px; color: white;
+    }
+    .v2 .home-pill .p-label {
+      font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.75);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1px;
+    }
+    .v2 .home-cat-row {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding: 16px 20px 6px; scrollbar-width: none;
+    }
+    .v2 .home-cat-row::-webkit-scrollbar { display: none; }
+    .v2 .home-cat-chip {
+      flex-shrink: 0; background: white;
+      padding: 8px 14px 8px 8px; border-radius: 999px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 10px rgba(20,40,80,0.1);
+      font-family: 'Nunito'; font-weight: 800; font-size: 12px;
+      color: var(--navy); cursor: pointer; position: relative;
+    }
+    .v2 .home-cat-chip.active {
+      background: var(--cta); color: var(--navy);
+    }
+    .v2 .home-cat-chip .chip-emoji {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--primary-pale), #d6e8ff);
+      border-radius: 50%; display: grid; place-items: center; font-size: 16px;
+    }
+    .v2 .home-cat-chip.c-alkitab .chip-emoji { background: linear-gradient(135deg, #ffd6e7, #ff9ec4); }
+    .v2 .home-cat-chip.c-sakramen .chip-emoji { background: linear-gradient(135deg, #d6e8ff, #93c5fd); }
+    .v2 .home-cat-chip.c-liturgi .chip-emoji { background: linear-gradient(135deg, #fff0c2, var(--accent-light)); }
+    .v2 .home-cat-chip.c-katekismus .chip-emoji { background: linear-gradient(135deg, #d6f8e7, #6ee7b7); }
+    .v2 .home-cat-chip.c-santo .chip-emoji { background: linear-gradient(135deg, #ffe4d6, #fdba74); }
+    .v2 .home-section {
+      padding: 14px 18px 0; flex: 1;
+      overflow-y: auto; scrollbar-width: none;
+    }
+    .v2 .home-section::-webkit-scrollbar { display: none; }
+    .v2 .home-section-title {
+      display: flex; justify-content: space-between;
+      align-items: baseline; margin-bottom: 10px;
+    }
+    .v2 .home-section-title h3 {
+      font-family: 'Fredoka'; font-weight: 700; font-size: 18px; color: var(--navy);
+    }
+    .v2 .home-section-title .see-all {
+      font-size: 12px; font-weight: 800; color: var(--primary); cursor: pointer;
+    }
+    .v2 .home-quiz-list {
+      display: flex; flex-direction: column; gap: 10px;
+      padding-bottom: 90px;
+    }
+    .v2 .home-quiz-card {
+      background: white; border-radius: 16px; padding: 12px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 4px 12px rgba(20,40,80,0.08); cursor: pointer;
+    }
+    .v2 .home-quiz-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: grid; place-items: center; font-size: 26px; flex-shrink: 0;
+    }
+    .v2 .home-quiz-card.cat-alkitab .home-quiz-icon { background: linear-gradient(135deg, #ffd6e7, #ff9ec4); }
+    .v2 .home-quiz-card.cat-sakramen .home-quiz-icon { background: linear-gradient(135deg, #d6e8ff, #93c5fd); }
+    .v2 .home-quiz-card.cat-liturgi .home-quiz-icon { background: linear-gradient(135deg, #fff0c2, var(--accent-light)); }
+    .v2 .home-quiz-card.cat-katekismus .home-quiz-icon { background: linear-gradient(135deg, #d6f8e7, #6ee7b7); }
+    .v2 .home-quiz-info { flex: 1; min-width: 0; }
+    .v2 .home-quiz-name {
+      font-family: 'Nunito'; font-weight: 800;
+      font-size: 13px; color: var(--navy); line-height: 1.2;
+    }
+    .v2 .home-quiz-meta {
+      font-size: 11px; font-weight: 700; color: var(--text-sec);
+      margin-top: 4px; display: flex; align-items: center; gap: 4px;
+    }
+    .v2 .home-quiz-meta .star { color: var(--accent); }
+    .v2 .home-quiz-chevron {
+      width: 32px; height: 32px; background: var(--primary-pale);
+      color: var(--primary); border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+
+    /* v2 KUIZ LIST */
+    .v2 .quiz-screen-content {
+      padding: 14px 14px 100px; color: var(--navy);
+    }
+    .v2 .quiz-screen-title {
+      font-family: 'Fredoka'; font-size: 26px; font-weight: 700;
+      color: var(--navy); letter-spacing: -0.5px; margin-bottom: 4px;
+    }
+    .v2 .quiz-screen-sub {
+      font-size: 12px; color: var(--text-sec); font-weight: 700; margin-bottom: 14px;
+    }
+    .v2 .quiz-category-tabs {
+      display: flex; gap: 6px; overflow-x: auto;
+      margin-bottom: 14px; scrollbar-width: none;
+    }
+    .v2 .quiz-category-tabs::-webkit-scrollbar { display: none; }
+    .v2 .quiz-cat-chip {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 999px;
+      background: var(--primary-pale); color: var(--primary);
+      font-family: 'Fredoka'; font-weight: 600; font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      border: 2px solid transparent;
+    }
+    .v2 .quiz-cat-chip.active {
+      background: var(--cta); color: var(--navy);
+      border-color: var(--cta-dark);
+      box-shadow: 0 4px 12px rgba(255, 204, 31, 0.45);
+    }
+    .v2 .quiz-cat-chip .chip-emoji {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 12px;
+    }
+    .v2 .level-card {
+      background: white; border-radius: 18px; padding: 14px;
+      box-shadow: 0 6px 18px rgba(20,40,80,0.08);
+      cursor: pointer; border: 2px solid transparent;
+      color: var(--navy);
+    }
+    .v2 .level-card.locked {
+      background: linear-gradient(135deg, #f5f7fa, #e8eaf0);
+      opacity: 0.7; cursor: not-allowed;
+    }
+    .v2 .level-card-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .v2 .level-num {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white; font-family: 'Fredoka';
+      font-size: 18px; font-weight: 700;
+      display: grid; place-items: center;
+      box-shadow: 0 4px 10px rgba(28, 95, 224, 0.4);
+    }
+    .v2 .level-card.locked .level-num { background: linear-gradient(135deg, #b0b8c5, #8b92a1); }
+    .v2 .level-cat-tag {
+      padding: 4px 12px; border-radius: 999px;
+      font-family: 'Nunito'; font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      color: var(--navy);
+    }
+    .v2 .level-cat-tag.alkitab { background: linear-gradient(135deg, #ffd6e7, #ff9ec4); color: #6b21a8; }
+    .v2 .level-cat-tag.sakramen { background: linear-gradient(135deg, #d6e8ff, #93c5fd); color: #1e40af; }
+    .v2 .level-cat-tag.liturgi { background: linear-gradient(135deg, #fff0c2, var(--accent-light)); color: #92400e; }
+    .v2 .level-cat-tag.katekismus { background: linear-gradient(135deg, #d6f8e7, #6ee7b7); color: #065f46; }
+    .v2 .level-title {
+      font-family: 'Nunito'; font-size: 15px; font-weight: 800;
+      color: var(--navy); margin-bottom: 6px;
+    }
+    .v2 .level-meta {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: var(--text-sec); font-weight: 700;
+    }
+    .v2 .level-difficulty {
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 9px; font-weight: 800;
+    }
+    .v2 .level-difficulty.mudah { background: #d1fae5; color: #065f46; }
+    .v2 .level-difficulty.sederhana { background: #fef3c7; color: #92400e; }
+    .v2 .level-locked-icon {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 16px; color: var(--text-sec);
+    }
+    .v2 .level-card-foot {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 10px; font-size: 10px;
+      font-weight: 800; color: var(--accent);
+    }
+    .v2 .level-card.locked .level-card-foot { color: var(--text-sec); }
+
+    /* v2 KEDUDUKAN */
+    .v2 .lb-content { padding: 14px 0 0; }
+    .v2 .lb-title-bar {
+      padding: 6px 20px 16px; color: white; text-align: center;
+    }
+    .v2 .lb-title-bar h2 {
+      font-family: 'Fredoka'; font-weight: 700;
+      font-size: 24px; letter-spacing: -0.5px;
+    }
+    .v2 .lb-podium {
+      padding: 6px 0 24px;
+      display: flex; justify-content: center; align-items: flex-end; gap: 10px;
+    }
+    .v2 .podium-slot {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      position: relative;
+    }
+    .v2 .podium-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 4px 10px rgba(20, 40, 80, 0.18);
+      display: grid; place-items: center;
+      background: var(--primary-pale); position: relative;
+    }
+    .v2 .podium-avatar-gold { border-color: var(--accent); }
+    .v2 .podium-avatar-silver { border-color: #d8dde7; }
+    .v2 .podium-avatar-bronze { border-color: #cd7f32; }
+    .v2 .podium-crown {
+      position: absolute; top: -22px; left: 50%;
+      transform: translateX(-50%); font-size: 22px; line-height: 1;
+    }
+    .v2 .podium-name {
+      font-family: 'Fredoka'; font-weight: 600; font-size: 12px;
+      color: white; margin-top: 4px;
+      max-width: 86px; text-align: center;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .v2 .podium-bar {
+      width: 80px; border-radius: 12px 12px 0 0;
+      display: grid; place-items: center;
+      font-family: 'Fredoka'; font-weight: 700; font-size: 26px;
+      color: white; margin-top: 2px; padding: 8px 0;
+    }
+    .v2 .podium-bar.s1 { background: linear-gradient(180deg, var(--accent), var(--accent-light)); height: 92px; box-shadow: 0 6px 14px rgba(201, 162, 39, 0.5); }
+    .v2 .podium-bar.s2 { background: linear-gradient(180deg, #d8dde7, #b9c0cf); height: 72px; }
+    .v2 .podium-bar.s3 { background: linear-gradient(180deg, #cd7f32, #b96a20); height: 60px; }
+    .v2 .podium-bar .bar-rank { font-size: 12px; font-weight: 800; margin-bottom: 2px; }
+    .v2 .rank-list-area {
+      flex: 1; background: var(--primary-pale);
+      padding: 4px 14px 0; border-radius: 22px 22px 0 0;
+    }
+    .v2 .rank-list {
+      display: flex; flex-direction: column; gap: 8px; padding: 10px 0;
+    }
+    .v2 .rank-row {
+      background: white; padding: 8px 12px; border-radius: 14px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 3px 8px rgba(20, 40, 80, 0.06);
+    }
+    .v2 .rank-row.me {
+      background: var(--primary); color: white;
+      box-shadow: 0 6px 14px rgba(28, 95, 224, 0.4);
+    }
+    .v2 .rank-row .rank-num {
+      font-family: 'Fredoka'; font-weight: 700; font-size: 12px;
+      color: var(--text-sec); min-width: 22px; text-align: center;
+    }
+    .v2 .rank-row.me .rank-num { color: white; }
+    .v2 .rank-row .rank-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--primary-pale);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .v2 .rank-row .rank-name {
+      flex: 1; font-family: 'Nunito'; font-weight: 700; font-size: 13px; color: var(--navy);
+    }
+    .v2 .rank-row.me .rank-name { color: white; }
+    .v2 .rank-row .rank-xp {
+      background: var(--primary-pale); color: var(--navy);
+      padding: 4px 10px; border-radius: 999px;
+      font-family: 'Fredoka'; font-weight: 600; font-size: 11px;
+    }
+    .v2 .rank-row.me .rank-xp {
+      background: var(--cta); color: var(--navy);
+    }
+    .v2 .rank-row .rank-trend {
+      font-size: 14px; font-weight: 800; width: 16px;
+    }
+    .v2 .rank-trend.up { color: var(--online); }
+    .v2 .rank-trend.down { color: var(--wrong); }
+
+    /* v2 PROFIL */
+    .v2 .prof-screen {
+      width: 100%; height: 100%;
+      background: var(--primary-pale);
+      color: var(--navy);
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .v2 .prof-hero {
+      background: radial-gradient(circle at 20% 80%, var(--primary-light), var(--primary) 70%, var(--primary-dark));
+      padding: 10px 22px 26px; color: white; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .v2 .prof-hero::before, .v2 .prof-hero::after {
+      content: ''; position: absolute;
+      border-radius: 50%; filter: blur(35px); opacity: 0.35; pointer-events: none;
+    }
+    .v2 .prof-hero::before {
+      width: 180px; height: 180px; background: var(--cta);
+      top: -40px; right: -40px;
+    }
+    .v2 .prof-hero::after {
+      width: 160px; height: 160px; background: var(--accent);
+      bottom: -40px; left: -40px;
+    }
+    .v2 .prof-avatar-ring {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--cta), var(--accent));
+      padding: 4px; margin: 8px auto 0;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25); position: relative; z-index: 2;
+    }
+    .v2 .prof-avatar-inner {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: white;
+      display: grid; place-items: center; color: var(--navy);
+      font-family: 'Fredoka'; font-weight: 700; font-size: 32px;
+      position: relative;
+    }
+    .v2 .prof-name {
+      font-family: 'Fredoka'; font-weight: 700; font-size: 22px;
+      margin-top: 10px; letter-spacing: -0.3px;
+      position: relative; z-index: 2;
+    }
+    .v2 .prof-handle {
+      font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85);
+      margin-top: 2px; position: relative; z-index: 2;
+    }
+    .v2 .prof-level-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.22); padding: 4px 12px;
+      border-radius: 999px; margin-top: 8px;
+      font-family: 'Fredoka'; font-weight: 600; font-size: 12px;
+      color: white; position: relative; z-index: 2;
+    }
+    .v2 .prof-body {
+      flex: 1; padding: 14px 18px 8px;
+      overflow-y: auto; scrollbar-width: none;
+    }
+    .v2 .prof-body::-webkit-scrollbar { display: none; }
+    .v2 .prof-stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-bottom: 14px;
+    }
+    .v2 .prof-stat {
+      background: white; border-radius: 14px; padding: 10px 4px;
+      text-align: center; box-shadow: var(--shadow);
+    }
+    .v2 .prof-stat .stat-emoji {
+      width: 32px; height: 32px; border-radius: 10px;
+      margin: 0 auto 6px;
+      display: grid; place-items: center; font-size: 18px;
+    }
+    .v2 .prof-stat.s1 .stat-emoji { background: linear-gradient(135deg, #ffe1f0, #ffc1d6); }
+    .v2 .prof-stat.s2 .stat-emoji { background: linear-gradient(135deg, #fff0c2, var(--accent-light)); }
+    .v2 .prof-stat.s3 .stat-emoji { background: linear-gradient(135deg, #d6f8e7, #6ee7b7); }
+    .v2 .prof-stat.s4 .stat-emoji { background: linear-gradient(135deg, #d6e8ff, var(--primary-light)); }
+    .v2 .prof-stat .stat-val {
+      font-family: 'Fredoka'; font-weight: 700; font-size: 14px;
+      color: var(--navy); line-height: 1;
+    }
+    .v2 .prof-stat .stat-label {
+      font-size: 8px; font-weight: 800; color: var(--text-sec);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;
+    }
+    .v2 .prof-topup-card {
+      background: linear-gradient(135deg, var(--cta), var(--cta-dark));
+      border-radius: 16px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow); margin-bottom: 12px;
+      cursor: pointer; border: 3px solid white;
+    }
+    .v2 .prof-topup-icon {
+      width: 56px; height: 56px; background: var(--primary);
+      border-radius: 50%;
+      display: grid; place-items: center; flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(20,40,80,0.2);
+    }
+    .v2 .prof-topup-info { flex: 1; }
+    .v2 .prof-topup-info h4 {
+      font-family: 'Fredoka'; font-weight: 700; font-size: 16px; color: var(--navy);
+    }
+    .v2 .prof-topup-info p {
+      font-size: 10px; font-weight: 700; color: var(--navy-deep);
+      margin-top: 2px; line-height: 1.3;
+    }
+    .v2 .prof-topup-cta {
+      background: var(--primary); color: white;
+      padding: 8px 14px; border-radius: 12px;
+      font-family: 'Fredoka'; font-weight: 700; font-size: 11px;
+    }
+
+    /* ============================================================
+       Result modal - shared visual but stylized per version
+       ============================================================ */
+    .result-modal {
+      position: absolute;
+      inset: 0;
+      z-index: 300;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 28px 28px;
+      color: white; overflow-y: auto;
+    }
+    .result-modal.visible { display: flex; }
+    .v1 .result-modal {
+      background: radial-gradient(circle at 50% 30%, var(--accent-light), var(--accent) 60%, var(--accent));
+    }
+    .v2 .result-modal {
+      background: radial-gradient(circle at 50% 30%, var(--primary-light), var(--primary) 70%, var(--primary-dark));
+    }
+    .result-trophy {
+      width: 160px; height: 160px; margin-bottom: 18px;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
+    }
+    .result-title {
+      font-size: 32px; font-weight: 800; text-align: center;
+      letter-spacing: -0.5px;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      margin-bottom: 8px;
+      font-family: 'Fredoka', sans-serif;
+    }
+    .result-sub {
+      font-size: 14px; opacity: 0.9; text-align: center;
+      font-weight: 700; margin-bottom: 24px;
+    }
+    .result-card {
+      background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+      border-radius: 20px; padding: 18px; width: 100%;
+      margin-bottom: 18px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+    }
+    .result-card .row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; font-weight: 700; padding: 6px 0;
+    }
+    .result-card .row + .row { border-top: 1px solid rgba(255,255,255,0.2); }
+    .result-card .row .v {
+      font-weight: 800; background: rgba(255,255,255,0.25);
+      padding: 2px 10px; border-radius: 999px; font-size: 11px;
+    }
+    .result-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .result-btn {
+      background: white; border: none; border-radius: 16px;
+      padding: 14px; font-size: 15px; font-weight: 800;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    .v1 .result-btn { color: var(--accent); }
+    .v2 .result-btn { color: var(--primary); }
+    .result-btn.secondary {
+      background: transparent; color: white;
+      border: 2px solid white; box-shadow: none;
+    }
+
+    /* Confetti for v2 result */
+    .confetti-scatter { position: relative; width: 100%; height: 80px; }
+    .confetti-piece {
+      position: absolute; width: 8px; height: 14px;
+      border-radius: 2px; transform: rotate(25deg);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="preview-label">
+    <h1>KatolikGo <span class="accent">v1</span> · <span style="color:#1c5fe0;">v2</span> · <span style="color:#ff6b35;">v3</span> Mockup</h1>
+    <p>Tiga arah reka bentuk dalam satu HTML · Tab interaktif dalam v1 &amp; v2 · v3 = 5 screens penuh</p>
+    <div class="tag">TRIO COMPARISON</div>
+  </div>
+
+  <div class="phone-pair">
+
+    <!-- ============================================================
+         v1 PHONE
+         ============================================================ -->
+    <div class="phone-half">
+      <div class="phone-label v1">📘 v1 · Pastel Blue · Approved</div>
+      <div class="phone phone-v1">
+        <div class="phone-screen v1">
+
+          <!-- v1 HOME -->
+          <div class="tab-screen active" data-version="v1" data-tab="home">
+            <div class="home-content">
+              <div class="home-hero">
+                <div class="greeting-row">
+                  <div class="greeting-left">
+                    <div class="avatar-circle">T</div>
+                    <div class="greeting-text">
+                      <div class="hello">Hello,</div>
+                      <div class="name">Tytus</div>
+                      <div class="cta">Mari main kuiz hari ini!</div>
+                    </div>
+                  </div>
+                  <div style="position: relative;">
+                    <div class="bell-icon">🔔</div>
+                    <div class="bell-dot">2</div>
+                  </div>
+                </div>
+              </div>
+              <div class="resource-card">
+                <div class="rc-level-row">
+                  <div class="rc-level-left">
+                    <div class="rc-level-badge">aso T7</div>
+                    <div class="rc-level-name">Kawan Sakramen</div>
+                  </div>
+                  <div class="rc-xp-percent">65%</div>
+                </div>
+                <div class="rc-xp-bar"><div class="rc-xp-fill"></div></div>
+                <div class="rc-xp-text">2,130 / 3,000 XP ke Tahap 8</div>
+                <div class="rc-divider"></div>
+                <div class="rc-lives-row">
+                  <div class="rc-hearts">
+                    <div class="rc-heart">❤️</div>
+                    <div class="rc-heart">❤️</div>
+                    <div class="rc-heart">❤️</div>
+                    <div class="rc-heart" style="opacity:0.25;filter:grayscale(1);">❤️</div>
+                    <div class="rc-heart" style="opacity:0.25;filter:grayscale(1);">❤️</div>
+                  </div>
+                  <div class="rc-refill-btn">+ Isi</div>
+                </div>
+                <div class="rc-lives-timer">
+                  <div class="rc-timer-icon">⏱️</div>
+                  <div class="rc-timer-info">
+                    <div class="rc-timer-label">Auto-isi dalam</div>
+                    <div class="rc-timer-count">12 min 30 saat</div>
+                  </div>
+                  <div class="rc-timer-fill"><div class="rc-timer-fill-bar"></div></div>
+                </div>
+                <div class="rc-secondary-row">
+                  <div class="rc-secondary-block">
+                    <div class="rc-secondary-emoji">🪙</div>
+                    <div>
+                      <div class="rc-secondary-value">120</div>
+                      <div class="rc-secondary-label">Token</div>
+                    </div>
+                  </div>
+                  <div class="rc-secondary-block">
+                    <div class="rc-secondary-emoji">🔥</div>
+                    <div>
+                      <div class="rc-secondary-value">7 hari</div>
+                      <div class="rc-secondary-label">Streak</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="section-title">Topik Kuiz</div>
+              <div class="subject-row">
+                <div class="subject-card scripture level-trigger">
+                  <div class="subject-meta">
+                    <div class="subject-title">Alkitab</div>
+                    <div class="subject-count">35</div>
+                  </div>
+                  <div class="subject-visual">📚</div>
+                </div>
+                <div class="subject-card catechism level-trigger">
+                  <div class="subject-meta">
+                    <div class="subject-title">Katekismus</div>
+                    <div class="subject-count">42</div>
+                  </div>
+                  <div class="subject-visual">🎯</div>
+                </div>
+              </div>
+              <div class="section-title">Teruskan main</div>
+              <div class="quiz-list">
+                <div class="quiz-item level-trigger">
+                  <div class="quiz-icon scripture">📚</div>
+                  <div class="quiz-info">
+                    <div class="quiz-name">Penciptaan & Perjanjian Lama</div>
+                    <div class="quiz-status">Tahap 3 · 4/10 siap</div>
+                  </div>
+                  <div class="quiz-progress-circle pending">4/10</div>
+                </div>
+                <div class="quiz-item">
+                  <div class="quiz-icon sakramen">+</div>
+                  <div class="quiz-info">
+                    <div class="quiz-name">Sakramen Ekaristi</div>
+                    <div class="quiz-status">Tahap 7 · Selesai ao"</div>
+                  </div>
+                  <div class="quiz-progress-circle completed">ao"</div>
+                </div>
+                <div class="quiz-item">
+                  <div class="quiz-icon liturgi">🎵</div>
+                  <div class="quiz-info">
+                    <div class="quiz-name">Liturgi & Misa Kudus</div>
+                    <div class="quiz-status">Tahap 12 · Belum mula</div>
+                  </div>
+                  <div class="quiz-progress-circle pending">0/8</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v1 KUIZ -->
+          <div class="tab-screen" data-version="v1" data-tab="kuiz">
+            <div class="status-bar">
+              <span>9:41</span>
+              <div class="status-icons"><span>📶</span><span>🔋</span><span>📡</span></div>
+            </div>
+            <div class="quiz-screen-content">
+              <div class="quiz-screen-title">Pilih Tahap</div>
+              <div class="quiz-screen-sub">Cabaran iman anda hari ini ›</div>
+              <div class="quiz-category-tabs">
+<div class="quiz-cat-chip active"><div class="chip-emoji">📋</div><span>Semua</span></div>
+                <div class="quiz-cat-chip"><div class="chip-emoji">📚</div><span>Alkitab</span></div>
+                <div class="quiz-cat-chip"><div class="chip-emoji">⛪</div><span>Sakramen</span></div>
+                <div class="quiz-cat-chip"><div class="chip-emoji">🎵</div><span>Liturgi</span></div>
+                <div class="quiz-cat-chip"><div class="chip-emoji">🎯</div><span>Katekismus</span></div>
+              </div>
+              <div class="level-list">
+                <div class="level-card level-trigger">
+                  <div class="level-card-header">
+                    <div class="level-num">1</div>
+                    <div class="level-cat-tag alkitab">Alkitab · Mudah</div>
+                  </div>
+                  <div class="level-title">Penciptaan & Adam</div>
+                  <div class="level-meta">
+                    <span class="level-difficulty mudah">Mudah</span>
+                    <span>5 soalan · ~3 min</span>
+                  </div>
+                </div>
+                <div class="level-card level-trigger">
+                  <div class="level-card-header">
+                    <div class="level-num">2</div>
+                    <div class="level-cat-tag alkitab">Alkitab · Mudah</div>
+                  </div>
+                  <div class="level-title">Nuh & Banjir Besar</div>
+                  <div class="level-meta">
+                    <span class="level-difficulty mudah">Mudah</span>
+                    <span>5 soalan · ~3 min</span>
+                  </div>
+                </div>
+                <div class="level-card locked">
+                  <div class="level-card-header">
+                    <div class="level-num">3</div>
+                    <div class="level-cat-tag sakramen">Sakramen</div>
+                  </div>
+                  <div class="level-title">Pengenalan Sakramen</div>
+                  <div class="level-meta">
+                    <span class="level-difficulty sederhana">Sederhana</span>
+                    <span>7 soalan · ~5 min</span>
+                  </div>
+                  <div class="level-locked-icon">🔒</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v1 KEDUDUKAN -->
+          <div class="tab-screen" data-version="v1" data-tab="kedudukan">
+            <div class="lb-content">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-icons"><span>📶</span><span>🔋</span><span>📡</span></div>
+              </div>
+              <div class="lb-top-row">
+                <div class="lb-stat lives">❤️ 4/5</div>
+                <div class="lb-stat lvl">aso T7</div>
+                <div class="lb-stat xp">a-  2,130 XP</div>
+              </div>
+              <div class="lb-title-row">
+                <h2>Kedudukan Mingguan</h2>
+                <p>Paroki St. Michael · 1-7 Julai</p>
+              </div>
+              <div class="lb-podium">
+                <div class="lb-podium-slot">
+                  <div class="lb-podium-avatar silver">👤</div>
+                  <div class="lb-podium-name">Tytus</div>
+                  <div class="lb-podium-bar silver"><span class="bar-rank">2</span></div>
+                </div>
+                <div class="lb-podium-slot">
+                  <div class="lb-podium-avatar gold"><div class="lb-podium-crown">👑</div>👤</div>
+                  <div class="lb-podium-name">Gabriel</div>
+                  <div class="lb-podium-bar gold"><span class="bar-rank">1</span></div>
+                </div>
+                <div class="lb-podium-slot">
+                  <div class="lb-podium-avatar bronze">🥉</div>
+                  <div class="lb-podium-name">Yuni</div>
+                  <div class="lb-podium-bar bronze"><span class="bar-rank">3</span></div>
+                </div>
+              </div>
+              <div class="lb-list">
+                <div class="lb-list-title">Senarai penuh</div>
+                <div class="lb-row"><span class="lb-rank">4</span><div class="lb-avatar">👤</div><span class="lb-name">Tytus</span><span class="lb-xp">2,300 XP</span></div>
+                <div class="lb-row"><span class="lb-rank">5</span><div class="lb-avatar">👤</div><span class="lb-name">Tytus</span><span class="lb-xp">2,100 XP</span></div>
+                <div class="lb-row me"><span class="lb-rank">6</span><div class="lb-avatar" style="background: var(--accent); color: white;">T</div><span class="lb-name">Tytus (Anda)</span><span class="lb-xp">1,950 XP</span></div>
+                <div class="lb-row"><span class="lb-rank">7</span><div class="lb-avatar">👤</div><span class="lb-name">Tytus</span><span class="lb-xp">1,800 XP</span></div>
+                <div class="lb-row"><span class="lb-rank">8</span><div class="lb-avatar">👤</div><span class="lb-name">Tytus</span><span class="lb-xp">1,650 XP</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v1 PROFIL -->
+          <div class="tab-screen" data-version="v1" data-tab="profile">
+            <div class="profile-content">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-icons"><span>📶</span><span>🔋</span><span>📡</span></div>
+              </div>
+              <div class="profile-hero">
+                <div class="prof-avatar-lg">K</div>
+                <div class="prof-name">Tytus</div>
+                <div class="prof-handle">@saudara.k · Paroki St. Michael</div>
+                <div class="prof-level-chip">aso Tahap 7 · Kawan Sakramen</div>
+              </div>
+              <div class="profile-stats-grid">
+                <div class="prof-stat-card">
+                  <div class="prof-stat-emoji">🔥</div>
+                  <div class="prof-stat-value">7 hari</div>
+                  <div class="prof-stat-label">Streak</div>
+                </div>
+                <div class="prof-stat-card">
+                  <div class="prof-stat-emoji">📊</div>
+                  <div class="prof-stat-value">23</div>
+                  <div class="prof-stat-label">Tahap Selesai</div>
+                </div>
+              </div>
+              <div class="prof-stat-row">
+                <div class="prof-stat-card">
+                  <div class="prof-stat-emoji">👥</div>
+                  <div class="prof-stat-value">14</div>
+                  <div class="prof-stat-label">Rakan</div>
+                </div>
+                <div class="prof-stat-card">
+                  <div class="prof-stat-emoji">🏆</div>
+                  <div class="prof-stat-value">82%</div>
+                  <div class="prof-stat-label">Ketepatan</div>
+                </div>
+              </div>
+              <div class="prof-section">
+                <div class="prof-premium-card">
+                  <div class="prof-premium-icon">aso</div>
+                  <div class="prof-premium-info">
+                    <h4>Akaun Premium</h4>
+                    <p>Buka tema khas · avatar · 2A— token</p>
+                  </div>
+                  <div class="prof-premium-cta">Beli ›</div>
+                </div>
+                <div class="prof-monthly-progress">
+                  <div class="prof-mp-header">
+                    <div class="prof-mp-title">Bulan ini</div>
+                    <div class="prof-mp-percent">65%</div>
+                  </div>
+                  <div class="prof-mp-bar"><div class="prof-mp-fill"></div></div>
+                  <div class="prof-mp-text">13 / 20 kuiz · 12 hari lagi</div>
+                </div>
+              </div>
+              <div class="prof-section">
+                <div class="prof-section-title">Tetapan</div>
+                <div class="prof-menu-list">
+                  <div class="prof-menu-item">
+                    <div class="prof-menu-icon">🔒</div>
+                    <div class="prof-menu-info">
+                      <div class="prof-menu-name">Pencapaian</div>
+                      <div class="prof-menu-sub">5 lencana · 23 pencapaian</div>
+                    </div>
+                    <span class="prof-menu-arrow">›</span>
+                  </div>
+                  <div class="prof-menu-item">
+                    <div class="prof-menu-icon">+</div>
+                    <div class="prof-menu-info">
+                      <div class="prof-menu-name">Paroki</div>
+                      <div class="prof-menu-sub">St. Michael · Kuala Lumpur</div>
+                    </div>
+                    <span class="prof-menu-arrow">›</span>
+                  </div>
+                  <div class="prof-menu-item">
+                    <div class="prof-menu-icon">as™i, </div>
+                    <div class="prof-menu-info">
+                      <div class="prof-menu-name">Tetapan</div>
+                      <div class="prof-menu-sub">Notifikasi · Bahasa · Privasi</div>
+                    </div>
+                    <span class="prof-menu-arrow">›</span>
+                  </div>
+                  <div class="prof-menu-item" style="background: #fff5f5;">
+                    <div class="prof-menu-icon" style="background: #fee2e2;">🚪</div>
+                    <div class="prof-menu-info">
+                      <div class="prof-menu-name" style="color: var(--error);">Log Keluar</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="prof-version">KatolikGo v1.0.0</div>
+            </div>
+          </div>
+
+          <!-- v1 TAB BAR — icon-only emoji per mockup-v1.html -->
+          <div class="tab-bar">
+            <div class="tab-item active" data-version="v1" data-target="home">🏠</div>
+            <div class="tab-item" data-version="v1" data-target="kuiz">🎮</div>
+            <div class="tab-item" data-version="v1" data-target="kedudukan">🏆</div>
+            <div class="tab-item" data-version="v1" data-target="profile">👤</div>
+          </div>
+
+          <!-- v1 RESULT MODAL -->
+          <div class="result-modal" data-version="v1">
+            <svg class="result-trophy" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="v1trophyG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffe066"/><stop offset="100%" stop-color="#c89e00"/>
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="80" fill="rgba(255,255,255,0.18)"/>
+              <path d="M 65 50 L 65 95 Q 65 130 100 130 Q 135 130 135 95 L 135 50 Z" fill="url(#v1trophyG)" stroke="#8a6f1a" stroke-width="3"/>
+              <path d="M 65 60 Q 40 60 40 80 Q 40 100 65 100" fill="none" stroke="#8a6f1a" stroke-width="6"/>
+              <path d="M 135 60 Q 160 60 160 80 Q 160 100 135 100" fill="none" stroke="#8a6f1a" stroke-width="6"/>
+              <rect x="85" y="130" width="30" height="14" fill="#c9a227" stroke="#8a6f1a" stroke-width="2"/>
+              <rect x="70" y="144" width="60" height="12" rx="2" fill="#c9a227" stroke="#8a6f1a" stroke-width="2"/>
+            </svg>
+            <div class="result-title">TAHNIAH!<br/><span class="accent">ANDA MENANG!</span></div>
+            <div class="result-sub">Tahap 1 · Alkitab · Selesai dalam 1:42</div>
+            <div class="result-card">
+              <div class="row"><span>Skor</span><span class="v">100 / 100</span></div>
+              <div class="row"><span>Jawapan betul</span><span class="v">5 / 5</span></div>
+              <div class="row"><span>XP diperolehi</span><span class="v">+220 XP</span></div>
+              <div class="row"><span>Token diperolehi</span><span class="v">+75 🪙</span></div>
+            </div>
+            <div class="result-actions">
+              <button class="result-btn result-next">Tahap Seterusnya ›</button>
+              <button class="result-btn secondary result-close">Kembali ke Home</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         v2 PHONE - Brain Rush style
+         ============================================================ -->
+    <div class="phone-half">
+      <div class="phone-label v2">🎮 v2 · Brain Rush · Saturated Blue</div>
+      <div class="phone phone-v2">
+        <div class="phone-screen v2">
+
+          <!-- v2 HOME -->
+          <div class="tab-screen active v2" data-version="v2" data-tab="home">
+            <div class="v2 home-screen" style="height:100%; display:flex; flex-direction:column;">
+              <div class="v2 home-header">
+                <div class="status-bar" style="padding: 0 0 8px;">
+                  <span>9:41</span>
+                  <div class="status-icons"><span>📶</span><span>🔋</span><span>📡</span></div>
+                </div>
+                <div class="v2 home-greeting">
+                  <div>
+                    <div class="v2 home-hello">Hai, <span class="name">Tytus!</span></div>
+                  </div>
+                  <div class="v2 home-bell">
+                    🔔
+                    <span class="v2 home-bell-dot">3</span>
+                  </div>
+                </div>
+                <div class="v2 home-stats-pills">
+                  <div class="v2 home-pill"><div class="p-emoji">📊</div><div class="p-text"><div class="p-val">5</div><div class="p-label">Tahap</div></div></div>
+                  <div class="v2 home-pill"><div class="p-emoji">⚡</div><div class="p-text"><div class="p-val">1,250</div><div class="p-label">Total XP</div></div></div>
+                  <div class="v2 home-pill"><div class="p-emoji">❤️</div><div class="p-text"><div class="p-val">4/5</div><div class="p-label">Nyawa</div></div></div>
+                </div>
+              </div>
+              <div class="v2 home-cat-row">
+                <div class="v2 home-cat-chip c-alkitab active"><div class="chip-emoji">📚</div><span>Alkitab</span></div>
+                <div class="v2 home-cat-chip c-sakramen"><div class="chip-emoji">⛪</div><span>Sakramen</span></div>
+                <div class="v2 home-cat-chip c-liturgi"><div class="chip-emoji">+</div><span>Liturgi</span></div>
+                <div class="v2 home-cat-chip c-katekismus"><div class="chip-emoji">🎯</div><span>Katekismus</span></div>
+                <div class="v2 home-cat-chip c-santo"><div class="chip-emoji">ao </div><span>Santo</span></div>
+              </div>
+              <div class="v2 home-section">
+                <div class="v2 home-section-title">
+                  <h3>Kuiz Terkini</h3>
+                  <span class="see-all">Lihat semua ›</span>
+                </div>
+                <div class="v2 home-quiz-list">
+                  <div class="v2 home-quiz-card cat-alkitab level-trigger">
+                    <div class="v2 home-quiz-icon">📚</div>
+                    <div class="v2 home-quiz-info">
+                      <div class="v2 home-quiz-name">Perjanjian Lama - Penciptaan</div>
+                      <div class="v2 home-quiz-meta"><span class="star">★</span> Tahap 3 · 5 soalan</div>
+                    </div>
+                    <div class="v2 home-quiz-chevron">›</div>
+                  </div>
+                  <div class="v2 home-quiz-card cat-sakramen">
+                    <div class="v2 home-quiz-icon">⛪</div>
+                    <div class="v2 home-quiz-info">
+                      <div class="v2 home-quiz-name">Sakramen Ekaristi</div>
+                      <div class="v2 home-quiz-meta"><span class="star">★</span> Tahap 7 · 7 soalan</div>
+                    </div>
+                    <div class="v2 home-quiz-chevron">›</div>
+                  </div>
+                  <div class="v2 home-quiz-card cat-liturgi">
+                    <div class="v2 home-quiz-icon">+</div>
+                    <div class="v2 home-quiz-info">
+                      <div class="v2 home-quiz-name">Misa Kudus - Bahagian Liturgi</div>
+                      <div class="v2 home-quiz-meta"><span class="star">★★</span> Tahap 12 · 6 soalan</div>
+                    </div>
+                    <div class="v2 home-quiz-chevron">›</div>
+                  </div>
+                  <div class="v2 home-quiz-card cat-katekismus">
+                    <div class="v2 home-quiz-icon">🎯</div>
+                    <div class="v2 home-quiz-info">
+                      <div class="v2 home-quiz-name">Katekismus - 10 Perintah</div>
+                      <div class="v2 home-quiz-meta"><span class="star">★</span> Tahap 5 · 8 soalan</div>
+                    </div>
+                    <div class="v2 home-quiz-chevron">›</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v2 KUIZ -->
+          <div class="tab-screen v2" data-version="v2" data-tab="kuiz">
+            <div class="v2 quiz-screen-content">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-icons" style="color: white;"><span>📶</span><span>🔋</span><span>📡</span></div>
+              </div>
+              <div class="v2 quiz-screen-title">Pilih Tahap</div>
+              <div class="v2 quiz-screen-sub">Cabaran iman anda hari ini ao </div>
+              <div class="v2 quiz-category-tabs">
+                <div class="v2 quiz-cat-chip active"><div class="chip-emoji">📋</div><span>Semua</span></div>
+                <div class="v2 quiz-cat-chip"><div class="chip-emoji">📚</div><span>Alkitab</span></div>
+                <div class="v2 quiz-cat-chip"><div class="chip-emoji">⛪</div><span>Sakramen</span></div>
+                <div class="v2 quiz-cat-chip"><div class="chip-emoji">+</div><span>Liturgi</span></div>
+                <div class="v2 quiz-cat-chip"><div class="chip-emoji">🎯</div><span>Katekismus</span></div>
+              </div>
+              <div class="v2 level-list">
+                <div class="v2 level-card level-trigger" style="position:relative;">
+                  <div class="v2 level-card-header">
+                    <div class="v2 level-num">1</div>
+                    <div class="v2 level-cat-tag alkitab">Alkitab · Mudah</div>
+                  </div>
+                  <div class="v2 level-title">Penciptaan & Adam</div>
+                  <div class="v2 level-meta">
+                    <span class="v2 level-difficulty mudah">Mudah</span>
+                    <span>5 soalan · ~3 min</span>
+                  </div>
+                  <div class="v2 level-card-foot">as! +20 XP setiap betul</div>
+                </div>
+                <div class="v2 level-card level-trigger" style="position:relative;">
+                  <div class="v2 level-card-header">
+                    <div class="v2 level-num">2</div>
+                    <div class="v2 level-cat-tag alkitab">Alkitab · Mudah</div>
+                  </div>
+                  <div class="v2 level-title">Nuh & Banjir Besar</div>
+                  <div class="v2 level-meta">
+                    <span class="v2 level-difficulty mudah">Mudah</span>
+                    <span>5 soalan · ~3 min</span>
+                  </div>
+                  <div class="v2 level-card-foot">as! +20 XP setiap betul</div>
+                </div>
+                <div class="v2 level-card locked" style="position:relative;">
+                  <div class="v2 level-card-header">
+                    <div class="v2 level-num">3</div>
+                    <div class="v2 level-cat-tag sakramen">Sakramen</div>
+                  </div>
+                  <div class="v2 level-title">Pengenalan Sakramen</div>
+                  <div class="v2 level-meta">
+                    <span class="v2 level-difficulty sederhana">Sederhana</span>
+                    <span>7 soalan · ~5 min</span>
+                  </div>
+                  <div class="v2 level-card-foot">🔒 Buka dengan 30 token</div>
+                  <div class="v2 level-locked-icon">🔒</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v2 KEDUDUKAN -->
+          <div class="tab-screen v2" data-version="v2" data-tab="kedudukan">
+            <div class="v2 lb-content" style="height: 100%; display: flex; flex-direction: column; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 38%, var(--primary-pale) 38%, var(--primary-pale) 100%);">
+              <div class="status-bar">
+                <span>9:41</span>
+                <div class="status-icons"><span>📶</span><span>🔋</span><span>📡</span></div>
+              </div>
+              <div class="v2 lb-title-bar">
+                <h2>📊 Kedudukan Mingguan</h2>
+              </div>
+              <div class="v2 lb-podium">
+                <div class="v2 podium-slot">
+                  <div class="v2 podium-avatar podium-avatar-silver">👤</div>
+                  <div class="v2 podium-name">Tytus</div>
+                  <div class="v2 podium-bar s2"><span class="bar-rank">2</span></div>
+                </div>
+                <div class="v2 podium-slot">
+                  <div class="v2 podium-crown">👑</div>
+                  <div class="v2 podium-avatar podium-avatar-gold">👤</div>
+                  <div class="v2 podium-name">Tytus</div>
+                  <div class="v2 podium-bar s1"><span class="bar-rank">1</span></div>
+                </div>
+                <div class="v2 podium-slot">
+                  <div class="v2 podium-avatar podium-avatar-bronze">🥉</div>
+                  <div class="v2 podium-name">Tytus</div>
+                  <div class="v2 podium-bar s3"><span class="bar-rank">3</span></div>
+                </div>
+              </div>
+              <div class="v2 rank-list-area">
+                <div class="v2 rank-list">
+                  <div class="v2 rank-row">
+                    <span class="rank-num">4</span><div class="rank-avatar">👤</div>
+                    <span class="rank-name">Tytus</span>
+                    <span class="rank-xp">2,300XP</span>
+                    <span class="rank-trend up">▲</span>
+                  </div>
+                  <div class="v2 rank-row">
+                    <span class="rank-num">5</span><div class="rank-avatar">👤</div>
+                    <span class="rank-name">Tytus</span>
+                    <span class="rank-xp">2,100XP</span>
+                    <span class="rank-trend down">▼</span>
+                  </div>
+                  <div class="v2 rank-row me">
+                    <span class="rank-num">6</span><div class="rank-avatar" style="background:white;">T</div>
+                    <span class="rank-name">Tytus (Anda)</span>
+                    <span class="rank-xp">1,950XP</span>
+                    <span class="rank-trend up" style="color:var(--cta);">▲</span>
+                  </div>
+                  <div class="v2 rank-row">
+                    <span class="rank-num">7</span><div class="rank-avatar">👤</div>
+                    <span class="rank-name">Tytus</span>
+                    <span class="rank-xp">1,800XP</span>
+                    <span class="rank-trend down">▼</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v2 PROFIL -->
+          <div class="tab-screen v2" data-version="v2" data-tab="profile">
+            <div class="v2 prof-screen" style="height:100%; display:flex; flex-direction:column;">
+              <div class="v2 prof-hero">
+                <div class="status-bar" style="padding: 0 0 4px;">
+                  <span>9:41</span>
+                  <div class="status-icons"><span>📶</span><span>🔋</span><span>📡</span></div>
+                </div>
+                <div class="v2 prof-avatar-ring">
+                  <div class="v2 prof-avatar-inner">T</div>
+                </div>
+                <div class="v2 prof-name">Tytus</div>
+                <div class="v2 prof-handle">@tytus.b · Paroki St. Michael</div>
+                <div class="v2 prof-level-chip">a-  Tahap 5</div>
+              </div>
+              <div class="v2 prof-body">
+                <div class="v2 prof-stats-grid">
+                  <div class="v2 prof-stat s1"><div class="stat-emoji">🔥</div><div class="stat-val">7</div><div class="stat-label">Streak</div></div>
+                  <div class="v2 prof-stat s2"><div class="stat-emoji">📊</div><div class="stat-val">23</div><div class="stat-label">Selesai</div></div>
+                  <div class="v2 prof-stat s3"><div class="stat-emoji">👥</div><div class="stat-val">14</div><div class="stat-label">Rakan</div></div>
+                  <div class="v2 prof-stat s4"><div class="stat-emoji">🏆</div><div class="stat-val">82%</div><div class="stat-label">Tepat</div></div>
+                </div>
+                <div class="v2 prof-topup-card">
+                  <div class="v2 prof-topup-icon">
+                    <svg viewBox="0 0 80 80" width="48" height="48">
+                      <circle cx="40" cy="40" r="36" fill="#ffcc1f" stroke="#c79e00" stroke-width="2"/>
+                      <rect x="36" y="22" width="8" height="36" rx="2" fill="#1a3a5c"/>
+                      <rect x="26" y="32" width="28" height="8" rx="2" fill="#1a3a5c"/>
+                    </svg>
+                  </div>
+                  <div class="v2 prof-topup-info">
+                    <h4>Tambah Token</h4>
+                    <p>Buka avatar khas & tema baru</p>
+                  </div>
+                  <div class="v2 prof-topup-cta">Tambah ›</div>
+                </div>
+                <div style="text-align:center; font-size: 10px; color: var(--text-sec); font-weight: 700; padding: 12px 0;">KatolikGo v2.0.0 · Mockup v2</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v2 TAB BAR - icon + label per mockup-v2.html -->
+          <div class="tab-bar">
+            <div class="tab-item active" data-version="v2" data-target="home">
+              <div class="t-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 12L12 3l9 9v9a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2v-9z" fill="none"/></svg>
+              </div>
+              <span class="t-label">Home</span>
+            </div>
+            <div class="tab-item" data-version="v2" data-target="kuiz">
+              <div class="t-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <span class="t-label">Kuiz</span>
+            </div>
+            <div class="tab-item" data-version="v2" data-target="kedudukan">
+              <div class="t-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 2h14v2H5v-2z"/></svg>
+              </div>
+              <span class="t-label">Kedudukan</span>
+            </div>
+            <div class="tab-item" data-version="v2" data-target="profile">
+              <div class="t-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1" stroke-linecap="round"/></svg>
+              </div>
+              <span class="t-label">Profil</span>
+            </div>
+          </div>
+
+          <!-- v2 RESULT MODAL -->
+          <div class="result-modal" data-version="v2">
+            <!-- confetti scatter -->
+            <div style="position:absolute; top:40px; left:0; right:0; height:160px; pointer-events:none;">
+              <div class="confetti-piece" style="position:absolute; top:0; left:8%; background:#ffcc1f;"></div>
+              <div class="confetti-piece" style="position:absolute; top:6%; left:80%; background:#ff6b9d; transform:rotate(-30deg);"></div>
+              <div class="confetti-piece" style="position:absolute; top:18%; left:30%; background:#34d399; transform:rotate(15deg);"></div>
+              <div class="confetti-piece" style="position:absolute; top:30%; left:55%; background:#a855f7; transform:rotate(60deg);"></div>
+              <div class="confetti-piece" style="position:absolute; top:8%; left:50%; background:#c9a227; transform:rotate(35deg);"></div>
+              <div class="confetti-piece" style="position:absolute; top:42%; left:18%; background:#ffcc1f; transform:rotate(-40deg);"></div>
+              <div class="confetti-piece" style="position:absolute; top:48%; left:75%; background:#ff6b9d; transform:rotate(45deg);"></div>
+              <div style="position:absolute; top:5%; left:25%; width:6px; height:6px; border-radius:50%; background:#ffcc1f;"></div>
+              <div style="position:absolute; top:20%; left:65%; width:8px; height:8px; border-radius:50%; background:#a855f7;"></div>
+              <div style="position:absolute; top:55%; left:10%; width:8px; height:8px; border-radius:50%; background:#34d399;"></div>
+            </div>
+            <svg class="result-trophy" viewBox="0 0 200 200" style="position:relative; z-index:2;">
+              <defs>
+                <linearGradient id="v2trophyG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffe066"/><stop offset="100%" stop-color="#f5b800"/>
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="80" fill="rgba(255,255,255,0.18)"/>
+              <path d="M 65 50 L 65 95 Q 65 130 100 130 Q 135 130 135 95 L 135 50 Z" fill="url(#v2trophyG)" stroke="#c79e00" stroke-width="3"/>
+              <path d="M 65 60 Q 40 60 40 80 Q 40 100 65 100" fill="none" stroke="#c79e00" stroke-width="6"/>
+              <path d="M 135 60 Q 160 60 160 80 Q 160 100 135 100" fill="none" stroke="#c79e00" stroke-width="6"/>
+              <rect x="96" y="78" width="8" height="20" fill="#1a3a5c"/>
+              <rect x="89" y="85" width="22" height="6" fill="#1a3a5c"/>
+              <rect x="85" y="130" width="30" height="14" fill="#c9a227" stroke="#8a6f1a" stroke-width="2"/>
+              <rect x="70" y="144" width="60" height="12" rx="2" fill="#c9a227" stroke="#8a6f1a" stroke-width="2"/>
+            </svg>
+            <div class="result-title" style="position:relative; z-index:2;">TAHNIAH!<br/><span class="accent">ANDA MENANG</span></div>
+            <div class="result-sub" style="position:relative; z-index:2;">Tahap 1 · Alkitab · Selesai dalam 1:42</div>
+            <div class="result-card" style="position:relative; z-index:2;">
+              <div class="row"><span>Skor</span><span class="v">100 / 100</span></div>
+              <div class="row"><span>Jawapan betul</span><span class="v">5 / 5</span></div>
+              <div class="row"><span>XP diperolehi</span><span class="v">+220 XP</span></div>
+              <div class="row"><span>Token diperolehi</span><span class="v">+75 🪙</span></div>
+            </div>
+            <div class="result-actions" style="position:relative; z-index:2;">
+              <button class="result-btn result-next">Tahap Seterusnya &rsaquo;</button>
+              <button class="result-btn secondary result-close">Kembali ke Home</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         v3 PHONE — Orange Pill Nav (interactive 4-tab, like v1/v2)
+         ============================================================ -->
+    <div class="phone-half v3">
+      <div class="phone-label v3">🟧 v3 · Orange Pill Nav</div>
+      <div class="phone phone-v3">
+        <div class="phone-screen v3">
+
+          <!-- v3 HOME -->
+          <div class="tab-screen active" data-version="v3" data-tab="home">
+            <div class="v3 home-content">
+              <div class="v3 status-bar">
+                <span>9:41</span>
+                <div class="v3 status-icons"><span>📶</span><span>📡</span><span>🔋</span></div>
+              </div>
+              <div class="v3 home-top">
+                <div class="v3 avatar-bible">
+                  <svg viewBox="0 0 80 80" width="56" height="56" aria-hidden="true">
+                    <rect x="14" y="14" width="52" height="56" rx="4" fill="#ff6b35" />
+                    <rect x="18" y="18" width="44" height="44" fill="#ffa45c" />
+                    <path d="M40 24 L46 36 L58 36 L48 44 L52 56 L40 48 L28 56 L32 44 L22 36 L34 36 Z" fill="#ffb627" />
+                    <rect x="36" y="52" width="8" height="14" fill="#8b4513" />
+                    <rect x="22" y="68" width="36" height="3" fill="#ffd4b8" />
+                  </svg>
+                </div>
+                <div class="v3 home-greeting">
+                  <div class="v3 hello">Hai, Tytus 👋</div>
+                  <div class="v3 sub">Sedia uji iman hari ini?</div>
+                </div>
+                <div class="v3 coins-pill">
+                  <span style="color:#ffb627;font-size:14px;">●</span>
+                  <span>2,450</span>
+                </div>
+              </div>
+
+              <div class="v3 cta-card">
+                <div class="v3 cta-glow"></div>
+                <div class="v3 cta-content">
+                  <div class="v3 cta-eyebrow">PERMAINAN HARI INI</div>
+                  <div class="v3 cta-title">Pilih Topik,<br/>Main &amp; Menang!</div>
+                  <button class="v3 cta-btn">
+                    <span>Slide to start</span>
+                    <span class="v3 cta-arrow">→</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="v3 home-search">
+                <span class="v3 search-icon">🔍</span>
+                <input class="v3 search-input" placeholder="Cari kuiz..." disabled />
+              </div>
+
+              <div class="v3 section-head">
+                <div class="v3 section-title">Pilih Topik</div>
+                <div class="v3 section-link">Lihat semua</div>
+              </div>
+
+              <div class="v3 topic-grid">
+                <div class="v3 topic-card level-trigger">
+                  <div class="v3 topic-icon alkitab">📖</div>
+                  <div class="v3 topic-name">Alkitab</div>
+                  <div class="v3 topic-count">35 soalan</div>
+                </div>
+                <div class="v3 topic-card level-trigger">
+                  <div class="v3 topic-icon katekismus">⛪</div>
+                  <div class="v3 topic-name">Katekismus</div>
+                  <div class="v3 topic-count">42 soalan</div>
+                </div>
+                <div class="v3 topic-card">
+                  <div class="v3 topic-icon sakramen">🍞</div>
+                  <div class="v3 topic-name">Sakramen</div>
+                  <div class="v3 topic-count">28 soalan</div>
+                </div>
+                <div class="v3 topic-card">
+                  <div class="v3 topic-icon santo">🕊️</div>
+                  <div class="v3 topic-name">Santo</div>
+                  <div class="v3 topic-count">19 soalan</div>
+                </div>
+              </div>
+
+              <div class="v3 section-head">
+                <div class="v3 section-title">Kuiz Terkini</div>
+                <div class="v3 section-link">Semua</div>
+              </div>
+
+              <div class="v3 recent-list">
+                <div class="v3 recent-item">
+                  <div class="v3 recent-icon alkitab-bg">📖</div>
+                  <div class="v3 recent-info">
+                    <div class="v3 recent-name">Tahap 1 — Penciptaan</div>
+                    <div class="v3 recent-meta">Alkitab · 2 jam lalu</div>
+                  </div>
+                  <div class="v3 recent-score ok">8/10</div>
+                </div>
+                <div class="v3 recent-item">
+                  <div class="v3 recent-icon katekismus-bg">⛪</div>
+                  <div class="v3 recent-info">
+                    <div class="v3 recent-name">10 Perintah Allah</div>
+                    <div class="v3 recent-meta">Katekismus · Semalam</div>
+                  </div>
+                  <div class="v3 recent-score good">10/10</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v3 KUIZ -->
+          <div class="tab-screen v3-kuiz" data-version="v3" data-tab="kuiz">
+            <div class="v3 status-bar">
+              <span>9:41</span>
+              <div class="v3 status-icons"><span>📶</span><span>📡</span><span>🔋</span></div>
+            </div>
+            <div class="v3 kuiz-header">
+              <button class="v3 back-btn">‹</button>
+              <div class="v3 kuiz-progress">Soalan <b>1</b> / 5</div>
+              <div class="v3 lives-mini">❤ 5</div>
+            </div>
+            <div class="v3 timer-bar"><div class="v3 timer-fill"></div></div>
+            <div class="v3 question-card">
+              <div class="v3 question-cat">📖 Alkitab</div>
+              <div class="v3 question-text">Apakah kitab pertama dalam Perjanjian Lama?</div>
+              <div class="v3 answer-list">
+                <button class="v3 answer-btn"><b>A</b><span>Kejadian</span></button>
+                <button class="v3 answer-btn"><b>B</b><span>Mazmur</span></button>
+                <button class="v3 answer-btn correct"><b>C</b><span>Matius</span><span class="v3 answer-tick">✓</span></button>
+                <button class="v3 answer-btn"><b>D</b><span>Wahyu</span></button>
+              </div>
+            </div>
+            <div class="v3 powerup-row">
+              <button class="v3 powerup half"><span>50/50</span></button>
+              <button class="v3 powerup hint"><span>Hint</span></button>
+            </div>
+            <button class="v3 next-btn">Seterusnya</button>
+          </div>
+
+          <!-- v3 PROFIL -->
+          <div class="tab-screen v3-profil" data-version="v3" data-tab="profil">
+            <div class="v3 status-bar">
+              <span>9:41</span>
+              <div class="v3 status-icons"><span>📶</span><span>📡</span><span>🔋</span></div>
+            </div>
+            <div class="v3 profile-hero">
+              <div class="v3 profile-avatar">
+                <svg viewBox="0 0 80 80" width="64" height="64" aria-hidden="true">
+                  <circle cx="40" cy="40" r="36" fill="#ff6b35" stroke="#ffb627" stroke-width="3" />
+                  <rect x="28" y="24" width="24" height="32" rx="3" fill="#ffa45c" />
+                  <path d="M40 30 L43 36 L49 36 L44 40 L46 46 L40 42 L34 46 L36 40 L31 36 L37 36 Z" fill="#ffb627" />
+                </svg>
+              </div>
+              <div class="v3 profile-name">Tytus</div>
+              <div class="v3 profile-handle">@tytus</div>
+            </div>
+
+            <div class="v3 stat-grid">
+              <div class="v3 stat-card">
+                <div class="v3 stat-emoji fire">🔥</div>
+                <div class="v3 stat-val">210</div>
+                <div class="v3 stat-label">Streak<br/>Menang</div>
+              </div>
+              <div class="v3 stat-card">
+                <div class="v3 stat-emoji book">📚</div>
+                <div class="v3 stat-val">10</div>
+                <div class="v3 stat-label">Jumlah<br/>Kuiz</div>
+              </div>
+              <div class="v3 stat-card">
+                <div class="v3 stat-emoji target">🎯</div>
+                <div class="v3 stat-val">82%</div>
+                <div class="v3 stat-label">Ketepatan</div>
+              </div>
+              <div class="v3 stat-card">
+                <div class="v3 stat-emoji trophy">🏆</div>
+                <div class="v3 stat-val">7</div>
+                <div class="v3 stat-label">Tahap<br/>Selesai</div>
+              </div>
+            </div>
+
+            <div class="v3 progress-card">
+              <div class="v3 progress-head">
+                <span>Progres Bulan Ini</span>
+                <b>37 / 50 XP</b>
+              </div>
+              <div class="v3 progress-ring">
+                <svg viewBox="0 0 100 100" width="80" height="80">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#ffd4b8" stroke-width="8" />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#ff6b35" stroke-width="8"
+                    stroke-dasharray="263.9" stroke-dashoffset="68.6" transform="rotate(-90 50 50)" stroke-linecap="round" />
+                  <text x="50" y="55" text-anchor="middle" font-family="Nunito" font-weight="800" font-size="20" fill="#ff6b35">74%</text>
+                </svg>
+              </div>
+              <div class="v3 progress-info">Teruskan! Anda semakin hampir ke matlamat.</div>
+            </div>
+
+            <div class="v3 menu-list">
+              <div class="v3 menu-item">⭐ Pencapaian</div>
+              <div class="v3 menu-item">⛪ Parish</div>
+              <div class="v3 menu-item premium">👑 Premium<span class="v3 pro-pill">PRO</span></div>
+              <div class="v3 menu-item">⚙️ Tetapan</div>
+              <div class="v3 menu-item danger">🚪 Log Keluar</div>
+            </div>
+          </div>
+
+          <!-- v3 PAPAN -->
+          <div class="tab-screen v3-papan" data-version="v3" data-tab="papan">
+            <div class="v3 status-bar">
+              <span>9:41</span>
+              <div class="v3 status-icons"><span>📶</span><span>📡</span><span>🔋</span></div>
+            </div>
+            <div class="v3 papan-title-bar">
+              <h2>🏆 Papan Pendahulu</h2>
+            </div>
+            <div class="v3 podium">
+              <div class="v3 podium-slot second">
+                <div class="v3 podium-avatar">👩</div>
+                <div class="v3 podium-name">Tytus</div>
+                <div class="v3 podium-bar"><span class="v3 rank">2</span></div>
+              </div>
+              <div class="v3 podium-slot first">
+                <div class="v3 podium-avatar">👨</div>
+                <div class="v3 podium-name">Tytus</div>
+                <div class="v3 podium-bar"><span class="v3 rank">1</span></div>
+              </div>
+              <div class="v3 podium-slot third">
+                <div class="v3 podium-avatar">👧</div>
+                <div class="v3 podium-name">Tytus</div>
+                <div class="v3 podium-bar"><span class="v3 rank">3</span></div>
+              </div>
+            </div>
+            <div class="v3 papan-list">
+              <div class="v3 rank-row highlight">
+                <span class="v3 rank-num">4</span>
+                <span class="v3 rank-avatar">👦</span>
+                <span class="v3 rank-name">Anda (Tytus)</span>
+                <span class="v3 rank-pts">2,450 XP</span>
+              </div>
+              <div class="v3 rank-row"><span class="v3 rank-num">5</span><span class="v3 rank-avatar">👨</span><span class="v3 rank-name">Tytus</span><span class="v3 rank-pts">2,310 XP</span></div>
+              <div class="v3 rank-row"><span class="v3 rank-num">6</span><span class="v3 rank-avatar">👩</span><span class="v3 rank-name">Tytus</span><span class="v3 rank-pts">2,180 XP</span></div>
+              <div class="v3 rank-row"><span class="v3 rank-num">7</span><span class="v3 rank-avatar">👧</span><span class="v3 rank-name">Tytus</span><span class="v3 rank-pts">2,050 XP</span></div>
+            </div>
+          </div>
+
+          <!-- v3 TAB BAR (black pill, matches v3 design) -->
+          <div class="tab-bar v3-tab-bar">
+            <button class="tab-item active" data-version="v3" data-target="home">
+              <span class="v3 ti-icon">🏠</span><span class="v3 ti-label">Home</span>
+            </button>
+            <button class="tab-item" data-version="v3" data-target="kuiz">
+              <span class="v3 ti-icon">🎮</span><span class="v3 ti-label">Kuiz</span>
+            </button>
+            <button class="tab-item" data-version="v3" data-target="profil">
+              <span class="v3 ti-icon">👤</span><span class="v3 ti-label">Profil</span>
+            </button>
+            <button class="tab-item" data-version="v3" data-target="papan">
+              <span class="v3 ti-icon">🏆</span><span class="v3 ti-label">Papan</span>
+            </button>
+          </div>
+
+          <!-- v3 RESULT MODAL -->
+          <div class="result-modal v3-result-modal">
+            <div class="result-card">
+              <div class="result-confetti"></div>
+              <div class="v3 result-trophy">🏆</div>
+              <div class="result-title">TAHNIAH!<br/><span class="accent">ANDA MENANG</span></div>
+              <div class="result-sub">Tahap 1 · Alkitab · Selesai dalam 1:42</div>
+              <div class="result-stats">
+                <div class="row"><span>Skor</span><span class="v">100 / 100</span></div>
+                <div class="row"><span>Jawapan betul</span><span class="v">5 / 5</span></div>
+                <div class="row"><span>XP diperolehi</span><span class="v">+220 XP</span></div>
+                <div class="row"><span>Token diperolehi</span><span class="v">+75 🪙</span></div>
+              </div>
+              <div class="result-actions">
+                <button class="result-btn result-next">Tahap Seterusnya ›</button>
+                <button class="result-btn secondary result-close">Kembali ke Home</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================================
+    // Tab switching - scoped per phone (v1 vs v2 vs v3)
+    // ============================================================
+    document.querySelectorAll('.tab-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const version = item.dataset.version;
+        const target = item.dataset.target;
+
+        // Update tab-bar active state within same phone
+        document.querySelectorAll(`.tab-item[data-version="${version}"]`).forEach(i => {
+          i.classList.toggle('active', i === item);
+        });
+        // Update screen visibility within same phone
+        document.querySelectorAll(`.tab-screen[data-version="${version}"]`).forEach(screen => {
+          screen.classList.toggle('active', screen.dataset.tab === target);
+        });
+      });
+    });
+
+    // ============================================================
+    // Level card → result modal (all three phones)
+    // ============================================================
+    document.querySelectorAll('.phone-half').forEach(half => {
+      const version = half.querySelector('.tab-item')?.dataset.version;
+      if (!version) return;
+      const resultModal = half.querySelector('.result-modal');
+
+      // Find all "level-trigger" elements (level cards, subject cards, recent quiz)
+      half.querySelectorAll('.level-trigger').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', () => {
+          if (resultModal) resultModal.classList.add('visible');
+        });
+      });
+
+      // Close result
+      const resultClose = half.querySelector('.result-close');
+      if (resultClose) {
+        resultClose.addEventListener('click', () => {
+          resultModal.classList.remove('visible');
+          // jump to home tab
+          const homeTab = half.querySelector(`.tab-item[data-target="home"]`);
+          if (homeTab) homeTab.click();
+        });
+      }
+      const resultNext = half.querySelector('.result-next');
+      if (resultNext) {
+        resultNext.addEventListener('click', () => {
+          resultModal.classList.remove('visible');
+          // jump to kuiz tab
+          const kuizTab = half.querySelector(`.tab-item[data-target="kuiz"]`);
+          if (kuizTab) kuizTab.click();
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
+

@@ -1142,10 +1142,10 @@
   Orange Direction — <span class="sub">onboarding / home / quiz / profile / leaderboard</span>
 </div>
 
-<div class="phones-row">
+<div class="phones-row" id="phones">
 
   <!-- 1. ONBOARDING -->
-  <div>
+  <div id="v3-phone-0">
     <div class="phone onboarding">
       <div class="notch"></div>
       <div class="statusbar">
@@ -1226,7 +1226,7 @@
   </div>
 
   <!-- 2. HOME -->
-  <div>
+  <div id="v3-phone-1">
     <div class="phone">
       <div class="notch"></div>
       <div class="statusbar">
@@ -1385,7 +1385,7 @@
   </div>
 
   <!-- 3. QUIZ PLAY -->
-  <div>
+  <div id="v3-phone-2">
     <div class="phone">
       <div class="notch"></div>
       <div class="statusbar">
@@ -1438,7 +1438,7 @@
   </div>
 
   <!-- 4. PROFILE -->
-  <div>
+  <div id="v3-phone-3">
     <div class="phone">
       <div class="notch"></div>
       <div class="statusbar">
@@ -1522,7 +1522,7 @@
   </div>
 
   <!-- 5. LEADERBOARD -->
-  <div>
+  <div id="v3-phone-4">
     <div class="phone">
       <div class="notch"></div>
       <div class="statusbar">
@@ -1595,6 +1595,41 @@
   </div>
 
 </div>
+
+<script>
+  // Allow parent iframe (mymock.html) to scroll this page to a specific phone slot.
+  // Usage from parent: iframe.contentWindow.postMessage({ type: 'show-phone', index: 0 }, '*');
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'show-phone') {
+      requestAnimationFrame(() => {
+        const target = document.getElementById(`v3-phone-${e.data.index}`);
+        if (target) {
+          target.scrollIntoView({ block: 'start', inline: 'start' });
+          window.scrollTo({ top: target.offsetTop, behavior: 'instant' });
+        }
+      });
+    }
+  });
+  // Also handle URL hash like #v3-phone-2 for direct linking.
+  if (location.hash && location.hash.startsWith('#v3-phone-')) {
+    const idx = parseInt(location.hash.slice('#v3-phone-'.length), 10);
+    if (!isNaN(idx)) {
+      const scrollToPhone = () => {
+        const target = document.getElementById(`v3-phone-${idx}`);
+        if (target) {
+          target.scrollIntoView({ block: 'start' });
+          // Belt-and-suspenders: force the parent phone slot to the top of viewport.
+          window.scrollTo({ top: target.offsetTop, behavior: 'instant' });
+        }
+      };
+      if (document.readyState === 'complete') {
+        requestAnimationFrame(scrollToPhone);
+      } else {
+        window.addEventListener('load', () => requestAnimationFrame(scrollToPhone));
+      }
+    }
+  }
+</script>
 
 </body>
 </html>
