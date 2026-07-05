@@ -25,8 +25,14 @@ interface GuestModeBannerProps {
  * in-app nudge explaining the limits, users would hit "0 tokens" on the
  * result screen with no context. Banner closes that loop.
  *
- * Returns `null` for non-guest sessions so it's safe to drop at the top
- * of any tab screen without conditional rendering at the call site.
+ * Always renders content — does NOT return null. The call site is
+ * responsible for gating: see `(tabs)/index.tsx → {userData?.isGuest &&
+ * <GuestModeBanner />}` and `(tabs)/profile.tsx` for the same pattern.
+ *
+ * Conversion routes use `router.replace` (not push) so the auth screen
+ * doesn't end up in the back-stack as a confusing stale destination —
+ * once the user converts from guest to registered, tapping "back"
+ * should land them on Home, not the auth form they just left.
  */
 export function GuestModeBanner({ compact = false }: GuestModeBannerProps) {
   const router = useRouter();
@@ -47,14 +53,20 @@ export function GuestModeBanner({ compact = false }: GuestModeBannerProps) {
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
-            onPress={() => router.push(Routes.REGISTER)}
+            onPress={() => router.replace(Routes.REGISTER)}
+            accessibilityRole="button"
+            accessibilityLabel="Daftar akaun penuh"
+            accessibilityHint="Membuka borang pendaftaran akaun penuh"
             activeOpacity={0.85}
           >
             <Text style={styles.primaryButtonText}>Daftar</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.secondaryButton]}
-            onPress={() => router.push(Routes.LOGIN)}
+            onPress={() => router.replace(Routes.LOGIN)}
+            accessibilityRole="button"
+            accessibilityLabel="Log masuk akaun sedia ada"
+            accessibilityHint="Membuka skrin log masuk"
             activeOpacity={0.85}
           >
             <Text style={styles.secondaryButtonText}>Log Masuk</Text>

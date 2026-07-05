@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -126,6 +127,13 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
   const isRegister = tab === 'register';
 
   const handleSubmit = async () => {
+    // Dismiss the keyboard FIRST so iOS doesn't briefly re-show it
+    // when the Alert.alert dialog overlays the form (the keyboard's
+    // resign animation races with the Alert sheet and produces a
+    // visible flicker). Also keeps the submit button visibly-pressable
+    // when validation fails — without this the user sees keyboard
+    // animation + Alert at the same time, which feels janky.
+    Keyboard.dismiss();
     if (!email || !password || (isRegister && (!displayName || !username))) {
       Alert.alert(
         'Ralat',
@@ -187,11 +195,18 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
 
   const handleGoogle = async () => {
     if (socialLoading) return;
+    Keyboard.dismiss();
     setSocialLoading('google');
     try {
       const result = await googlePromptAsync();
       if (result?.type === 'success' && result.authentication?.idToken) {
         await signInWithGoogle(result.authentication.idToken);
+        // Social sign-in always implies "yes, remember me" — there's
+        // no checkbox in the social flow, and the user explicitly
+        // opted in by tapping "Continue with Google". Persisting
+        // `true` here keeps cold-start behavior identical to the
+        // email/password path (which already does this).
+        await persistRememberMe(true);
       }
     } catch (error) {
       if (cancelledRef.current) return;
@@ -210,9 +225,15 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
       );
       return;
     }
+    Keyboard.dismiss();
     setSocialLoading('apple');
     try {
       await signInWithApple();
+      // Same `remember me = true` policy as Google — Apple Sign-In
+      // always opts into a persistent session. (The user just
+      // authenticated via the iOS system keychain, which is itself
+      // a deliberate, persistent choice.)
+      await persistRememberMe(true);
     } catch (error) {
       if (cancelledRef.current) return;
       // expo-apple-authentication throws ERR_CANCELED when the user
@@ -576,7 +597,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 38,
     fontWeight: '700',
-    fontFamily: Platform.select({ ios: 'Georgia', android: 'serif' }),
+    // Use the unified serif stack from `--font-serif` in global.css
+    // (Georgia → Times New Roman → generic serif). On iOS this
+    // resolves to Georgia (built-in); on Android it falls through
+    // to whichever serif the OEM ships (typically Roboto Serif on
+    // Pixel devices, Noto Serif on older Android). The cross-
+    // platform stack is intentionally identical so a player who
+    // logs in on both devices sees the same serif "Selamat Datang"
+    // — exact glyph differs but the typographic character matches.
+    // The previous `Platform.select({ ios, android })` style
+    // forced a generic `'serif'` family on Android, which could
+    // resolve to a thin awkward serif like the Android Material
+    // default — the explicit Georgia name is iOS-only.
+    fontFamily: 'Georgia, "Times New Roman", serif',
     color: Colors.white,
     textAlign: 'center',
     marginBottom: Spacing.sm,
@@ -685,7 +718,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   submitButton: {
-    backgroundColor: '#b9444a',
+    backgroundColor: Colors.maroon,
     borderRadius: BorderRadius.md,
     paddingVertical: 16,
     alignItems: 'center',

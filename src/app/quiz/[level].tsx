@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   ScrollView,
   Animated,
-  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -31,11 +30,26 @@ import { useGuestGuard } from '@/hooks/useGuestGuard';
 import { Routes } from '@/constants/routes';
 import type { Quiz } from '@/types';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const QUESTION_TIME = 15; // seconds per question
 const FIFTY_FIFTY_COST = 2;
 const HINT_COST = 1;
+
+/**
+ * Bottom-space arithmetic for the scrolling question area.
+ *
+ * `SCROLL_BOTTOM_PADDING_BASE` is the bottomArea's intrinsic height
+ * when no "Seterusnya" button is showing — primarily the action bar
+ * (4 powerup icons in a horizontal row, ≈ 60px tall plus gradient
+ * padding ≈ 12px). `SCROLL_BOTTOM_PADDING_BUFFER` accounts for the
+ * "Seterusnya" button that appears once an answer is selected
+ * (≈ 48px including its own bottom padding). Together with the
+ * safe-area inset (via `insets.bottom`) the total clears the
+ * footer on every supported device, replacing the previous
+ * magic `200` literal that clipped short on tablets / large
+ * Android.
+ */
+const SCROLL_BOTTOM_PADDING_BASE = 76;
+const SCROLL_BOTTOM_PADDING_BUFFER = 56;
 
 const BRAND = {
   bgTop: '#b8a4f5',
@@ -76,7 +90,6 @@ export default function QuizPlayScreen() {
   const [hiddenOptions, setHiddenOptions] = useState<number[]>([]);
   const [hintUsed, setHintUsed] = useState(false);
   const [hintRevealed, setHintRevealed] = useState(false);
-  const [skipUsed] = useState(false);
   const [freePassUsed, setFreePassUsed] = useState(false);
   const [shakeAnim] = useState(new Animated.Value(0));
 
@@ -134,16 +147,26 @@ export default function QuizPlayScreen() {
     stopTimer();
     setSecondsLeft(QUESTION_TIME);
     timerRef.current = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          stopTimer();
-          handleTimeUp();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setSecondsLeft((prev) => Math.max(0, prev - 1));
     }, 1000);
   };
+
+  // Watch for the countdown reaching zero and fire the timeout handler
+  // OUTSIDE the setState callback. The previous version called
+  // `handleTimeUp()` inside the reducer — a side effect inside a
+  // reducer is a React anti-pattern (state updates from within a
+  // reducer can be batched or skipped on re-render, so a timeout
+  // fired there is non-deterministic). Decoupling via useEffect
+  // also lets Strict Mode's double-invocation of the reducer safely
+  // cancel any in-flight `await consumeLifeAfterWrongAnswer()` that
+  // the previous timeout had started without us double-firing it.
+  useEffect(() => {
+    if (secondsLeft !== 0) return;
+    if (selectedAnswer !== null) return;
+    stopTimer();
+    handleTimeUp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft]);
 
   const stopTimer = () => {
     if (timerRef.current) {
@@ -569,7 +592,23 @@ export default function QuizPlayScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 200 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          // Reserve room for the sticky bottomArea (action bar +
+          // optional "Seterusnya" button) so the last answer option
+          // and the explanation card never get hidden behind the
+          // footer. Computed from the same screen geometry instead of
+          // a magic 200 so the buffer scales with the device's safe
+          // area and the visible footer height. The pre-fix value
+          // (`200`) was tuned for an iPhone-15 and clipped short on
+          // tablets / large Android devices with bigger action bars.
+          {
+            paddingBottom:
+              SCROLL_BOTTOM_PADDING_BASE +
+              Math.max(insets.bottom, 12) +
+              SCROLL_BOTTOM_PADDING_BUFFER,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Prominent lives banner — sits at the top of the scroll
@@ -795,7 +834,7 @@ export default function QuizPlayScreen() {
 
             <TouchableOpacity
               style={styles.actionItem}
-              onPress={skipUsed || freePassUsed ? undefined : handleFreePass}
+              onPress={freePassUsed ? undefined : handleFreePass}
               disabled={selectedAnswer !== null || freePassUsed}
               activeOpacity={0.6}
               hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
@@ -803,19 +842,19 @@ export default function QuizPlayScreen() {
               <View
                 style={[
                   styles.actionIcon,
-                  (freePassUsed || skipUsed) && styles.actionIconDisabled,
+                  freePassUsed && styles.actionIconDisabled,
                 ]}
               >
                 <Ionicons
                   name="play-forward"
                   size={22}
-                  color={freePassUsed || skipUsed ? '#bda9d4' : '#fff'}
+                  color={freePassUsed ? '#bda9d4' : '#fff'}
                 />
               </View>
               <Text
                 style={[
                   styles.actionLabel,
-                  (freePassUsed || skipUsed) && styles.actionLabelDisabled,
+                  freePassUsed && styles.actionLabelDisabled,
                 ]}
               >
                 SKIP
@@ -823,10 +862,10 @@ export default function QuizPlayScreen() {
               <Text
                 style={[
                   styles.actionSub,
-                  (freePassUsed || skipUsed) && styles.actionLabelDisabled,
+                  freePassUsed && styles.actionLabelDisabled,
                 ]}
               >
-                {freePassUsed || skipUsed ? 'USED' : 'FREE'}
+                {freePassUsed ? 'USED' : 'FREE'}
               </Text>
             </TouchableOpacity>
           </LinearGradient>
@@ -1120,6 +1159,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
 });
-
-// SCREEN_WIDTH reserved for future responsive tweaks
-void SCREEN_WIDTH;

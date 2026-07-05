@@ -24,6 +24,17 @@ export const Colors = {
   navyDark: '#0e2a4d',
   accent: '#c9a227',
   accentLight: '#e0bd4d',
+  /**
+   * CTA maroon — the desaturated red used for the primary submit
+   * button on the auth screen ("Log Masuk" / "Daftar"). Was a
+   * magic string `'#b9444a'` literal hardcoded in
+   * `components/AuthScreen.tsx` — promoted here so a future tweak
+   * to the login CTA palette is one edit. Distinct from
+   * `Colors.error` (`#c62828`) which is reserved for inline alerts
+   * and badge backgrounds; the maroon here is intentionally darker
+   * and more muted so it doesn't read as an error state.
+   */
+  maroon: '#b9444a',
   success: '#2e7d32',
   error: '#c62828',
   warning: '#f57c00',

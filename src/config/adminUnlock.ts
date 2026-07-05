@@ -33,12 +33,21 @@ const PASSPHRASE = (process.env.EXPO_PUBLIC_ADMIN_PASSPHRASE ?? '').trim();
 
 /**
  * True when the admin unlock feature is enabled (env var is set to
- * a non-empty string). Use this as the visibility flag for any
- * "Admin Access" entry point — when false, the button should hide
- * entirely so normal users never see a non-functional control.
+ * a non-empty string AND we're in a development build). Use this as
+ * the visibility flag for any "Admin Access" entry point — when
+ * false, the button should hide entirely so normal users never see
+ * a non-functional control.
+ *
+ * The `__DEV__` belt-and-suspenders is intentional: `EXPO_PUBLIC_*`
+ * env vars are bundled into the JS at build time (see the security
+ * caveats in the file header), so an attacker who decodes a
+ * production APK can read the passphrase and disable-this-bypass it.
+ * Forcing `__DEV__ === true` means even a leaked production env
+ * var can't surface the unlock UI in shipped builds. Dev-only
+ * features that read bundled secrets MUST use this gate.
  */
 export function isAdminUnlockConfigured(): boolean {
-  return PASSPHRASE.length > 0;
+  return PASSPHRASE.length > 0 && __DEV__ === true;
 }
 
 /**
@@ -52,9 +61,15 @@ export function isAdminUnlockConfigured(): boolean {
  * passphrase. A short input is rejected before the loop runs
  * (which leaks the length, but that's fine — the only secret
  * is the content, not its length).
+ *
+ * Mirrors the `__DEV__` gate from `isAdminUnlockConfigured` —
+ * a production build with the env var set will refuse every
+ * passphrase (always returns false) so the comparison body is
+ * dead code in shipped builds. `BAD_PASSPHRASE` still fires so
+ * the screen surfaces the same Malay error.
  */
 export function verifyAdminPassphrase(input: string): boolean {
-  if (PASSPHRASE.length === 0) return false;
+  if (!__DEV__ || PASSPHRASE.length === 0) return false;
   if (input.length !== PASSPHRASE.length) return false;
   let mismatch = 0;
   for (let i = 0; i < PASSPHRASE.length; i++) {
