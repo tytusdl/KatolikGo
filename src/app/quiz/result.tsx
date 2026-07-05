@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Share } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Share } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -90,7 +90,11 @@ export default function QuizResultScreen() {
           {tokensNum > 0 && (
             <View style={styles.rewardBadge}>
               <View style={styles.coinStack}>
-                <Text style={styles.coinEmoji}>🪙</Text>
+                <Image
+                  source={require('../../../assets/token.png')}
+                  style={styles.coinEmoji}
+                  resizeMode="contain"
+                />
               </View>
               <View style={styles.coinPill}>
                 <Text style={styles.coinPillText}>+{tokensNum}</Text>
@@ -315,7 +319,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coinEmoji: {
-    fontSize: 24,
+    width: 24,
+    height: 24,
   },
   coinPill: {
     backgroundColor: Colors.accent,

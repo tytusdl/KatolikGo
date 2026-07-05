@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Pressable, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Pressable } from 'react-native';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -10,27 +10,42 @@ import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 import { isAdminUnlockConfigured } from '@/config/adminUnlock';
 import { AdminUnlockModal } from '@/admin/AdminUnlockModal';
 
-// Length of the hidden hold-gesture on the avatar that surfaces the
-// admin unlock modal. 5s is long enough that an accidental press
-// won't trigger it, short enough that a developer who knows the
-// gesture won't get bored. The Auth-screen text-link is still
-// available as a fallback for the "no idea where the entry went"
-// case.
-const ADMIN_HOLD_DURATION_MS = 3000;
+/**
+ * Long-press duration (ms) on the version text that surfaces the
+ * admin unlock modal. Five seconds is long enough that casual
+ * scroll-drag pauses on the version line won't trigger it, short
+ * enough that a developer who knows the gesture can fire it in
+ * one deliberate hold. The version text sits at the very bottom
+ * of the scroll area (below Sign Out) — entirely outside the
+ * ScrollView's heavy gesture zones so this Pressable reliably
+ * receives onPressIn/onPressOut even with the scroll container
+ * above it. This is the ONLY admin unlock trigger in the app
+ * (the avatar triple-tap was removed for reliability).
+ */
+const VERSION_HOLD_DURATION_MS = 5000;
 
 export default function ProfileScreen() {
   const { user, userData, refreshUserData } = useAuth();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  // Admin unlock modal — gated by env passphrase so it stays hidden
-  // entirely when the dev hasn't configured one. The trigger is a
-  // hidden 5s long-press on the avatar (no visible button / menu item
-  // / text hint), so regular users don't see any path to admin.
-  // The AuthScreen still surfaces a small text-link fallback for
-  // cases where the gesture was forgotten.
+  // === Hidden long-press on version text (the ONLY admin unlock
+  // gesture in the app). Press & hold "KatolikGo v1.0.0" for
+  // VERSION_HOLD_DURATION_MS to open the admin modal. See the
+  // constant's doc-comment above for why this location is
+  // reliable.
   const adminUnlockAvailable = isAdminUnlockConfigured();
   const [adminUnlockOpen, setAdminUnlockOpen] = useState(false);
+  const [versionHeld, setVersionHeld] = useState(false);
+  // Auto-firing setTimeout that opens the modal AT the 5s mark,
+  // mid-hold. Press-out cancels it. Strict-hold semantics: any
+  // tap whose release happens before the timer fires produces no
+  // modal — only a continuous 5s press where the user keeps
+  // their finger down will fire onAdminUnlock. The ref is reset
+  // defensively on each press-in (cancels any pre-existing
+  // timer) so finger-drift during a hold never leaks an orphan
+  // timer.
+  const versionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openAdminUnlock = useCallback(() => {
     setAdminUnlockOpen(true);
@@ -39,66 +54,47 @@ export default function ProfileScreen() {
     setAdminUnlockOpen(false);
   }, []);
 
-  // After a successful unlock, the modal flips `userData.isAdmin`
-  // server-side but the cached `userData` in context is still
-  // stale. Refresh before navigating so the next render of this
-  // screen shows the "🛠️ Panel Pentadbir" entry (not the gesture
-  // trigger again — though we no longer have a visible entry, the
-  // gate still skips the gesture for admins).
   const handleAdminUnlockSuccess = useCallback(async () => {
+    setAdminUnlockOpen(false);
     await refreshUserData();
     router.replace('/admin');
   }, [refreshUserData, router]);
 
-  // === Hidden avatar-hold gesture ===
-  // Long-press the profile avatar for ADMIN_HOLD_DURATION_MS to
-  // open the admin unlock modal. Progress is driven by an
-  // Animated.Value that the Pressable binds to on press-in/out, so
-  // the bar fills while held and snaps back if released early.
-  // No visible trigger (button / hint text) — only the avatar
-  // itself, and a subtle progress bar that appears mid-hold so the
-  // developer knows the gesture registered.
-  const [avatarHolding, setAvatarHolding] = useState(false);
-  const holdProgress = useRef(new Animated.Value(0)).current;
-  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const startAvatarHold = useCallback(() => {
-    // Skip the gesture entirely if the env passphrase is empty
-    // — no-op feedback for users without the .env config, so the
-    // gesture feels inert rather than buggy.
+  const startVersionHold = useCallback(() => {
+    // Defensive: clear any pre-existing timer before we even
+    // check the gate. If a previous press cycle's timer somehow
+    // survived (shouldn't, but guard anyway), kill it.
+    if (versionTimerRef.current) {
+      clearTimeout(versionTimerRef.current);
+      versionTimerRef.current = null;
+    }
     if (!adminUnlockAvailable) return;
     if (userData?.isAdmin === true) return;
-    setAvatarHolding(true);
-    Animated.timing(holdProgress, {
-      toValue: 1,
-      duration: ADMIN_HOLD_DURATION_MS,
-      useNativeDriver: false,
-    }).start();
-    holdTimerRef.current = setTimeout(() => {
-      holdTimerRef.current = null;
-      setAvatarHolding(false);
-      holdProgress.setValue(0);
+    setVersionHeld(true);
+    versionTimerRef.current = setTimeout(() => {
+      versionTimerRef.current = null;
+      setVersionHeld(false);
       openAdminUnlock();
-    }, ADMIN_HOLD_DURATION_MS);
-  }, [adminUnlockAvailable, userData?.isAdmin, holdProgress, openAdminUnlock]);
+    }, VERSION_HOLD_DURATION_MS);
+  }, [adminUnlockAvailable, userData?.isAdmin, openAdminUnlock]);
 
-  const cancelAvatarHold = useCallback(() => {
-    if (holdTimerRef.current) {
-      clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = null;
+  const releaseVersionHold = useCallback(() => {
+    setVersionHeld(false);
+    // Cancel the pending timer. If the timer already fired
+    // (modal opening) the ref is null and this is a clean
+    // no-op. If the user releases before 5s, the timer is
+    // cancelled and the modal never opens.
+    if (versionTimerRef.current) {
+      clearTimeout(versionTimerRef.current);
+      versionTimerRef.current = null;
     }
-    setAvatarHolding(false);
-    Animated.timing(holdProgress, {
-      toValue: 0,
-      duration: 180,
-      useNativeDriver: false,
-    }).start();
-  }, [holdProgress]);
+  }, []);
 
-  // Make sure the timer doesn't survive a screen unmount mid-hold.
+  // Cleanup pending timer on screen unmount so a callback can't
+  // fire openAdminUnlock on a torn-down component.
   useEffect(() => {
     return () => {
-      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+      if (versionTimerRef.current) clearTimeout(versionTimerRef.current);
     };
   }, []);
 
@@ -154,79 +150,16 @@ export default function ProfileScreen() {
 
         {/* Avatar + Name */}
         <View style={styles.profileSection}>
-          {/* Avatar is wrapped in a Pressable for the hidden admin
-              hold-gesture (see startAvatarHold). No visible button /
-              hint — only the progress bar that appears while held
-              gives feedback, so regular users never see an admin
-              entry. Avatar is always pressable (even when the env
-              passphrase is empty) but the handler is a no-op in
-              that case, so the gesture feels inert rather than
-              visibly broken. */}
-          <Pressable
-            onPressIn={startAvatarHold}
-            onPressOut={cancelAvatarHold}
-            // Don't bind onPress — we only care about press-in vs
-            // press-out, not "tapped and released". A tap without
-            // a long hold is a release (onPressOut), which cancels
-            // cleanly. Mapping onPress too would race with
-            // onPressOut in some Pressable event orderings.
-            //
-            // delayLongPress pinned to ADMIN_HOLD_DURATION_MS so
-            // Pressable's own "long press" detection fires at the
-            // same moment our setTimeout completes — the gesture
-            // resolves into a single state transition rather than
-            // two competing timers.
-            delayLongPress={ADMIN_HOLD_DURATION_MS}
-            // The avatar lives inside a ScrollView. ScrollView
-            // can capture a held touch if the finger drifts even a
-            // few pixels (especially on iOS). `unstable_pressDelay`
-            // is undocumented but reduces that interaction —
-            // setting it to 0 means the press claim is immediate
-            // rather than waiting the default ~130ms.
-            unstable_pressDelay={0}
-            // Disable accessibility hint when gesture is a no-op
-            // (empty env or already-admin). Keeps screen readers
-            // from announcing a hidden feature.
-            accessibilityLabel="Avatar profil"
-            accessibilityRole="image"
-          >
-            <View
-              style={[
-                styles.avatarOuter,
-                avatarHolding && styles.avatarOuterActive,
-              ]}
-            >
-              <View style={styles.avatarInner}>
-                <Text style={styles.avatarEmoji}>
-                  {userData?.displayName?.charAt(0).toUpperCase() || 'K'}
-                </Text>
-              </View>
+          {/* Avatar is purely decorative here — the admin-unlock
+              gesture lives on the version text at the bottom of
+              the page (long-press for 5s). No Pressable wrapper,
+              no gesture, no flash. */}
+          <View style={styles.avatarOuter}>
+            <View style={styles.avatarInner}>
+              <Text style={styles.avatarEmoji}>
+                {userData?.displayName?.charAt(0).toUpperCase() || 'K'}
+              </Text>
             </View>
-          </Pressable>
-
-          {/* Hold-progress bar — sits right below the avatar, only
-              fades in while held. Width interpolates from 0 → 100%
-              driven by the Animated.Value the Pressable mutates.
-              pointerEvents="none" so it never eats a tap meant for
-              the avatar itself. */}
-          <View
-            style={[
-              styles.holdProgressTrack,
-              !avatarHolding && styles.holdProgressHidden,
-            ]}
-            pointerEvents="none"
-          >
-            <Animated.View
-              style={[
-                styles.holdProgressFill,
-                {
-                  width: holdProgress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%'],
-                  }),
-                },
-              ]}
-            />
           </View>
 
           <Text style={styles.userName}>{userData?.displayName || 'Saudara'}</Text>
@@ -356,17 +289,44 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>Log Keluar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.versionText}>KatolikGo v1.0.0</Text>
+        {/* HIDDEN admin unlock — long-press on the version text
+            for VERSION_HOLD_DURATION_MS opens the admin modal.
+            No visible button / menu / hint — the only feedback is
+            a subtle color shift while held (handled by
+            versionHeld state below). Sits at the bottom of the
+            scroll area, below the Sign Out button, in a quiet
+            zone where the Pressable reliably receives onPressIn
+            /onPressOut even with the ScrollView wrapper above. */}
+        <Pressable
+          onPressIn={startVersionHold}
+          onPressOut={releaseVersionHold}
+          hitSlop={20}
+          // Pin delayLongPress to VERSION_HOLD_DURATION_MS so
+          // Pressable's built-in long-press classification aligns
+          // with our timestamp-based hold measurement — keeps
+          // Pressable from swallowing the release event with its
+          // own competing state at ~500ms.
+          delayLongPress={VERSION_HOLD_DURATION_MS}
+          accessibilityLabel="Versi aplikasi"
+          accessibilityRole="text"
+        >
+          <Text
+            style={[
+              styles.versionText,
+              versionHeld && styles.versionTextHeld,
+            ]}
+          >
+            KatolikGo v1.0.0
+          </Text>
+        </Pressable>
 
         {/* Bottom spacing for tab bar */}
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Shared unlock modal — same component the AuthScreen uses.
-          The `onSuccess` overrides the default "navigate to /admin"
-          so we can refresh userData first (so the menu entries
-          re-render correctly: unlock entry gone, panel entry
-          visible). */}
+      {/* Hidden triple-tap on the avatar opens this. The Auth-screen
+          also surfaces a small text-link fallback for cases where
+          the gesture was forgotten. */}
       <AdminUnlockModal
         visible={adminUnlockOpen}
         onClose={closeAdminUnlock}
@@ -498,18 +458,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
-  // Active state while the user is mid-hold — slightly wider /
-  // softer ring so the avatar visually "lights up" to confirm the
-  // gesture registered. Subtle on purpose so regular users don't
-  // notice anything special.
-  avatarOuterActive: {
-    transform: [{ scale: 1.04 }],
-    shadowColor: Colors.accent,
-    shadowOpacity: 0.55,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 6,
-  },
   avatarInner: {
     width: 96,
     height: 96,
@@ -539,6 +487,29 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: '600',
     color: Colors.white,
+  },
+
+  // Dev-only admin unlock trigger. Visible button (renders only
+  // when env passphrase is configured and user isn't yet admin).
+  // Subdued styling so it doesn't stand out for normal users who
+  // shouldn't have this rendered anyway — the gate above keeps it
+  // out of their hands.
+  adminTrigger: {
+    marginHorizontal: Spacing.lg,
+    marginTop: -Spacing.sm,
+    marginBottom: Spacing.lg,
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.accent,
+    backgroundColor: 'rgba(212, 175, 55, 0.08)',
+    alignItems: 'center',
+  },
+  adminTriggerText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.accent,
   },
 
   // Sparkles
@@ -727,32 +698,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: Spacing.sm,
   },
-
-  // === Hold-gesture progress bar (admin unlock) ===
-  // Thin gold track that appears below the avatar while held.
-  // Width 0% → 100% is driven by the Animated.Value the
-  // Pressable mutates. Hidden entirely (opacity 0 + height 0)
-  // when not holding, so regular users see no UI change at all.
-  holdProgressTrack: {
-    width: 96,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(229, 184, 90, 0.18)',
-    marginTop: -Spacing.sm,
-    marginBottom: Spacing.sm,
-    overflow: 'hidden',
-    alignSelf: 'center',
-  },
-  holdProgressHidden: {
-    height: 0,
-    opacity: 0,
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  holdProgressFill: {
-    height: '100%',
-    backgroundColor: Colors.accent,
-    borderRadius: 2,
+  // Subtle color + weight shift while the version text is being
+  // held for the admin-unlock gesture. Confirms to the developer
+  // that the press registered, without being noticeable to a
+  // regular user who'd never hold it long enough to fire.
+  versionTextHeld: {
+    color: Colors.accent,
+    fontWeight: '600',
   },
 });
 

@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { LivesIndicator, openLivesExhaustedModal } from '@/components/LivesIndicator';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { getXpProgress } from '@/constants/xp.constants';
 
 const ICONS = {
   trophy: '🏆',
@@ -17,12 +18,21 @@ const ICONS = {
   fire: '🔥',
   bell: '🔔',
   diamond: '💎',
-  coin: '🪙',
 };
 
 export default function HomeScreen() {
   const { userData } = useAuth();
   const router = useRouter();
+
+  // Level progress is derived from totalXP — same source as the level
+  // unlock math in `levelService.submitLevelCompletion`, so the hero
+  // card never drifts out of sync with the actual `users/{uid}.totalXP`.
+  // Previously this card rendered a hardcoded "450 / 1000 XP" + 45%
+  // fill placeholder, which made the XP counter feel stuck regardless
+  // of how many levels the user actually completed.
+  const xpProgress = getXpProgress(userData?.totalXP || 0);
+  const xpPercentText = `${xpProgress.current} / ${xpProgress.required} XP`;
+  const xpFillWidth = `${Math.max(0, Math.min(100, xpProgress.percentage))}%` as `${number}%`;
 
   return (
     <ScreenContainer scroll>
@@ -52,7 +62,11 @@ export default function HomeScreen() {
         <View style={styles.headerRight}>
           <LivesIndicator onPress={() => openLivesExhaustedModal(router)} />
           <TouchableOpacity style={styles.tokenBadge}>
-            <Text style={styles.tokenIcon}>{ICONS.coin}</Text>
+            <Image
+              source={require('../../../assets/token.png')}
+              style={styles.tokenIcon}
+              resizeMode="contain"
+            />
             <Text style={styles.tokenAmount}>{userData?.tokens || 0}</Text>
           </TouchableOpacity>
         </View>
@@ -65,12 +79,12 @@ export default function HomeScreen() {
             <Text style={styles.heroLabel}>TAHAP ANDA</Text>
             <Text style={styles.heroLevel}>Level {userData?.currentLevel || 1}</Text>
             <Text style={styles.heroSubtext}>Teruskan usaha, anda hampir ke puncak!</Text>
-            
+
             <View style={styles.progressContainer}>
               <View style={styles.progressBar}>
-                <View style={[styles.progressFill, { width: '45%' }]} />
+                <View style={[styles.progressFill, { width: xpFillWidth }]} />
               </View>
-              <Text style={styles.progressText}>450 / 1000 XP</Text>
+              <Text style={styles.progressText}>{xpPercentText}</Text>
             </View>
           </View>
           
@@ -245,7 +259,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tokenIcon: {
-    fontSize: 18,
+    width: 20,
+    height: 20,
   },
   tokenAmount: {
     fontSize: FontSize.md,
