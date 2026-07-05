@@ -7,6 +7,7 @@ import { signOut } from '@/services/authService';
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { LivesIndicator, openLivesExhaustedModal } from '@/components/LivesIndicator';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { isAdminUnlockConfigured } from '@/config/adminUnlock';
 import { AdminUnlockModal } from '@/admin/AdminUnlockModal';
 
@@ -57,7 +58,7 @@ export default function ProfileScreen() {
   const handleAdminUnlockSuccess = useCallback(async () => {
     setAdminUnlockOpen(false);
     await refreshUserData();
-    router.replace('/admin');
+    router.replace(Routes.ADMIN);
   }, [refreshUserData, router]);
 
   const startVersionHold = useCallback(() => {
@@ -278,7 +279,7 @@ export default function ProfileScreen() {
               iconBg="#E0E7FF"
               title="Panel Pentadbir"
               subtitle="Urus token, XP, nyawa & level"
-              onPress={() => router.push('/admin')}
+              onPress={() => router.push(Routes.ADMIN)}
             />
           )}
         </View>

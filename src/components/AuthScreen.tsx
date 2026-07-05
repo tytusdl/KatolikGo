@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -32,6 +32,7 @@ import {
 } from '@/services/authService';
 import { setRememberMe as persistRememberMe } from '@/utils/rememberMe';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdminUnlockConfigured } from '@/config/adminUnlock';
 import { AdminUnlockModal } from '@/admin/AdminUnlockModal';
@@ -92,6 +93,19 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
   const adminUnlockAvailable = isAdminUnlockConfigured();
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
+  // `cancelled` ref guards async submit / social-claim handlers
+  // against the component unmounting mid-flight. Without it, the
+  // `finally { setSubmitting(false) }` etc. would call setState
+  // on an unmounted component — dev-only warning, but easy to
+  // ship to prod by accident.
+  const cancelledRef = useRef<boolean>(false);
+  useEffect(
+    () => () => {
+      cancelledRef.current = true;
+    },
+    []
+  );
+
   const [googleRequest, , googlePromptAsync] = useGoogleAuthRequest();
 
   // Safety net mirroring AuthGate in `_layout.tsx` — that gate is the
@@ -105,7 +119,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
   // them back to home before they ever see the form.
   useEffect(() => {
     if (user && !user.isAnonymous) {
-      router.replace('/(tabs)/index');
+      router.replace(Routes.HOME);
     }
   }, [user, router]);
 
@@ -154,6 +168,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
       }
       // AuthGate observes the Firebase auth flip and redirects.
     } catch (error) {
+      if (cancelledRef.current) return;
       console.warn(`[auth] ${tab} failed`, error);
       // Surface the username-taken case specifically — the generic
       // AuthError mapping wouldn't know to escalate this one.
@@ -166,7 +181,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
         friendlyAuthError(error)
       );
     } finally {
-      setSubmitting(false);
+      if (!cancelledRef.current) setSubmitting(false);
     }
   };
 
@@ -179,9 +194,10 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
         await signInWithGoogle(result.authentication.idToken);
       }
     } catch (error) {
+      if (cancelledRef.current) return;
       Alert.alert('Gagal', friendlyAuthError(error));
     } finally {
-      setSocialLoading(null);
+      if (!cancelledRef.current) setSocialLoading(null);
     }
   };
 
@@ -198,6 +214,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
     try {
       await signInWithApple();
     } catch (error) {
+      if (cancelledRef.current) return;
       // expo-apple-authentication throws ERR_CANCELED when the user
       // dismisses the system sheet. We don't want to scream "Gagal"
       // at someone who intentionally cancelled.
@@ -212,7 +229,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
       }
       Alert.alert('Gagal', friendlyAuthError(error));
     } finally {
-      setSocialLoading(null);
+      if (!cancelledRef.current) setSocialLoading(null);
     }
   };
 
@@ -221,6 +238,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
     setSocialLoading('guest');
     try {
       await loginAsGuest();
+      if (cancelledRef.current) return;
       // AuthGate's `if (user.isAnonymous) return` branch intentionally
       // lets anon ("Tetamu") users roam /login and /register so they
       // can convert via the GuestModeBanner — that same branch means
@@ -229,11 +247,12 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
       // flows in `handleSubmit` are handled by AuthGate's justGotUser
       // branch + the registered-kick below; only the guest path needs
       // this targeted exception.)
-      router.replace('/(tabs)/index');
+      router.replace(Routes.HOME);
     } catch (error) {
+      if (cancelledRef.current) return;
       Alert.alert('Gagal', friendlyAuthError(error));
     } finally {
-      setSocialLoading(null);
+      if (!cancelledRef.current) setSocialLoading(null);
     }
   };
 
@@ -254,9 +273,9 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
     >
       {/* The root layout sets dark-content for the light (tabs) screens.
           Auth is dark, so override locally — last-mounted StatusBar wins. */}
-      <StatusBar barStyle="light-content" backgroundColor="#0e2a4d" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.navyDark} />
       <LinearGradient
-        colors={['#0e2a4d', '#08182d']}
+        colors={[Colors.navyDark, '#08182d']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[
@@ -412,7 +431,7 @@ export default function AuthScreen({ defaultTab = 'login' }: AuthScreenProps) {
                   ]}
                 >
                   {rememberMe && (
-                    <Ionicons name="checkmark" size={14} color="#0e2a4d" />
+                    <Ionicons name="checkmark" size={14} color={Colors.navyDark} />
                   )}
                 </View>
                 <Text style={styles.rememberLabel}>

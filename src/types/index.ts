@@ -58,7 +58,17 @@ export interface UserData {
   totalXP: number;
   weeklyXP: number;
   monthlyXP: number;
-  levelProgress: Record<number, LevelProgress>;
+  /**
+   * Per-level progress — keyed by level as a **string** because
+   * Firestore stores every document field key as a string. Storing
+   * numeric keys would coerce them to `"1"` / `"2"` on round-trip
+   * regardless of how we declared the type, so the type now matches
+   * reality. Lookup helpers (`getLevelProgress`, the quiz screen)
+   * coerce with `String(level)` on write and read keys directly
+   * (`Object.keys(...).map(k => levelProgress[k]?....)`) — no
+   * `Number(k)` round-trip needed.
+   */
+  levelProgress: Record<string, LevelProgress>;
   // Engagement / gamification counters surfaced in the UI.
   streakDays: number;
   levelsCompleted: number[];
@@ -103,23 +113,51 @@ export interface UserData {
    * missing `lives` value as full health (5) and lazily backfill.
    */
   lives?: number;
+  // -------------------------------------------------------------------------
+  // Timestamp policy (consistent across all writers, see commit 2026-07-06):
+  //
+  // All timestamp-style fields on `UserData` are written with
+  // `Date.now()` (a JS `number` of ms since epoch) and read back as a
+  // `number` from Firestore. The previous design used
+  // `serverTimestamp()` which writes a Firestore `Timestamp` object —
+  // the type said `number` but the actual value was a `Timestamp`, so
+  // any arithmetic like `Date.now() - userData.createdAt` returned
+  // `NaN`. Every writer (authService, livesService, tokenService,
+  // levelService, adminService, quizService) now stamps with the
+  // client clock; readers can safely do ms-arithmetic directly.
+  //
+  // Trade-off: the client clock can be skewed. Until Firestore rules
+  // / Cloud Functions land (AGENTS.md "Firestore rules design
+  // checklist"), the worst case is a player with a tampered clock
+  // spoofing the time-based lives refill — which is already
+  // best-effort and surface-level.
+  //
+  // `null` means "never set" / "no pending refill" / "no prior ad
+  // refill"; `number` means "ms since epoch".
+  // -------------------------------------------------------------------------
   /**
-   * Server-side timestamp (Firestore Timestamp) recording the most
-   * recent moment a life was lost — the anchor for the time-based
-   * auto-refill tick (1 life per `LIVES_CONFIG.REFILL_MINUTES` minutes after this
-   * timestamp). Nullable: never lost a life = no anchor = no
-   * pending refill. Cleared (set to null) on full-refill events
-   * (e.g. enough pending ticks accumulated to top the bar up).
+   * Client time (ms epoch) recording the most recent moment a life
+   * was lost — the anchor for the time-based auto-refill tick (1 life
+   * per `LIVES_CONFIG.REFILL_MINUTES` after this timestamp).
+   * `null` = never lost a life = no pending refill. Cleared (set to
+   * `null`) on full-refill events (e.g. enough pending ticks
+   * accumulated to top the bar up).
    */
   livesLastLostAt?: number | null;
   /**
-   * Server-side timestamp (Firestore Timestamp) recording the last
-   * rewarded-ad life refill. Used to enforce `LIVES_AD_COOLDOWN_MIN`
-   * between consecutive ad refills — prevents abuse from spam-pressing
-   * the "Tonton iklan" button.
+   * Client time (ms epoch) recording the last rewarded-ad life
+   * refill. Used to enforce `LIVES_AD_COOLDOWN_MIN` between consecutive
+   * ad refills — prevents abuse from spam-pressing the "Tonton iklan"
+   * button.
    */
   lastAdRefillAt?: number | null;
+  /**
+   * Client time (ms epoch) when the user document was created.
+   * Always a JS `number` — written with `Date.now()` on `users` create
+   * and read back as-is from Firestore.
+   */
   createdAt: number;
+  /** Client time (ms epoch) of the most recent write. */
   updatedAt: number;
 }
 
@@ -133,6 +171,11 @@ export interface LeaderboardEntry {
   rank: number;
 }
 
+/**
+ * Token ledger entries (audit log of every token movement). Written
+ * from `tokenService.{award,spend,unlockLevel}Token` — same timestamp
+ * policy as `UserData`: `Date.now()` → `number` ms epoch.
+ */
 export interface Transaction {
   id: string;
   userId: string;
@@ -145,7 +188,7 @@ export interface Transaction {
 export const CATEGORY_LABELS: Record<QuizCategory, string> = {
   old_testament: 'Perjanjian Lama',
   new_testament: 'Perjanjian Baru',
-  ccc: 'Katekisus Gereja Katolik',
+  ccc: 'Katekismus Gereja Katolik',
   sacraments: 'Sakramen',
   liturgy: 'Liturgi',
 };
@@ -153,7 +196,7 @@ export const CATEGORY_LABELS: Record<QuizCategory, string> = {
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   easy: 'Mudah',
   medium: 'Sederhana',
-  hard: 'Keras',
+  hard: 'Sukar',
 };
 
 export const TOTAL_LEVELS = 100;

@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { TOTAL_LEVELS } from '@/types';
 import { QUESTIONS_STATS } from '@/services/quizService';
 import type { Difficulty } from '@/types';
@@ -56,12 +57,15 @@ export default function QuizScreen() {
   const totalXP = userData?.totalXP || 0;
   const levelProgress = userData?.levelProgress || {};
   const completedLevels = Object.keys(levelProgress).filter(
-    (k) => levelProgress[Number(k)]?.completed
+    // `levelProgress` is `Record<string, LevelProgress>` — keys are
+    // already strings; no `Number(k)` round-trip needed (and the
+    // old cast would silently drop any legacy `String(key)` rows).
+    (k) => levelProgress[k]?.completed
   ).length;
 
   const handleStartQuiz = (level: number) => {
     if (level <= unlockedLevel) {
-      router.push(`/quiz/${level}` as any);
+      router.push(Routes.QUIZ_LEVEL(level) as never);
     }
   };
 
@@ -164,7 +168,9 @@ export default function QuizScreen() {
             <View style={styles.levelGrid}>
               {[...Array(Math.min(unlockedLevel, 50))].map((_, i) => {
                 const level = i + 1;
-                const progress = levelProgress[level];
+                // `levelProgress` is `Record<string, LevelProgress>` —
+                // coerce the lookup key to match the type.
+                const progress = levelProgress[String(level)];
                 const isCompleted = progress?.completed;
                 const difficulty: Difficulty = level <= 33 ? 'easy' : level <= 66 ? 'medium' : 'hard';
                 const difficultyColor = difficulty === 'easy' ? '#22C55E' : difficulty === 'medium' ? '#F59E0B' : '#EF4444';

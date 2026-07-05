@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import { useState, useLayoutEffect } from 'react';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { useAuth } from '@/contexts/AuthContext';
 
 type OnboardingSlide = {
@@ -71,18 +72,18 @@ export default function OnboardingScreen() {
     // signed in.
     await markOnboarded();
     if (user) {
-      router.replace('/(tabs)/index');
+      router.replace(Routes.HOME);
     } else {
-      router.replace('/(auth)/login');
+      router.replace(Routes.LOGIN);
     }
   };
 
   const handleSkip = async () => {
     await markOnboarded();
     if (user) {
-      router.replace('/(tabs)/index');
+      router.replace(Routes.HOME);
     } else {
-      router.replace('/(auth)/login');
+      router.replace(Routes.LOGIN);
     }
   };
 

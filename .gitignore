@@ -38,6 +38,11 @@ yarn-error.*
 serviceAccountKey.json
 *firebase-adminsdk*.json
 
+# Self-improving-agent session scaffolding (per-session debugging
+# notes). Project-source learning lives in AGENTS.md changelog;
+# these are working files.
+.learnings/
+
 # generated native folders
 /ios
 /android

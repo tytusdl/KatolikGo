@@ -4,7 +4,6 @@ import {
   getDoc,
   getDocs,
   setDoc,
-  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import type { Quiz, QuizQuestion, Difficulty, QuizCategory } from '@/types';
@@ -106,7 +105,8 @@ export async function saveQuiz(
     difficulty,
     questions,
     passingScore,
-    updatedAt: serverTimestamp(),
+    // See `types/index.ts` for the timestamp policy.
+    updatedAt: Date.now(),
   });
 }
 

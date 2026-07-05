@@ -28,6 +28,7 @@ import { LIVES_CONFIG } from '@/constants/xp.constants';
 import { shuffleArray } from '@/utils/misc.utils';
 import { validateResponseTime, validateSessionTimings } from '@/utils/anti-cheat.utils';
 import { useGuestGuard } from '@/hooks/useGuestGuard';
+import { Routes } from '@/constants/routes';
 import type { Quiz } from '@/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -104,7 +105,18 @@ export default function QuizPlayScreen() {
   // tells the result page to render the "habis lives" panel.
   const [livesExhausted, setLivesExhausted] = useState<boolean>(false);
 
-  const levelNum = parseInt(level || '1', 10);
+  // Derived level number. URL param `/quiz/[level]` is untrusted —
+  // `parseInt('foo', 10)` returns `NaN`, then `level_${NaN}` would
+  // land an orphan doc in Firestore (matches the seedService NaN
+  // guard fix in 2026-07-06 audit). Clamp to [1, TOTAL_LEVELS] so a
+  // curious player who hand-crafts `/quiz/0`, `/quiz/-5`, or
+  // `/quiz/99999` lands on a real quiz instead of crashing.
+  const TOTAL_LEVELS = 100; // keep in sync with constants/xp.types.ts
+  const rawLevelNum = parseInt(level || '1', 10);
+  const levelNum =
+    Number.isFinite(rawLevelNum) && rawLevelNum >= 1 && rawLevelNum <= TOTAL_LEVELS
+      ? Math.floor(rawLevelNum)
+      : 1;
   const totalQuestions = quiz?.questions.length ?? 0;
 
   useEffect(() => {
@@ -204,7 +216,7 @@ export default function QuizPlayScreen() {
         // Lives habis — bounce straight to the refill modal. We use
         // `replace` so the quiz URL doesn't sit in the back stack;
         // when the modal closes the user lands back on the quiz list.
-        router.replace('/quiz/lives-empty');
+        router.replace(Routes.QUIZ_LIVES_EMPTY);
         return;
       }
       const quizData = await getQuizByLevel(levelNum);
@@ -264,9 +276,27 @@ export default function QuizPlayScreen() {
    * the local mirror state. If lives hit 0, mark the session as
    * exhausted so the next "Seterusnya" press ends the quiz and
    * routes to the result screen with the lives-exhausted flag.
+   *
+   * Optimistic guard for the lives-exhausted flip: read the
+   * auth-context `userData.lives` value (which is the source of
+   * truth synced via `AuthContext`'s onSnapshot) BEFORE attempting
+   * the Firestore write. If `userData.lives <= 1` already, flipping
+   * `livesExhausted` here means a Firestore blip can no longer trap
+   * the player in a quiz they've already lost — the very next
+   * "Seterusnya" press routes to the result screen with
+   * `livesExhausted: true`, regardless of whether the write ever
+   * landed. The auth-context snapshot will catch up when Firestore
+   * recovers.
    */
   const consumeLifeAfterWrongAnswer = async () => {
     if (!userData?.uid) return;
+    // Optimistic guard — fire BEFORE the await so a Firestore
+    // hang doesn't keep the player in the quiz after their last
+    // life is gone.
+    const prevLives = userData.lives;
+    if (typeof prevLives === 'number' && prevLives <= 1) {
+      setLivesExhausted(true);
+    }
     try {
       const next = await consumeLifeOnWrongAnswer(userData.uid);
       if (next <= 0) {
@@ -275,10 +305,9 @@ export default function QuizPlayScreen() {
     } catch {
       // Non-fatal — the banner shows the cached `userData.lives`
       // value via auth context. The next wrong answer will retry
-      // the transaction. We intentionally don't block the quiz
-      // on a Firestore blip — worst case the player gets one
-      // extra question in before the next attempt to decrement
-      // catches up.
+      // the transaction. The optimistic guard above already set
+      // `livesExhausted` for the next-to-last-life case, so even
+      // if Firestore never recovers the quiz still ends early.
     }
     // Pulse the banner regardless of success so the player gets
     // visible feedback even if Firestore is lagging. The counter
@@ -378,7 +407,17 @@ export default function QuizPlayScreen() {
       setHiddenOptions([]);
       return;
     }
-    finishQuiz(didScore ? score + 100 / quiz.questions.length : score);
+    // Pass the live `livesExhausted` flag through to finishQuiz so
+    // the result page renders the "Nyawa Anda Sudah Habis" panel
+    // even if the player used a free-pass to advance past the
+    // last question after lives dropped to 0. Without this flag,
+    // a free-pass after the last life would silently drop the
+    // lives-exhausted UI on the result screen (it's only set via
+    // the default `false`).
+    finishQuiz(
+      didScore ? score + 100 / quiz.questions.length : score,
+      livesExhausted
+    );
   };
 
   const handleNext = async () => {
@@ -422,7 +461,7 @@ export default function QuizPlayScreen() {
 
     if (!userData) {
       router.replace({
-        pathname: '/quiz/result',
+        pathname: Routes.QUIZ_RESULT,
         params: {
           level: levelNum.toString(),
           score: percentage.toString(),
@@ -461,7 +500,7 @@ export default function QuizPlayScreen() {
       );
 
       router.replace({
-        pathname: '/quiz/result',
+        pathname: Routes.QUIZ_RESULT,
         params: {
           level: levelNum.toString(),
           score: percentage.toString(),
@@ -472,7 +511,7 @@ export default function QuizPlayScreen() {
       });
     } catch {
       router.replace({
-        pathname: '/quiz/result',
+        pathname: Routes.QUIZ_RESULT,
         params: {
           level: levelNum.toString(),
           score: percentage.toString(),

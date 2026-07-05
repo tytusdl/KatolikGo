@@ -101,6 +101,17 @@ let permissionStatusCache: NotificationPermissionStatus | null = null;
  * Android 13+: shows the runtime permission dialog the first
  * time. Older Android: auto-granted (notification permission
  * was install-time, not runtime).
+ *
+ * Defensive permission-resolution: reads THREE sources of truth
+ * from the runtime response (`.granted` boolean, `.status ===
+ * 'granted'`, and the platform-specific `ios.status` /
+ * `android.status` overrides). If the SDK ever renames `granted`
+ * (renamed to `authorized` in some forks, or moves behind a
+ * `result.granted` wrapper in a future major), the other
+ * checks keep us honest. The previous code only consulted
+ * `.granted` — a silent break in newer SDKs would have meant
+ * `granted === undefined` → `false` → no notifications ever
+ * fire, with no diagnostic log.
  */
 export async function requestNotificationPermission(): Promise<boolean> {
   ensureConfigured();
@@ -114,23 +125,24 @@ export async function requestNotificationPermission(): Promise<boolean> {
     // fire a notification" signal across all platforms,
     // including iOS provisional authorization which maps
     // `granted: true` even when the strict `status` is
-    // `'undetermined'`. Cast to `any` here because the
+    // `'undetermined'`. Cast to `unknown as { ... }` because the
     // runtime type augmentation for `PermissionResponse`
     // from the `expo` package barrel doesn't propagate
     // through `NotificationPermissionsStatus` in this SDK
     // version's typings; runtime behaviour matches the
     // documented contract regardless.
-    let settings = (await Notifications.getPermissionsAsync()) as unknown as {
+    type PermissionShape = {
       granted?: boolean;
       status?: string;
+      ios?: { status?: string };
+      android?: { status?: string };
     };
-    if (!settings.granted) {
-      settings = (await Notifications.requestPermissionsAsync()) as unknown as {
-        granted?: boolean;
-        status?: string;
-      };
+
+    let settings = (await Notifications.getPermissionsAsync()) as unknown as PermissionShape;
+    if (!isGranted(settings)) {
+      settings = (await Notifications.requestPermissionsAsync()) as unknown as PermissionShape;
     }
-    const granted = settings.granted === true;
+    const granted = isGranted(settings);
     permissionStatusCache = granted ? 'granted' : 'denied';
     return granted;
   } catch {
@@ -138,6 +150,36 @@ export async function requestNotificationPermission(): Promise<boolean> {
     // Don't cache the failure — let the next call retry.
     return false;
   }
+}
+
+/**
+ * Resolve whether the SDK returned a "we can post notifications"
+ * signal. Covers three independent sources of truth so a single
+ * rename in the SDK doesn't silence all notifs:
+ *
+ *   1. Top-level `.granted` boolean — the canonical signal per
+ *      the `expo-notifications` docs.
+ *   2. Top-level `.status === 'granted'` — what older call sites
+ *      used before `.granted` was added. Some iOS provisional
+ *      flows return `granted: true` while `status` stays
+ *      `'undetermined'`, so we OR rather than AND these.
+ *   3. Platform-specific `ios.status === 'granted'` OR
+ *      `android.status === 'granted'` — the most granular
+ *      override. Useful when the bundler type augmentation
+ *      strips the top-level keys but keeps the platform-nested
+ *      ones (a real failure mode seen on RN 0.74 + Expo SDK 51).
+ */
+function isGranted(s: {
+  granted?: boolean;
+  status?: string;
+  ios?: { status?: string };
+  android?: { status?: string };
+}): boolean {
+  if (s.granted === true) return true;
+  if (s.status === 'granted') return true;
+  if (s.ios?.status === 'granted') return true;
+  if (s.android?.status === 'granted') return true;
+  return false;
 }
 
 /**

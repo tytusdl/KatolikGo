@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { LIVES_CONFIG } from '@/constants/xp.constants';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -131,8 +132,8 @@ export default function LivesEmptyModal() {
           'Pengguna tetamu tidak boleh menggunakan token. Sila daftar atau log masuk untuk refill dengan token.',
           [
             { text: 'Batal', style: 'cancel' },
-            { text: 'Daftar', onPress: () => router.replace('/(auth)/register') },
-            { text: 'Log Masuk', onPress: () => router.replace('/(auth)/login') },
+            { text: 'Daftar', onPress: () => router.replace(Routes.REGISTER) },
+            { text: 'Log Masuk', onPress: () => router.replace(Routes.LOGIN) },
           ]
         );
         return;

@@ -7,7 +7,7 @@ import {
   updateProfile,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp, query, collection, where, limit, getDocs } from 'firebase/firestore';
+import { doc, setDoc, getDoc, query, collection, where, limit, getDocs } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import type { UserData } from '@/types';
 import { LIVES_CONFIG } from '@/constants/xp.constants';
@@ -187,12 +187,20 @@ export async function ensureUserDocument(
     return { uid: firebaseUser.uid, ...(snap.data() as Omit<UserData, 'uid'>) };
   }
   const data = buildDefaultUserData(firebaseUser, overrides);
+  // Timestamp policy (commit 2026-07-06): write `Date.now()` (a JS
+  // `number` of ms since epoch) directly so the read-back value matches
+  // the type and arithmetic (`Date.now() - createdAt`) actually
+  // returns a number. The previous `serverTimestamp()` write would
+  // land in Firestore as a `Timestamp` object — the type said
+  // `number` but the value was a `Timestamp`, so any
+  // `Date.now() - createdAt` returned `NaN`.
+  const now = Date.now();
   await setDoc(userRef, {
     ...data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
+    createdAt: now,
+    updatedAt: now,
   });
-  return { ...data, createdAt: Date.now(), updatedAt: Date.now() };
+  return { ...data, createdAt: now, updatedAt: now };
 }
 
 /**
@@ -204,11 +212,47 @@ export async function ensureUserDocument(
  * function calls `isUsernameTaken` to enforce uniqueness and throws
  * `UsernameTakenError` (with a friendly Malay message) if the handle
  * is already in use.
+ *
+ * Race / orphan hardening:
+ *   1. Pre-check `isUsernameTaken` before calling
+ *      `createUserWithEmailAndPassword` (cheap fast-path for the
+ *      common case where the username is already taken).
+ *   2. After the auth account is created, RE-CHECK
+ *      `isUsernameTaken` again — between (1) and the `createUser`
+ *      call another client could have claimed the same username, in
+ *      which case the index isn't yet pointing at our `uid` and the
+ *      read might still see the older doc. If the second check
+ *      returns true we delete the just-created auth account (so the
+ *      user can retry with a fresh handle rather than being stuck
+ *      with an orphaned Auth record) and surface `UsernameTakenError`.
+ *   3. Wrap the `ensureUserDocument` write in try/catch. If the
+ *      Firestore create fails after the auth account was created
+ *      (network blip / rules reject / quota), the user is left with
+ *      an auth account they can't sign in to — delete the auth
+ *      account and rethrow so the screen can present a clear error.
  */
 export class UsernameTakenError extends Error {
   code = 'USERNAME_TAKEN';
   constructor(public username: string) {
     super(`Nama pengguna "${username}" sudah digunakan.`);
+  }
+}
+
+/**
+ * Best-effort rollback for a freshly-created auth account. Used by
+ * `registerUser` to keep the system out of "auth account exists with
+ * no Firestore doc" / "username taken but account was created anyway"
+ * states. Wraps any delete error so callers can use this in cleanup
+ * branches without losing the original failure context.
+ */
+async function tryDeleteAuthAccount(user: FirebaseUser, context: string): Promise<void> {
+  try {
+    await user.delete();
+  } catch (cleanupErr) {
+    console.warn(
+      `[authService] failed to clean up orphan auth account (${context})`,
+      cleanupErr
+    );
   }
 }
 
@@ -222,16 +266,60 @@ export async function registerUser(
   if (!usernameCheck.valid) {
     throw new Error(usernameCheck.error);
   }
+  // 1) Pre-check — common case: username already taken, fail fast.
   if (await isUsernameTaken(usernameCheck.normalized)) {
     throw new UsernameTakenError(usernameCheck.normalized);
   }
   const credential = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(credential.user, { displayName });
-  return ensureUserDocument(credential.user, {
-    email,
-    displayName,
-    username,
-  });
+  try {
+    // 2) Post-create race-check. If another device claimed the
+    // same handle in the milliseconds between (1) and (2), the
+    // Firestore index still points at the other doc and our
+    // pre-check wasn't authoritative. Delete the auth account we
+    // just made and surface the same UsernameTakenError so the
+    // user can pick a different handle.
+    if (await isUsernameTaken(usernameCheck.normalized)) {
+      await tryDeleteAuthAccount(credential.user, 'username-race');
+      throw new UsernameTakenError(usernameCheck.normalized);
+    }
+
+    await updateProfile(credential.user, { displayName });
+
+    // 3) Orphan prevention — if the Firestore write fails, we have
+    // an Auth account we can't load user data for on next sign-in.
+    // Delete the auth account and rethrow the original error so the
+    // screen surfaces a useful message rather than leaving the user
+    // half-registered.
+    try {
+      return await ensureUserDocument(credential.user, {
+        email,
+        displayName,
+        username,
+      });
+    } catch (docErr) {
+      await tryDeleteAuthAccount(credential.user, 'firestore-create-failed');
+      throw docErr;
+    }
+  } catch (err) {
+    // Always rethrow to the caller. The two inner `throw`s above
+    // (UsernameTakenError, docErr) propagate normally; we don't
+    // want to swallow them.
+    if (err instanceof UsernameTakenError) throw err;
+    // For unknown errors between createUser and the inner
+    // try/catch, also try to roll back so we don't leak Auth
+    // accounts for transient network blips.
+    if (
+      !(err instanceof UsernameTakenError) &&
+      err !== credential.user // safety: never accidentally delete on success
+    ) {
+      // Defensive: the inner try/catch on ensureUserDocument
+      // already cleans up. This branch only fires for things like
+      // updateProfile failing, which is rare but should still try
+      // to clean up.
+      await tryDeleteAuthAccount(credential.user, 'post-create-failure');
+    }
+    throw err;
+  }
 }
 
 /**
@@ -301,9 +389,13 @@ export async function updateUserData(
   uid: string,
   data: Partial<UserData>
 ): Promise<void> {
+  // See `ensureUserDocument` for the timestamp-policy rationale —
+  // every write stamps `updatedAt` with the JS clock in ms so
+  // read-back is a plain number and arithmetic against `Date.now()`
+  // actually works.
   await setDoc(
     doc(db, 'users', uid),
-    { ...data, updatedAt: serverTimestamp() },
+    { ...data, updatedAt: Date.now() },
     { merge: true }
   );
 }
@@ -311,6 +403,11 @@ export async function updateUserData(
 /**
  * Translate Firebase Auth errors into user-friendly Malay messages.
  * Falls back to the raw error message for unknown codes.
+ *
+ * Custom (non-Firebase) error codes thrown by `authService` itself
+ * — `USERNAME_TAKEN` from `UsernameTakenError` — are mapped here
+ * too so call-sites that pass `friendlyAuthError(err)` get a
+ * consistent Malay string regardless of source.
  */
 export function friendlyAuthError(err: unknown): string {
   const code = (err as { code?: string })?.code ?? '';
@@ -331,11 +428,24 @@ export function friendlyAuthError(err: unknown): string {
       return 'Tiada sambungan internet. Cuba lagi.';
     case 'auth/too-many-requests':
       return 'Terlalu banyak percubaan. Sila tunggu sebentar.';
+    case 'auth/operation-not-allowed':
+      // Thrown when a sign-in method (Anonymous / Google / Email) is
+      // disabled in the Firebase Console. Surface a single helpful
+      // prompt so the dev doesn't have to chase ops console docs.
+      return 'Kaedah log masuk ini belum diaktifkan. Sila hubungi pentadbir.';
     case 'auth/popup-closed-by-user':
       return 'Tetingkap log masuk ditutup sebelum selesai.';
     case 'auth/popup-blocked':
     case 'auth/cancelled-popup-request':
       return 'Log masuk dibatalkan.';
+    case 'USERNAME_TAKEN':
+      // `UsernameTakenError.code` — our own, not Firebase. The
+      // underlying `err.message` is already a friendly Malay
+      // sentence so we propagate it directly rather than mapping.
+      return (
+        (err as { message?: string })?.message ??
+        'Nama pengguna ini sudah digunakan.'
+      );
     default:
       return (err as Error)?.message ?? 'Ralat tidak dijangka. Cuba lagi.';
   }

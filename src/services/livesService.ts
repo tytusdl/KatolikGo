@@ -1,6 +1,5 @@
 import {
   doc,
-  serverTimestamp,
   runTransaction,
   Timestamp,
 } from 'firebase/firestore';
@@ -139,7 +138,10 @@ export async function refillIfNeeded(uid: string): Promise<LivesState> {
       if (data.livesLastLostAt != null) {
         transaction.update(userRef, {
           livesLastLostAt: null,
-          updatedAt: serverTimestamp(),
+          // See `types/index.ts` for the timestamp policy — `Date.now()`
+          // (JS number ms) so read-back matches the type and arithmetic
+          // against `Date.now()` actually works.
+          updatedAt: Date.now(),
         });
         return { lives, refilledNow: false };
       }
@@ -161,7 +163,7 @@ export async function refillIfNeeded(uid: string): Promise<LivesState> {
     transaction.update(userRef, {
       lives: newLives,
       ...(clearAnchor ? { livesLastLostAt: null } : {}),
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
     return { lives: newLives, refilledNow: true };
   });
@@ -203,8 +205,11 @@ export async function consumeLifeOnWrongAnswer(uid: string): Promise<number> {
       // `livesLastLostAt` is irrelevant (refill will fire when
       // there are 0 → 1 anyway) but we set it anyway for
       // uniformity / debugging.
-      livesLastLostAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      // See `types/index.ts` for the timestamp policy — `Date.now()`
+      // (JS number ms) so read-back matches the type and arithmetic
+      // against `Date.now()` actually works.
+      livesLastLostAt: Date.now(),
+      updatedAt: Date.now(),
     });
     return decremented;
   });
@@ -253,7 +258,7 @@ export async function refillWithTokens(
     transaction.update(userRef, {
       lives: lives + 1,
       tokens: tokens - cost,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
     return { lives: lives + 1, tokens: tokens - cost };
   });
@@ -309,8 +314,8 @@ export async function refillWithAd(
     }
     transaction.update(userRef, {
       lives: lives + 1,
-      lastAdRefillAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      lastAdRefillAt: Date.now(),
+      updatedAt: Date.now(),
     });
     return { lives: lives + 1, refilled: true, cooldownMsRemaining: 0 };
   });

@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function QuizResultScreen() {
@@ -155,7 +156,7 @@ export default function QuizResultScreen() {
             </Text>
             <TouchableOpacity
               style={styles.livesNudgeButton}
-              onPress={() => router.push('/quiz/lives-empty')}
+              onPress={() => router.push(Routes.QUIZ_LIVES_EMPTY)}
               activeOpacity={0.85}
             >
               <Text style={styles.livesNudgeButtonText}>Isi Semula Nyawa</Text>

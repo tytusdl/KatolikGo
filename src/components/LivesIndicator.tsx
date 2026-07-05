@@ -6,6 +6,7 @@ import { Animated, Easing, StyleSheet, Text, TouchableOpacity, View } from 'reac
 import type { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import { LIVES_CONFIG } from '@/constants/xp.constants';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -155,14 +156,41 @@ export function LivesIndicator({
 
   // Tick any countdown label every 30s. Lightweight — no Firestore
   // traffic, just a local state update. Only meaningful for the
-  // 'card' / 'inline' variants that actually display a countdown.
+  // 'card' / 'inline' / 'banner' / 'pill' variants that actually
+  // display a countdown.
+  //
+  // When the countdown reaches 0, auto-fire `refillIfNeeded` so the
+  // player doesn't stare at "sebentar lagi" indefinitely. Without
+  // this, the only thing that bumps the lives counter is the user
+  // navigating away and back — which they wouldn't know to do, so
+  // the bar appeared stuck even after the refill had happened
+  // server-side. The auth-context `onSnapshot` would eventually pick
+  // up the new lives count on the next non-zero write, but for a
+  // patient player watching the countdown, that's a confusing UX.
   useEffect(() => {
-    if (msUntilNext == null) return;
+    if (msUntilNext == null || msUntilNext <= 0) return;
     const interval = setInterval(() => {
-      setMsUntilNext((prev) => (prev == null ? null : Math.max(0, prev - 30_000)));
+      setMsUntilNext((prev) => {
+        if (prev == null) return null;
+        const next = prev - 30_000;
+        if (next <= 0) {
+          // Countdown just elapsed — claim the pending refill tick.
+          // Fire-and-forget so the interval can keep ticking without
+          // blocking; the live data update will surface via
+          // auth-context's onSnapshot (which drives `userData.lives`
+          // — see `useLivesNotification.checkTransition`).
+          if (userData?.uid) {
+            void refillIfNeeded(userData.uid).catch((err) => {
+              console.warn('[LivesIndicator] auto-refill on countdown failed', err);
+            });
+          }
+          return 0;
+        }
+        return next;
+      });
     }, 30_000);
     return () => clearInterval(interval);
-  }, [msUntilNext]);
+  }, [msUntilNext, userData?.uid]);
 
   // Treat missing/legacy `lives` as full health so the indicator
   // doesn't render a misleading "0/5" on the first session after
@@ -409,7 +437,7 @@ function formatCountdown(ms: number): string {
 export function openLivesExhaustedModal(
   router: ReturnType<typeof useRouter>
 ): void {
-  router.push('/quiz/lives-empty');
+  router.push(Routes.QUIZ_LIVES_EMPTY);
 }
 
 // Re-export so screens that already import from this file don't

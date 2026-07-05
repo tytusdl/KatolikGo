@@ -31,6 +31,7 @@ import {
 } from '@/admin/adminService';
 import { LIVES_CONFIG } from '@/constants/xp.constants';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 
 /**
  * Developer admin panel — only renders meaningfully for users with
@@ -469,7 +470,7 @@ export default function AdminScreen() {
                         run('buang isAdmin', async () => {
                           await setOwnAdmin(userData, false);
                           await refreshUserData();
-                          router.replace('/(tabs)/profile');
+                          router.replace(Routes.PROFILE);
                         }),
                     },
                   ]

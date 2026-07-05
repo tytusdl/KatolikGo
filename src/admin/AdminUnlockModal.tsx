@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 import {
   grantAdminByPassphrase,
   BAD_PASSPHRASE,
@@ -84,7 +85,7 @@ export function AdminUnlockModal({
             text: 'Buka Panel',
             onPress: () => {
               if (onSuccess) onSuccess();
-              else router.replace('/admin');
+              else router.replace(Routes.ADMIN);
             },
           },
           { text: 'Tutup', style: 'cancel' },

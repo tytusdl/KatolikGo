@@ -1,4 +1,4 @@
-import { doc, setDoc, serverTimestamp, collection, runTransaction, getDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, runTransaction, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import type { UserData } from '@/types';
 import { TOTAL_LEVELS, PASSING_SCORE } from '@/types';
@@ -46,7 +46,10 @@ export async function spendToken(
 
     transaction.update(userRef, {
       tokens: freshData.tokens - amount,
-      updatedAt: serverTimestamp(),
+      // See `types/index.ts` for the timestamp policy — every write
+      // stamps `updatedAt` / `createdAt` with the JS clock in ms so
+      // read-back is a plain number.
+      updatedAt: Date.now(),
     });
 
     transaction.set(doc(collection(db, 'transactions')), {
@@ -54,7 +57,7 @@ export async function spendToken(
       type: 'spend',
       amount,
       description,
-      createdAt: serverTimestamp(),
+      createdAt: Date.now(),
     });
   });
 
@@ -72,7 +75,7 @@ export async function awardTokens(
 
   await setDoc(userRef, {
     tokens: currentTokens + amount,
-    updatedAt: serverTimestamp(),
+    updatedAt: Date.now(),
   }, { merge: true });
 
   await setDoc(doc(collection(db, 'transactions')), {
@@ -80,7 +83,7 @@ export async function awardTokens(
     type: 'reward',
     amount,
     description,
-    createdAt: serverTimestamp(),
+    createdAt: Date.now(),
   });
 }
 
@@ -104,14 +107,21 @@ export async function unlockLevelWithToken(
   const userRef = doc(db, 'users', userId);
   const newLevelProgress = { ...userData.levelProgress };
   for (let i = userData.currentLevel; i < targetLevel; i++) {
-    newLevelProgress[i] = { completed: true, bestScore: PASSING_SCORE, attempts: 1 };
+    // String-keyed write — `UserData.levelProgress` is
+    // `Record<string, LevelProgress>` and Firestore coerces numeric
+    // keys to strings on round-trip anyway.
+    newLevelProgress[String(i)] = {
+      completed: true,
+      bestScore: PASSING_SCORE,
+      attempts: 1,
+    };
   }
 
   await setDoc(userRef, {
     levelProgress: newLevelProgress,
     currentLevel: targetLevel + 1,
     tokens: userData.tokens - 10,
-    updatedAt: serverTimestamp(),
+    updatedAt: Date.now(),
   }, { merge: true });
 
   await setDoc(doc(collection(db, 'transactions')), {
@@ -119,7 +129,7 @@ export async function unlockLevelWithToken(
     type: 'spend',
     amount: 10,
     description: `Unlock until level ${targetLevel}`,
-    createdAt: serverTimestamp(),
+    createdAt: Date.now(),
   });
 
   return { success: true, newLevel: targetLevel + 1 };

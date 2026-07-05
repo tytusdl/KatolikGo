@@ -10,8 +10,13 @@ import {
 } from 'react';
 import { type User as FirebaseUser } from 'firebase/auth';
 import {
+  doc,
+  onSnapshot,
+  type DocumentData,
+  type DocumentSnapshot,
+} from 'firebase/firestore';
+import {
   onAuthChange,
-  getUserData,
   ensureUserDocument,
   signOut,
 } from '@/services/authService';
@@ -20,11 +25,10 @@ import {
   hasOnboarded,
 } from '@/utils/onboarding';
 import { getRememberMe } from '@/utils/rememberMe';
+import { useLivesNotification } from '@/hooks/useLivesNotification';
 import type { UserData } from '@/types';
-import { doc, onSnapshot } from 'firebase/firestore';
 import { db as firebaseDb } from '@/config/firebase';
-import { LIVES_CONFIG } from '@/constants/xp.constants';
-import { notifyLivesFull, requestNotificationPermission } from '@/services/notificationService';
+import { requestNotificationPermission } from '@/services/notificationService';
 
 interface AuthContextType {
   user: FirebaseUser | null;
@@ -49,6 +53,14 @@ interface AuthContextType {
    * `onboarded` to `true`. Idempotent — safe to call repeatedly.
    */
   markOnboarded: () => Promise<void>;
+  /**
+   * No-op retained for backward-compatible call-sites (`admin/index.tsx`,
+   * `profile.tsx`). With the onSnapshot source-of-truth pattern the
+   * listener pushes every write from this client (and any other session
+   * on the same doc) automatically, so an explicit refresh is no
+   * longer meaningful. Kept in the API so call-sites don't need
+   * refactoring.
+   */
   refreshUserData: () => Promise<void>;
   /** Fetches the current Firebase ID token (auto-refreshed by SDK). */
   getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
@@ -66,6 +78,14 @@ const AuthContext = createContext<AuthContextType>({
   getIdToken: async () => null,
 });
 
+function readUserFromSnapshot(
+  snap: DocumentSnapshot<DocumentData>,
+  uid: string
+): UserData | null {
+  if (!snap.exists()) return null;
+  return { uid, ...(snap.data() as Omit<UserData, 'uid'>) };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -74,10 +94,155 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [onboarded, setOnboarded] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
 
-  // Mirror the latest user in a ref so async callbacks (and refreshUserData)
-  // always see fresh data without being held hostage to React's stale-closure
+  // Mirror the latest user in a ref so async callbacks always see
+  // fresh data without being held hostage to React's stale-closure
   // behaviour.
   const userRef = useRef<FirebaseUser | null>(null);
+
+  // Reusable cleanup for the active userDoc subscription. Stash
+  // here so each phase can tear down before the next one starts.
+  const unsubSnapRef = useRef<(() => void) | null>(null);
+  const firstEmitSeenRef = useRef<boolean>(false);
+
+  // Lives-transition detector (registered users only). See
+  // `useLivesNotification` for state machine details.
+  const livesNotification = useLivesNotification();
+
+  // ---------------------------------------------------------------------------
+  // Auth + userDoc subscription — split into named phases.
+  //
+  // The big `useEffect` below drives the lifecycle, but it delegates to
+  // five short helpers so each phase reads independently:
+  //
+  //   `tearDownSubscription()`    — clear prior snapshot + lives tracker
+  //   `applyNoUser()`             — handle `firebaseUser === null`
+  //   `applyRememberMeFailure()`  — handle !remember after gate
+  //   `subscribeToUserDoc(user)`  — set up the onSnapshot driver
+  //   `markOnboardingComplete()`  — kick markOnboarded with .catch guard
+  //
+  // All five close over local refs / state so the call-site stays
+  // readable. Keeping them inside the provider body (not extracted to
+  // module scope) is necessary so they can call `setUserData` etc.
+  // directly without a context prop.
+  // ---------------------------------------------------------------------------
+
+  /** Tear down the prior userDoc snapshot (if any) and reset the lives
+   *  tracker so the next account starts from a clean baseline. */
+  const tearDownSubscription = useCallback(() => {
+    if (unsubSnapRef.current) {
+      unsubSnapRef.current();
+      unsubSnapRef.current = null;
+    }
+    firstEmitSeenRef.current = false;
+    livesNotification.reset();
+  }, [livesNotification]);
+
+  /** Handle the `firebaseUser === null` branch (signed out).
+   *  Clears userData + loading flags so AuthGate routes to /login. */
+  const applyNoUser = useCallback(() => {
+    setUserData(null);
+    setUserDataLoading(false);
+    setLoading(false);
+  }, []);
+
+  /** Handle the remember-me gate failure path. Signs the restored
+   *  session out and re-runs the null-branch so the next listener
+   *  invocation sees `user = null`. */
+  const applyRememberMeFailure = useCallback(async () => {
+    try {
+      await signOut();
+    } catch (err) {
+      console.warn('[Auth] remember-me signOut failed', err);
+    }
+    userRef.current = null;
+    setUser(null);
+    setUserData(null);
+    setUserDataLoading(false);
+    setLoading(false);
+  }, []);
+
+  /** Best-effort AsyncStorage write of the onboarded flag.
+   *  `.catch(console.warn)` pins a storage-write failure to a warn
+   *  instead of letting an unhandled promise rejection surface. */
+  const markOnboardingComplete = useCallback(async () => {
+    try {
+      await persistOnboarded();
+    } catch (err) {
+      console.warn('[Auth] persistOnboarded failed', err);
+      return; // don't flip in-memory flag if storage write failed
+    }
+    setOnboarded(true);
+  }, []);
+
+  /** Set up the single `onSnapshot(userDocRef, cb)` that drives both
+   *  `userData` state and the lives-full notification. Returns the
+   *  unsubscribe function (stashed in `unsubSnapRef` so the teardown
+   *  phase can reach it). */
+  const subscribeToUserDoc = useCallback(
+    (firebaseUser: FirebaseUser) => {
+      setUserDataLoading(true);
+      const userDocRef = doc(firebaseDb, 'users', firebaseUser.uid);
+      const unsubscribe = onSnapshot(
+        userDocRef,
+        async (snap) => {
+          if (!userRef.current) return; // raced with sign-out
+
+          let nextUserData = readUserFromSnapshot(snap, firebaseUser.uid);
+
+          // Doc missing — can happen if a Firestore write was rolled
+          // back, the user doc was deleted by admin tooling, or a
+          // cold-start race found a registered user with no doc yet.
+          // Lazy-create via `ensureUserDocument` (mirrors the
+          // previous one-shot getDoc fallback path).
+          if (!nextUserData) {
+            try {
+              const created = await ensureUserDocument(firebaseUser);
+              if (!userRef.current) return;
+              nextUserData = created;
+            } catch (err) {
+              console.warn('[Auth] ensureUserDocument failed', err);
+              setUserData(null);
+              setUserDataLoading(false);
+              setLoading(false);
+              return;
+            }
+          }
+
+          setUserData(nextUserData);
+
+          // Drive the lives-transition detector with the freshly
+          // fetched snapshot. The hook still seeds its prev-tracker
+          // for guest accounts (suppresses the notify) so future
+          // `linkWithCredential` upgrades start from a known baseline.
+          livesNotification.checkTransition(
+            nextUserData,
+            firebaseUser.isAnonymous
+          );
+
+          // First emission unblocks AuthGate. Subsequent emissions
+          // don't need to toggle the loading flags — by the time we
+          // get here, the gate has already routed.
+          if (!firstEmitSeenRef.current) {
+            firstEmitSeenRef.current = true;
+            setUserDataLoading(false);
+            setLoading(false);
+          }
+        },
+        (err: Error) => {
+          // Snapshot errors (permission, offline). Log and let the
+          // next valid emission recover. The notification we already
+          // missed is the worst case and not user-visible (lives
+          // full is best-effort telemetry per AGENTS.md "Lives
+          // system"). Don't touch `loading` here — a transient
+          // network blip shouldn't trap the user on splash; the 8s
+          // safety net in `_layout.tsx` covers that.
+          console.warn('[Auth] user snapshot failed', err);
+        }
+      );
+      unsubSnapRef.current = unsubscribe;
+    },
+    [livesNotification]
+  );
 
   // Resolve the onboarding flag exactly once on cold start. We keep the
   // value both in AsyncStorage (so it survives app restarts) AND in React
@@ -100,33 +265,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Single entry point that mirrors `markOnboarded` in `utils/onboarding.ts`
-  // but also synchronously flips the in-memory flag. AuthGate reads
-  // `onboarded` from context, so updating here immediately changes routing.
-  const markOnboardedAction = useCallback(async () => {
-    await persistOnboarded();
-    setOnboarded(true);
-  }, []);
-
+  // Kept in the API for backward-compatible call-sites. See `AuthContextType`
+  // docstring — onSnapshot pushes every write automatically, so a manual
+  // refresh is no longer meaningful.
   const refreshUserData = useCallback(async () => {
-    const current = userRef.current;
-    if (!current) {
-      setUserData(null);
-      return;
-    }
-    setUserDataLoading(true);
-    try {
-      let data = await getUserData(current.uid);
-      if (!data) {
-        data = await ensureUserDocument(current);
-      }
-      setUserData(data);
-    } catch (err) {
-      console.warn('[Auth] failed to load user data', err);
-      setUserData(null);
-    } finally {
-      setUserDataLoading(false);
-    }
+    /* no-op: onSnapshot is the source of truth */
   }, []);
 
   const getIdToken = useCallback(async (forceRefresh = false) => {
@@ -140,146 +283,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Subscribe exactly once, with proper synchronous cleanup so we don't
-  // leak listeners on hot-reload / StrictMode / unmount.
+  // ---------------------------------------------------------------------------
+  // Auth subscription — orchestrates the phases above.
+  //
+  // Each auth event runs through the same five-step pipeline:
+  //   1. tearDownSubscription (clear any prior snapshot)
+  //   2. setUser (always)
+  //   3. null-branch shortcut OR remember-me gate OR snapshot setup
+  //   4. markOnboardingComplete (fire-and-forget)
+  //   5. subscribeToUserDoc (if registered path)
+  //
+  // Cancellation guards every async step so a fast auth flip during a
+  // session doesn't leave state half-applied.
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
 
-    const unsub = onAuthChange(async (firebaseUser) => {
+    const unsubAuth = onAuthChange(async (firebaseUser) => {
       if (cancelled) return;
+      tearDownSubscription();
       userRef.current = firebaseUser;
       setUser(firebaseUser);
 
-      if (firebaseUser) {
-        // Honor the "Remember Me" choice from the last sign-in. If the
-        // user opted out, sign the restored session out before
-        // touching userData / loading state — that way AuthGate sees
-        // `user === null` on cold start and routes to /login instead
-        // of /home. Reads the flag asynchronously; if it resolves to
-        // `false`, we sign out and let the listener fire again with
-        // `firebaseUser = null` (the unsubscription is still active).
-        const remember = await getRememberMe();
-        if (cancelled) return;
-        if (!remember) {
-          try {
-            await signOut();
-          } catch (err) {
-            console.warn('[Auth] remember-me signOut failed', err);
-          }
-          // Fall through to the null branch on the next listener
-          // invocation. For this call, leave userData null and clear
-          // the loading flags so the UI doesn't sit on a spinner.
-          userRef.current = null;
-          setUser(null);
-          setUserData(null);
-          setUserDataLoading(false);
-          setLoading(false);
-          return;
-        }
-
-        // Any time a user is authenticated — fresh sign-in, re-login, or
-        // persisted session restored on cold start — make sure the onboarding
-        // flag is set so AuthGate won't loop them back to the intro slides.
-        // Goes through the context action so the in-memory `onboarded`
-        // state stays in sync with AsyncStorage.
-        void markOnboardedAction();
-
-        setUserDataLoading(true);
-        try {
-          let data = await getUserData(firebaseUser.uid);
-          if (!data) data = await ensureUserDocument(firebaseUser);
-          if (cancelled) return;
-          setUserData(data);
-        } catch (err) {
-          console.warn('[Auth] failed to load user data', err);
-          if (cancelled) return;
-          setUserData(null);
-        } finally {
-          if (cancelled) return;
-          setUserDataLoading(false);
-          setLoading(false);
-        }
-      } else {
-        setUserData(null);
-        setUserDataLoading(false);
-        setLoading(false);
+      if (!firebaseUser) {
+        applyNoUser();
+        return;
       }
+
+      // Remember-me gate. If the user opted out on their last
+      // sign-in, sign the restored session out BEFORE we set up
+      // any snapshot — we want AuthGate to see `user = null` and
+      // route to /login instead of flashing /home with a
+      // soon-to-die session.
+      const remember = await getRememberMe();
+      if (cancelled) return;
+      if (!remember) {
+        await applyRememberMeFailure();
+        return;
+      }
+
+      // Any time a user is authenticated — fresh sign-in, re-login,
+      // or persisted session restored on cold start — make sure the
+      // onboarding flag is set so AuthGate won't loop them back to
+      // the intro slides. `.catch(console.warn)` pins a write
+      // failure to a warn instead of an unhandled rejection.
+      void markOnboardingComplete().catch((err) => {
+        console.warn('[Auth] markOnboardingComplete failed', err);
+      });
+
+      subscribeToUserDoc(firebaseUser);
     });
+
     return () => {
       cancelled = true;
-      unsub();
+      tearDownSubscription();
+      unsubAuth();
     };
-  }, [markOnboardedAction]);
-
-  // ---------------------------------------------------------------------
-  // Lives-full notification — listen to the `lives` field on the user
-  // doc and fire a local notification when it transitions from below
-  // MAX to MAX. Covers both refill pathways (time-based auto-refill
-  // and manual refill via tokens / ad) so the player gets a nudge
-  // whenever their lives bar tops off, not just the time-based case.
-  //
-  // Implementation notes:
-  //   - `onSnapshot` is the right tool here because it fires on every
-  //     doc update, including ones the client didn't initiate. This
-  //     catches refills that happen while the user is on a different
-  //     screen (or even a different device, if they multi-device).
-  //   - We track the *previous* lives value in a ref so we can detect
-  //     the transition. The first snapshot after subscription
-  //     represents the current state — we don't want to fire a noti
-  //     just because the user logged in with full lives. So we
-  //     initialize `prevLivesRef.current = null` and skip the first
-  //     emission (which is just the initial state, not a transition).
-  //   - Guest users are skipped — `notifyLivesFull` would fire for an
-  //     account that gets wiped on uninstall, which is wasted noise.
-  //     Filtered at the subscription level via `firebaseUser.isAnonymous`.
-  // ---------------------------------------------------------------------
-  const prevLivesRef = useRef<number | null>(null);
+  }, [
+    applyNoUser,
+    applyRememberMeFailure,
+    markOnboardingComplete,
+    subscribeToUserDoc,
+    tearDownSubscription,
+  ]);
 
   // Ask for notification permission once on mount. No-op if the user
   // already denied or the platform doesn't support notifs. We don't
-  // gate UI on this — if denied, the rest of the app works as
-  // before and notis simply don't fire.
+  // gate UI on this — if denied, the rest of the app works as before
+  // and notis simply don't fire. The `.catch(...)` pins any internal
+  // permission-prompt failure to a warn instead of an unhandled
+  // rejection.
   useEffect(() => {
-    void requestNotificationPermission();
+    void requestNotificationPermission().catch((err) => {
+      console.warn('[Auth] requestNotificationPermission failed', err);
+    });
   }, []);
-
-  useEffect(() => {
-    const current = userRef.current;
-    if (!current || current.isAnonymous) return;
-    const userDocRef = doc(firebaseDb, 'users', current.uid);
-    const unsubSnapshot = onSnapshot(
-      userDocRef,
-      (snap) => {
-        if (!snap.exists()) return;
-        const data = snap.data() as Partial<UserData> | undefined;
-        const rawLives = data?.lives;
-        // Defensive: only treat finite numbers as a real state.
-        // If Firestore is mid-write or the field is missing, treat
-        // as "no signal" and don't touch the prev tracking.
-        if (typeof rawLives !== 'number' || !Number.isFinite(rawLives)) return;
-        const currentLives = rawLives;
-        const prevLives = prevLivesRef.current;
-        prevLivesRef.current = currentLives;
-        // First emission — just seed the ref, don't notify.
-        if (prevLives === null) return;
-        // The actual transition check: was strictly below MAX before,
-        // and at MAX now. Notifies on *any* path that tops the bar off
-        // (time-based refill, token spend, ad reward).
-        if (prevLives < LIVES_CONFIG.MAX && currentLives >= LIVES_CONFIG.MAX) {
-          void notifyLivesFull();
-        }
-      },
-      (err: Error) => {
-        // Snapshot errors (typically permission / offline) — log
-        // and let the next valid emission recover. The noti is
-        // best-effort by design (per AGENTS.md "Lives system"),
-        // so a missed emission isn't user-visible.
-        console.warn('[Auth] lives snapshot failed', err);
-      }
-    );
-    return () => unsubSnapshot();
-  }, [user?.uid, user?.isAnonymous]);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -289,7 +368,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userDataLoading,
       onboarded,
       onboardingChecked,
-      markOnboarded: markOnboardedAction,
+      markOnboarded: markOnboardingComplete,
       refreshUserData,
       getIdToken,
     }),
@@ -300,7 +379,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userDataLoading,
       onboarded,
       onboardingChecked,
-      markOnboardedAction,
+      markOnboardingComplete,
       refreshUserData,
       getIdToken,
     ]

@@ -5,6 +5,7 @@ import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, View } from 'rea
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
+import { Routes, Pathnames } from '@/constants/routes';
 import { seedQuizzesIfEmpty } from '@/services/seedService';
 
 function AuthGate() {
@@ -18,6 +19,18 @@ function AuthGate() {
   const pathname = usePathname();
   const router = useRouter();
   const [imageFailed, setImageFailed] = useState(false);
+  // Splash safety-net. If Firebase Auth / AsyncStorage / network
+  // hangs (offline, misconfigured env, blocked request, etc.) the
+  // loading flags would stay `true` forever and the user would be
+  // trapped on the branded splash with no escape. After 8s we
+  // short-circuit and treat auth as "probably broken — just render
+  // and let the routing logic fall back to /login". The
+  // onAuthStateChanged subscription is still alive — when Firebase
+  // eventually resolves the real session in the background, this
+  // effect will re-fire with the actual user and the routing logic
+  // below will redirect them properly (handled by the
+  // justGotUser/firstRun guards already in place).
+  const [authTimedOut, setAuthTimedOut] = useState(false);
 
   // Track the user we saw on the previous effect run so we can detect
   // mid-session sign-in transitions (null → anon, null → registered).
@@ -28,9 +41,31 @@ function AuthGate() {
   const isFirstRoutingRun = useRef(true);
 
   useEffect(() => {
+    // Single mounted lifecycle: schedule the 8s safety-net, store the
+    // handle for cleanup. Runs once on mount (empty deps). If the
+    // user signs in / loading completes within 8s, we never need
+    // this — the cleanup will clear the pending timer.
+    const t = setTimeout(() => {
+      console.warn(
+        '[AuthGate] Loading state still pending after 8s — forcing ' +
+          'UI ready so the user is not trapped on the splash. This ' +
+          'usually means Firebase Auth / Firestore is unreachable ' +
+          '(offline, blocked network, missing env).'
+      );
+      setAuthTimedOut(true);
+    }, 8_000);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
     // Wait until auth and onboarding flag have settled so the redirect
     // decision is based on real state, not initial defaults.
-    if (loading || userDataLoading || !onboardingChecked) return;
+    // `authTimedOut` is the bypass — once the splash safety-net fires,
+    // we proceed with whatever state we have (typically `user = null` →
+    // routed to /onboarding or /login) and let the real auth event
+    // re-fire the effect when Firebase eventually responds.
+    const waiting = loading || userDataLoading || !onboardingChecked;
+    if (!authTimedOut && waiting) return;
 
     // Snapshot + advance the prev-state refs up front so they accurately
     // reflect the previous effect run regardless of which branch we
@@ -41,17 +76,18 @@ function AuthGate() {
     prevUserRef.current = user;
 
     // Layout-group parens are stripped from the pathname in expo-router v6,
-    // so we can use it directly to decide which screen we're on.
-    const inAuthGroup = pathname === '/login' || pathname === '/register';
-    const isOnboarding = pathname === '/onboarding';
+    // so we use `Pathnames.*` (not `Routes.*`) for these comparisons.
+    const inAuthGroup =
+      pathname === Pathnames.LOGIN || pathname === Pathnames.REGISTER;
+    const isOnboarding = pathname === Pathnames.ONBOARDING;
 
     if (isOnboarding) {
       // Returning users and authenticated users should never replay the
       // intro slides. Push them to where they actually belong.
       if (user) {
-        router.replace('/(tabs)/index');
+        router.replace(Routes.HOME);
       } else if (onboarded) {
-        router.replace('/(auth)/login');
+        router.replace(Routes.LOGIN);
       }
       return;
     }
@@ -71,8 +107,8 @@ function AuthGate() {
     // guest does NOT change `user`, so this branch doesn't fire there.
     const justGotUser =
       !firstRun && prevUser === null && user !== null && !isOnboarding;
-    if (justGotUser && pathname !== '/') {
-      router.replace('/(tabs)/index');
+    if (justGotUser && pathname !== Pathnames.HOME) {
+      router.replace(Routes.HOME);
       return;
     }
 
@@ -91,7 +127,7 @@ function AuthGate() {
       }
       // Registered (non-anonymous) users always go to the main app,
       // regardless of whether they finished onboarding.
-      if (inAuthGroup) router.replace('/(tabs)/index');
+      if (inAuthGroup) router.replace(Routes.HOME);
       return;
     }
 
@@ -99,17 +135,24 @@ function AuthGate() {
     //   - returning users who've seen onboarding → login
     //   - first-time users                       → onboarding
     if (!inAuthGroup) {
-      router.replace(onboarded ? '/(auth)/login' : '/onboarding');
+      router.replace(onboarded ? Routes.LOGIN : Routes.ONBOARDING);
     }
-  }, [user, loading, userDataLoading, onboardingChecked, onboarded, pathname, router]);
+  }, [user, loading, userDataLoading, onboardingChecked, onboarded, pathname, router, authTimedOut]);
 
-  if (loading || userDataLoading || !onboardingChecked) {
+  // Splash block — shown while auth is settling OR until the 8s safety
+  // net fires (whichever is first). Once the safety-net flips
+  // `authTimedOut` true, we drop through to `<Slot />` below and let
+  // the routing logic run with whatever state we have.
+  const waiting = loading || userDataLoading || !onboardingChecked;
+  const showSplash = !authTimedOut && waiting;
+  if (showSplash) {
     return (
       <View style={styles.loadingContainer}>
         {/* Override the root's `dark-content` while the dark-blue splash
-            is showing — white time/battery icons here on `#0e2a4d`
-            stays readable. See /AGENTS.md §"Status bar" for the rules. */}
-        <StatusBar barStyle="light-content" backgroundColor="#0e2a4d" />
+            is showing — white time/battery icons here on
+            `Colors.navyDark` stays readable. See /AGENTS.md §"Status
+            bar" for the rules. */}
+        <StatusBar barStyle="light-content" backgroundColor={Colors.navyDark} />
         {/* Try the real brand asset first; fall back to a JS cross if the
             image hasn't prebundled yet (1.3MB can race on first cold start). */}
         {imageFailed ? (
@@ -153,7 +196,23 @@ function AuthGate() {
 
 export default function RootLayout() {
   useEffect(() => {
-    seedQuizzesIfEmpty();
+    // Belt-and-suspenders. `seedQuizzesIfEmpty` already swallows its
+    // own errors and logs them via `console.error`, but it returns a
+    // promise that resolves — any uncaught rejection would surface as
+    // a red-screen in dev. Wrapping here means a Firestore / network
+    // glitch at first launch can never crash the app, and the router
+    // can continue mounting children while seeding runs in the
+    // background.
+    try {
+      const maybePromise = seedQuizzesIfEmpty();
+      if (maybePromise && typeof (maybePromise as Promise<void>).catch === 'function') {
+        (maybePromise as Promise<void>).catch((err) => {
+          console.warn('[RootLayout] seedQuizzesIfEmpty failed:', err);
+        });
+      }
+    } catch (err) {
+      console.warn('[RootLayout] seedQuizzesIfEmpty threw synchronously:', err);
+    }
   }, []);
 
   return (
@@ -177,7 +236,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#0e2a4d',
+    backgroundColor: Colors.navyDark,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
@@ -196,7 +255,7 @@ const styles = StyleSheet.create({
   },
   loadingCross: {
     fontSize: 64,
-    color: '#0e2a4d',
+    color: Colors.navyDark,
     fontWeight: '700',
   },
   loadingTitle: {

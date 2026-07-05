@@ -2,6 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 
 interface GuestModeBannerProps {
   /**
@@ -46,14 +47,14 @@ export function GuestModeBanner({ compact = false }: GuestModeBannerProps) {
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
-            onPress={() => router.push('/(auth)/register')}
+            onPress={() => router.push(Routes.REGISTER)}
             activeOpacity={0.85}
           >
             <Text style={styles.primaryButtonText}>Daftar</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.secondaryButton]}
-            onPress={() => router.push('/(auth)/login')}
+            onPress={() => router.push(Routes.LOGIN)}
             activeOpacity={0.85}
           >
             <Text style={styles.secondaryButtonText}>Log Masuk</Text>

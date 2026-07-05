@@ -2,7 +2,6 @@ import {
   doc,
   getDoc,
   runTransaction,
-  serverTimestamp,
   setDoc,
   collection,
 } from 'firebase/firestore';
@@ -108,7 +107,7 @@ export async function grantTokens(
     const next = Math.max(0, current + amount);
     transaction.update(userRef, {
       tokens: next,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
     return { tokens: next };
   });
@@ -128,7 +127,7 @@ export async function grantTokens(
       type: amount > 0 ? 'reward' : 'spend',
       amount: Math.abs(amount),
       description: desc,
-      createdAt: serverTimestamp(),
+      createdAt: Date.now(),
     });
   } catch {
     // ignore — balance update already applied
@@ -158,7 +157,7 @@ export async function setTokens(
     if (current === amount) return { tokens: amount };
     transaction.update(userRef, {
       tokens: amount,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
     return { tokens: amount };
   });
@@ -192,7 +191,7 @@ export async function grantXp(
       totalXP,
       weeklyXP,
       monthlyXP,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
     return { totalXP, weeklyXP, monthlyXP };
   });
@@ -227,7 +226,7 @@ export async function setXp(
       totalXP,
       weeklyXP,
       monthlyXP,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
   return { totalXP, weeklyXP, monthlyXP };
@@ -256,7 +255,7 @@ export async function setCurrentLevel(
     if (!snap.exists()) throw new Error('Dokumen akaun tidak dijumpai.');
     transaction.update(userRef, {
       currentLevel: clamped,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
   return { currentLevel: clamped };
@@ -286,7 +285,7 @@ export async function refillLives(caller: UserData): Promise<{
       lives: LIVES_CONFIG.MAX,
       livesLastLostAt: null,
       lastAdRefillAt: null,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
     return {
       lives: LIVES_CONFIG.MAX,
@@ -316,7 +315,7 @@ export async function setLives(
     transaction.update(userRef, {
       lives: clamped,
       livesLastLostAt: null,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
   return { lives: clamped };
@@ -337,7 +336,7 @@ export async function clearLivesCooldowns(caller: UserData): Promise<void> {
     transaction.update(userRef, {
       livesLastLostAt: null,
       lastAdRefillAt: null,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
 }
@@ -361,7 +360,7 @@ export async function setPremium(
     if (!snap.exists()) throw new Error('Dokumen akaun tidak dijumpai.');
     transaction.update(userRef, {
       isPremium,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
   return { isPremium };
@@ -388,7 +387,7 @@ export async function setOwnAdmin(
     if (!snap.exists()) throw new Error('Dokumen akaun tidak dijumpai.');
     transaction.update(userRef, {
       isAdmin,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
   return { isAdmin };
@@ -459,7 +458,7 @@ export async function grantAdminByPassphrase(
     if (!snap.exists()) throw new Error('Dokumen akaun tidak dijumpai.');
     transaction.update(userRef, {
       isAdmin: true,
-      updatedAt: serverTimestamp(),
+      updatedAt: Date.now(),
     });
   });
   return { isAdmin: true };

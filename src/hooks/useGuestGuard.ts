@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { Routes } from '@/constants/routes';
 
 export interface GuestGuardResult {
   /**
@@ -58,11 +59,11 @@ export function useGuestGuard(): GuestGuardResult {
         { text: 'Batal', style: 'cancel' },
         {
           text: 'Daftar',
-          onPress: () => router.push('/(auth)/register'),
+          onPress: () => router.push(Routes.REGISTER),
         },
         {
           text: 'Log Masuk',
-          onPress: () => router.push('/(auth)/login'),
+          onPress: () => router.push(Routes.LOGIN),
         },
       ]);
       return false;
@@ -96,11 +97,11 @@ export function friendlyGuestError(
       { text: 'Batal', style: 'cancel' },
       {
         text: 'Daftar',
-        onPress: () => router.push('/(auth)/register'),
+        onPress: () => router.push(Routes.REGISTER),
       },
       {
         text: 'Log Masuk',
-        onPress: () => router.push('/(auth)/login'),
+        onPress: () => router.push(Routes.LOGIN),
       },
     ]
   );

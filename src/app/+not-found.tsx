@@ -2,6 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { useEffect } from 'react';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 
 /**
  * Custom 404 / unmatched-route fallback.
@@ -16,7 +17,7 @@ export default function NotFound() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/');
+      router.replace(Routes.HOME);
     }, 800);
     return () => clearTimeout(timer);
   }, [router]);
