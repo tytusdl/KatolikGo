@@ -8,9 +8,31 @@
 // module.
 
 export const Colors = {
-  primary: '#1a3a5c',
-  primaryLight: '#2a5a8c',
-  primaryDark: '#0f2540',
+  /**
+   * v2 "Brain Rush" saturated blue — the dominant surface color
+   * across the (tabs) group (Home / Kuiz / Papan / Profil). Replaces
+   * the older navy `#1a3a5c` palette as part of the 2026-07-07
+   * design migration to mockup v2. The previous navy still appears
+   * in `Colors.navy` below for text + dense UI surfaces where the
+   * saturated blue would feel "too loud" as a fill.
+   */
+  primary: '#1c5fe0',
+  primaryLight: '#4d8bff',
+  primaryDark: '#1249b6',
+  /**
+   * Pale blue tint used by v2 for the secondary surface (Home body
+   * under the gradient header, Quiz list background). Distinct from
+   * `primaryLight` which is a saturated tint — `primaryPale` is a
+   * wash (≈10% saturation) suitable as a full-screen background.
+   */
+  primaryPale: '#e8f0ff',
+  /**
+   * Legacy navy — kept for text and dense UI where saturated blue
+   * reads as too aggressive as a fill. Also matches the v2 mockup's
+   * `--navy` text color (`#1a3a5c`) so headings + dense surfaces stay
+   * legible against the brighter primary surfaces.
+   */
+  navy: '#1a3a5c',
   /**
    * Darker navy used by the branded splash screen and the auth
    * screen gradient. Was previously a magic string (`'#0e2a4d'`)
@@ -22,8 +44,25 @@ export const Colors = {
    * near-black-blue behind full-screen dark surfaces.
    */
   navyDark: '#0e2a4d',
+  /**
+   * Catholic gold — preserved across the v2 redesign. Used for
+   * Latin crosses, token medals, podium crowns, and other
+   * brand-faithful accents. Distinct from `Colors.cta` (yellow) —
+   * gold here is the Catholic brand color; the yellow CTA is the
+   * saturated Brain-Rush-style action button color.
+   */
   accent: '#c9a227',
   accentLight: '#e0bd4d',
+  /**
+   * v2 "Brain Rush" CTA yellow — the saturated, attention-grabbing
+   * yellow used on the primary action button across the (tabs)
+   * group. Distinct from `Colors.accent` (Catholic gold): the CTA
+   * here is intentionally brighter and warmer so it pops against
+   * the blue primary surface. Used together with `ctaDark` for
+   * pressed/hover states.
+   */
+  cta: '#ffcc1f',
+  ctaDark: '#f5b800',
   /**
    * CTA maroon — the desaturated red used for the primary submit
    * button on the auth screen ("Log Masuk" / "Daftar"). Was a
@@ -38,6 +77,18 @@ export const Colors = {
   success: '#2e7d32',
   error: '#c62828',
   warning: '#f57c00',
+  /**
+   * v2 category chip icon tints. Each category in the Home
+   * category chip row + quiz list gets a unique pastel gradient on
+   * its icon background (see v2 mockup). Centralized here so
+   * renaming any category's tint is one edit and the colors stay
+   * consistent across Home + Quiz screens.
+   */
+  categoryAlkitab: '#ff9ec4',
+  categorySakramen: '#93c5fd',
+  categoryLiturgi: '#e0bd4d',
+  categoryKatekismus: '#6ee7b7',
+  categorySanto: '#fdba74',
   white: '#ffffff',
   black: '#000000',
 
@@ -132,6 +183,20 @@ export const FontSize = {
 export const BorderRadius = {
   sm: 8,
   md: 12,
+  /**
+   * v2 Brain Rush card radius — the canonical 16px used on the
+   * Home Kuiz Terkini list cards, quiz level cards, profile stat
+   * grid. Centralized so a future bump to "puffy" (20px) is one
+   * edit instead of grep-and-replace across the (tabs) group.
+   */
+  card: 16,
+  /**
+   * v2 Brain Rush inner radius — 14px for the smaller inner
+   * surfaces (category chip icon backgrounds, stat pill icons).
+   * Slightly smaller than the outer card so the nested element
+   * reads as visually "inside" without competing.
+   */
+  inner: 14,
   lg: 16,
   xl: 24,
   round: 999,

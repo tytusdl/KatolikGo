@@ -383,7 +383,465 @@
       letter-spacing: 0.2px;
       display: none;
     }
-.phone-screen.v3 .tab-item.active .v3.ti-label { display: inline; }
+.phone-screen.v3 .tab-item.active .v3.ti-label { display: inline; } 
+
+    /* ============================================================
+       v4 SCREEN TOKENS — Hex Badges / Navy + Gold (Catholic)
+       ============================================================ */
+    .v4 { font-family: 'Nunito', sans-serif; color: #142233; }
+    .v4 * { box-sizing: border-box; }
+
+    .phone-screen.v4 {
+      background: #fff8ec;
+    }
+    .phone-screen.v4 .v4-tab-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 16px;
+      right: 16px;
+      height: 60px;
+      background: #0e2a4d;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      box-shadow: 0 6px 20px rgba(14, 42, 77, 0.25);
+      z-index: 10;
+    }
+    .phone-screen.v4 .v4-tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: #c9a227;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 6px 0;
+    }
+    .phone-screen.v4 .v4-tab-item.active {
+      background: #c9a227;
+      color: #0e2a4d;
+      border-radius: 12px;
+      padding: 6px 12px;
+      margin: 0 4px;
+    }
+    .phone-screen.v4 .v4-tab-item .v4-ti-icon { font-size: 18px; }
+
+    .phone-screen.v4 .v4-home-content {
+      padding: 0 18px 100px;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .phone-screen.v4 .v4-home-content::-webkit-scrollbar { display: none; }
+
+    .phone-screen.v4 .v4-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 4px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0e2a4d;
+    }
+    .phone-screen.v4 .v4-status-icons {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .phone-screen.v4 .v4-greeting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0 14px;
+    }
+    .phone-screen.v4 .v4-greeting-hi {
+      font-size: 12px;
+      color: #4a5b73;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    .phone-screen.v4 .v4-greeting-name {
+      font-family: 'Fraunces', 'Georgia', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #0e2a4d;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+    .phone-screen.v4 .v4-greeting-bless {
+      font-size: 11px;
+      color: #a6821b;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .phone-screen.v4 .v4-avatar-hex {
+      width: 48px;
+      height: 48px;
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      background: linear-gradient(135deg, #f0c84a, #a6821b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .phone-screen.v4 .v4-streak-banner {
+      background: linear-gradient(135deg, #ffd64d, #f0c84a);
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(240, 200, 74, 0.35);
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-screen.v4 .v4-streak-flame {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+    .phone-screen.v4 .v4-streak-title {
+      font-weight: 800;
+      color: #0e2a4d;
+      font-size: 14px;
+    }
+    .phone-screen.v4 .v4-streak-sub {
+      font-size: 11px;
+      color: #1a3a5c;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .phone-screen.v4 .v4-resources-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .phone-screen.v4 .v4-resource-card {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(14, 42, 77, 0.10);
+      border: 1px solid #e4d9bc;
+    }
+    .phone-screen.v4 .v4-resource-icon { font-size: 16px; margin-bottom: 2px; }
+    .phone-screen.v4 .v4-resource-value {
+      font-family: 'Fraunces', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0e2a4d;
+      line-height: 1;
+    }
+    .phone-screen.v4 .v4-resource-label {
+      font-size: 9px;
+      color: #4a5b73;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+    .phone-screen.v4 .v4-resource-card.gold .v4-resource-value { color: #a6821b; }
+    .phone-screen.v4 .v4-resource-card.red .v4-resource-value { color: #b9444a; }
+
+    .phone-screen.v4 .v4-continue-card {
+      background: linear-gradient(135deg, #0e2a4d, #1a3a5c);
+      border-radius: 18px;
+      padding: 14px 16px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 16px rgba(14, 42, 77, 0.22);
+      cursor: pointer;
+    }
+    .phone-screen.v4 .v4-continue-icon {
+      width: 44px;
+      height: 44px;
+      background: #c9a227;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .phone-screen.v4 .v4-continue-eyebrow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #f0c84a;
+      text-transform: uppercase;
+    }
+    .phone-screen.v4 .v4-continue-title {
+      font-family: 'Fraunces', serif;
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .phone-screen.v4 .v4-continue-progress {
+      margin-top: 6px;
+      height: 5px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .phone-screen.v4 .v4-continue-fill {
+      height: 100%;
+      width: 60%;
+      background: #f0c84a;
+      border-radius: 3px;
+    }
+    .phone-screen.v4 .v4-continue-arrow {
+      width: 32px;
+      height: 32px;
+      background: #c9a227;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #0e2a4d;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .phone-screen.v4 .v4-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 0 10px;
+      padding: 0 2px;
+    }
+    .phone-screen.v4 .v4-section-title {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #0e2a4d;
+    }
+    .phone-screen.v4 .v4-section-link {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a6821b;
+    }
+
+    .phone-screen.v4 .v4-verse-card {
+      background: linear-gradient(135deg, #0e2a4d, #1a3a5c);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-screen.v4 .v4-verse-text {
+      font-family: 'Fraunces', serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .phone-screen.v4 .v4-verse-ref {
+      font-size: 10px;
+      font-weight: 700;
+      color: #f0c84a;
+      letter-spacing: 1px;
+    }
+
+    .phone-screen.v4 .v4-hex-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px 6px;
+      margin-bottom: 18px;
+    }
+    .phone-screen.v4 .v4-hex-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .phone-screen.v4 .v4-hex-badge {
+      width: 62px;
+      height: 62px;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(14, 42, 77, 0.14);
+      position: relative;
+    }
+    .phone-screen.v4 .v4-hex-badge.gold { background: linear-gradient(135deg, #f0c84a, #a6821b); }
+    .phone-screen.v4 .v4-hex-badge.blue { background: linear-gradient(135deg, #6fa8e0, #1a3a5c); }
+    .phone-screen.v4 .v4-hex-badge.green { background: linear-gradient(135deg, #6cd6a8, #2e9968); }
+    .phone-screen.v4 .v4-hex-badge.red { background: linear-gradient(135deg, #ee8a96, #b9444a); }
+    .phone-screen.v4 .v4-hex-badge.purple { background: linear-gradient(135deg, #c08fe0, #8b5fb8); }
+    .phone-screen.v4 .v4-hex-badge.orange { background: linear-gradient(135deg, #ffc78f, #f08a3c); }
+    .phone-screen.v4 .v4-hex-badge.locked { background: #8b97a8; opacity: 0.5; }
+    .phone-screen.v4 .v4-hex-icon {
+      font-size: 24px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
+      margin-top: 4px;
+    }
+    .phone-screen.v4 .v4-hex-num {
+      position: absolute;
+      bottom: 10px;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 11px;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .phone-screen.v4 .v4-hex-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #4a5b73;
+      text-align: center;
+    }
+    .phone-screen.v4 .v4-hex-cell.locked .v4-hex-label { color: #8b97a8; }
+
+    .phone-screen.v4 .v4-friends-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 6px;
+      margin-bottom: 14px;
+      scrollbar-width: none;
+    }
+    .phone-screen.v4 .v4-friends-row::-webkit-scrollbar { display: none; }
+    .phone-screen.v4 .v4-friend-card {
+      flex-shrink: 0;
+      width: 78px;
+      background: white;
+      border-radius: 14px;
+      padding: 8px 6px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(14, 42, 77, 0.10);
+      border: 1px solid #e4d9bc;
+    }
+    .phone-screen.v4 .v4-friend-card.add {
+      background: #fdeec9;
+      border: 1px dashed #c9a227;
+      box-shadow: none;
+    }
+    .phone-screen.v4 .v4-friend-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f0c84a, #a6821b);
+      margin: 0 auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: white;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .phone-screen.v4 .v4-friend-card.add .v4-friend-avatar {
+      background: #c9a227;
+      font-size: 20px;
+    }
+    .phone-screen.v4 .v4-friend-name {
+      font-size: 9px;
+      font-weight: 800;
+      color: #0e2a4d;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .phone-screen.v4 .v4-friend-card.add .v4-friend-name { color: #a6821b; }
+    .phone-screen.v4 .v4-friend-status {
+      font-size: 8px;
+      color: #2e9968;
+      font-weight: 700;
+    }
+    .phone-screen.v4 .v4-friend-status.offline { color: #8b97a8; }
+
+    .phone-screen.v4 .v4-result-card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px 22px;
+      width: 86%;
+      max-width: 320px;
+      box-shadow: 0 20px 50px rgba(14, 42, 77, 0.30);
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .phone-screen.v4 .v4-result-trophy {
+      font-size: 56px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 8px rgba(201, 162, 39, 0.4));
+    }
+    .phone-screen.v4 .v4-result-title {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #0e2a4d;
+      line-height: 1.15;
+    }
+    .phone-screen.v4 .v4-result-title .accent { color: #c9a227; }
+    .phone-screen.v4 .v4-result-sub {
+      font-size: 11px;
+      color: #4a5b73;
+      margin: 6px 0 16px;
+      font-weight: 600;
+    }
+    .phone-screen.v4 .v4-result-stats {
+      background: #fff8ec;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .phone-screen.v4 .v4-result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 12px;
+    }
+    .phone-screen.v4 .v4-result-row .v { color: #0e2a4d; font-weight: 800; }
+    .phone-screen.v4 .v4-result-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #c9a227, #a6821b);
+      color: #0e2a4d;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      font-family: inherit;
+      box-shadow: 0 4px 10px rgba(201, 162, 39, 0.35);
+    }
+    .phone-screen.v4 .v4-result-btn.secondary {
+      background: transparent;
+      color: #4a5b73;
+      box-shadow: none;
+    }
 
     /* ============================================================
        v3 SCREEN TOKENS
@@ -2849,11 +3307,240 @@
       </div>
     </div>
 
+    <!-- ============================================================
+         v4 PHONE — Hex Badges / Navy + Gold (Catholic direction)
+         ============================================================ -->
+    <div class="phone-half v4">
+      <div class="phone-label v4">🟦 v4 · Hex Badges + Catholic</div>
+      <div class="phone phone-v4">
+        <div class="phone-screen v4">
+
+          <!-- v4 HOME -->
+          <div class="tab-screen active" data-version="v4" data-tab="home">
+            <div class="v4 v4-home-content">
+              <div class="v4 v4-status-bar">
+                <span>9:41</span>
+                <div class="v4 v4-status-icons"><span>📶</span><span>🔋</span></div>
+              </div>
+
+              <div class="v4 v4-greeting-row">
+                <div>
+                  <div class="v4 v4-greeting-hi">Selamat Pagi ✦</div>
+                  <div class="v4 v4-greeting-name">Saudara Maria</div>
+                  <div class="v4 v4-greeting-bless">Tuhan memberkati hari anda</div>
+                </div>
+                <div class="v4 v4-avatar-hex">M</div>
+              </div>
+
+              <div class="v4 v4-streak-banner">
+                <div class="v4 v4-streak-flame">🔥</div>
+                <div>
+                  <div class="v4 v4-streak-title">Streak 7 Hari!</div>
+                  <div class="v4 v4-streak-sub">Teruskan — 3 hari lagi untuk bonus 50 token</div>
+                </div>
+              </div>
+
+              <div class="v4 v4-resources-grid">
+                <div class="v4 v4-resource-card">
+                  <div class="v4 v4-resource-icon">⚡</div>
+                  <div class="v4 v4-resource-value">450</div>
+                  <div class="v4 v4-resource-label">XP</div>
+                </div>
+                <div class="v4 v4-resource-card red">
+                  <div class="v4 v4-resource-icon">❤</div>
+                  <div class="v4 v4-resource-value">5</div>
+                  <div class="v4 v4-resource-label">NYAWA</div>
+                </div>
+                <div class="v4 v4-resource-card gold">
+                  <div class="v4 v4-resource-icon">🪙</div>
+                  <div class="v4 v4-resource-value">120</div>
+                  <div class="v4 v4-resource-label">TOKEN</div>
+                </div>
+              </div>
+
+              <div class="v4 v4-continue-card level-trigger">
+                <div class="v4 v4-continue-icon">▶</div>
+                <div style="flex:1;min-width:0;">
+                  <div class="v4 v4-continue-eyebrow">Sambungan Kuiz</div>
+                  <div class="v4 v4-continue-title">Tahap 5 — Musa &amp; 10 Perintah</div>
+                  <div class="v4 v4-continue-progress"><div class="v4 v4-continue-fill"></div></div>
+                </div>
+                <div class="v4 v4-continue-arrow">›</div>
+              </div>
+
+              <div class="v4 v4-verse-card">
+                <div class="v4 v4-verse-text">"Pergilah ke seluruh dunia, beritakanlah Injil kepada segala makhluk."</div>
+                <div class="v4 v4-verse-ref">MARKUS 16:15</div>
+              </div>
+
+              <div class="v4 v4-section-header">
+                <div class="v4 v4-section-title">Topik Kuiz</div>
+                <div class="v4 v4-section-link">Lihat Semua ›</div>
+              </div>
+
+              <div class="v4 v4-hex-grid">
+                <div class="v4 v4-hex-cell level-trigger">
+                  <div class="v4 v4-hex-badge blue">
+                    <div class="v4 v4-hex-icon">📖</div>
+                    <div class="v4 v4-hex-num">12</div>
+                  </div>
+                  <div class="v4 v4-hex-label">ALKITAB</div>
+                </div>
+                <div class="v4 v4-hex-cell level-trigger">
+                  <div class="v4 v4-hex-badge gold">
+                    <div class="v4 v4-hex-icon">⛪</div>
+                    <div class="v4 v4-hex-num">8</div>
+                  </div>
+                  <div class="v4 v4-hex-label">SAKRAMEN</div>
+                </div>
+                <div class="v4 v4-hex-cell level-trigger">
+                  <div class="v4 v4-hex-badge green">
+                    <div class="v4 v4-hex-icon">🕊️</div>
+                    <div class="v4 v4-hex-num">10</div>
+                  </div>
+                  <div class="v4 v4-hex-label">KATEKISMUS</div>
+                </div>
+                <div class="v4 v4-hex-cell level-trigger">
+                  <div class="v4 v4-hex-badge purple">
+                    <div class="v4 v4-hex-icon">✨</div>
+                    <div class="v4 v4-hex-num">7</div>
+                  </div>
+                  <div class="v4 v4-hex-label">LITURGI</div>
+                </div>
+                <div class="v4 v4-hex-cell level-trigger">
+                  <div class="v4 v4-hex-badge red">
+                    <div class="v4 v4-hex-icon">👼</div>
+                    <div class="v4 v4-hex-num">9</div>
+                  </div>
+                  <div class="v4 v4-hex-label">SANTO</div>
+                </div>
+                <div class="v4 v4-hex-cell level-trigger">
+                  <div class="v4 v4-hex-badge orange">
+                    <div class="v4 v4-hex-icon">🌹</div>
+                    <div class="v4 v4-hex-num">6</div>
+                  </div>
+                  <div class="v4 v4-hex-label">DOA</div>
+                </div>
+                <div class="v4 v4-hex-cell locked">
+                  <div class="v4 v4-hex-badge locked">
+                    <div class="v4 v4-hex-icon">🔒</div>
+                  </div>
+                  <div class="v4 v4-hex-label">SEJARAH</div>
+                </div>
+                <div class="v4 v4-hex-cell locked">
+                  <div class="v4 v4-hex-badge locked">
+                    <div class="v4 v4-hex-icon">🔒</div>
+                  </div>
+                  <div class="v4 v4-hex-label">MUSIK</div>
+                </div>
+              </div>
+
+              <div class="v4 v4-section-header">
+                <div class="v4 v4-section-title">Sahabat Katolik</div>
+                <div class="v4 v4-section-link">+ Jemput</div>
+              </div>
+
+              <div class="v4 v4-friends-row">
+                <div class="v4 v4-friend-card add">
+                  <div class="v4 v4-friend-avatar">+</div>
+                  <div class="v4 v4-friend-name">Jemput</div>
+                </div>
+                <div class="v4 v4-friend-card">
+                  <div class="v4 v4-friend-avatar">A</div>
+                  <div class="v4 v4-friend-name">Andreas</div>
+                  <div class="v4 v4-friend-status">● Online</div>
+                </div>
+                <div class="v4 v4-friend-card">
+                  <div class="v4 v4-friend-avatar">B</div>
+                  <div class="v4 v4-friend-name">Bernadette</div>
+                  <div class="v4 v4-friend-status">● Online</div>
+                </div>
+                <div class="v4 v4-friend-card">
+                  <div class="v4 v4-friend-avatar">C</div>
+                  <div class="v4 v4-friend-name">Cornelius</div>
+                  <div class="v4 v4-friend-status offline">2j lalu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v4 KUIZ (placeholder) -->
+          <div class="tab-screen" data-version="v4" data-tab="kuiz">
+            <div class="v4 v4-home-content">
+              <div class="v4 v4-status-bar"><span>9:41</span><div class="v4 v4-status-icons"><span>📶</span><span>🔋</span></div></div>
+              <div class="v4 v4-section-header"><div class="v4 v4-section-title">Pilih Topik</div></div>
+              <div class="v4 v4-hex-grid">
+                <div class="v4 v4-hex-cell"><div class="v4 v4-hex-badge blue"><div class="v4 v4-hex-icon">📖</div><div class="v4 v4-hex-num">12</div></div><div class="v4 v4-hex-label">ALKITAB</div></div>
+                <div class="v4 v4-hex-cell"><div class="v4 v4-hex-badge gold"><div class="v4 v4-hex-icon">⛪</div><div class="v4 v4-hex-num">8</div></div><div class="v4 v4-hex-label">SAKRAMEN</div></div>
+                <div class="v4 v4-hex-cell"><div class="v4 v4-hex-badge green"><div class="v4 v4-hex-icon">🕊️</div><div class="v4 v4-hex-num">10</div></div><div class="v4 v4-hex-label">KATEKISMUS</div></div>
+                <div class="v4 v4-hex-cell"><div class="v4 v4-hex-badge purple"><div class="v4 v4-hex-icon">✨</div><div class="v4 v4-hex-num">7</div></div><div class="v4 v4-hex-label">LITURGI</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v4 PROFIL (placeholder) -->
+          <div class="tab-screen" data-version="v4" data-tab="profil">
+            <div class="v4 v4-home-content">
+              <div class="v4 v4-status-bar"><span>9:41</span><div class="v4 v4-status-icons"><span>📶</span><span>🔋</span></div></div>
+              <div style="text-align:center;padding:60px 20px;">
+                <div class="v4 v4-avatar-hex" style="margin:0 auto 16px;width:80px;height:80px;font-size:32px;">M</div>
+                <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#0e2a4d;">Saudara Maria</div>
+                <div style="font-size:12px;color:#4a5b73;margin-top:4px;">Tahap 4 · Streak 7 hari</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- v4 PAPAN (placeholder) -->
+          <div class="tab-screen" data-version="v4" data-tab="papan">
+            <div class="v4 v4-home-content">
+              <div class="v4 v4-status-bar"><span>9:41</span><div class="v4 v4-status-icons"><span>📶</span><span>🔋</span></div></div>
+              <div class="v4 v4-section-header"><div class="v4 v4-section-title">Papan Pendahulu</div></div>
+              <div style="text-align:center;padding:20px;color:#4a5b73;font-size:13px;">Kedudukan Global &amp; Parish</div>
+            </div>
+          </div>
+
+          <!-- v4 TAB BAR (navy pill, gold active) -->
+          <div class="v4-tab-bar">
+            <button class="v4-tab-item active" data-version="v4" data-target="home">
+              <span class="v4-ti-icon">⌂</span><span>UTAMA</span>
+            </button>
+            <button class="v4-tab-item" data-version="v4" data-target="kuiz">
+              <span class="v4-ti-icon">✦</span><span>KUIZ</span>
+            </button>
+            <button class="v4-tab-item" data-version="v4" data-target="papan">
+              <span class="v4-ti-icon">♕</span><span>PAPAN</span>
+            </button>
+            <button class="v4-tab-item" data-version="v4" data-target="profil">
+              <span class="v4-ti-icon">☺</span><span>PROFIL</span>
+            </button>
+          </div>
+
+          <!-- v4 RESULT MODAL -->
+          <div class="result-modal v4-result-modal">
+            <div class="v4 v4-result-card">
+              <div class="v4 v4-result-trophy">🏆</div>
+              <div class="v4 v4-result-title">TAHNIAH!<br/><span class="accent">ANDA MENANG</span></div>
+              <div class="v4 v4-result-sub">Tahap 5 · Musa &amp; 10 Perintah · Selesai 1:42</div>
+              <div class="v4 v4-result-stats">
+                <div class="v4 v4-result-row"><span>Skor</span><span class="v">100 / 100</span></div>
+                <div class="v4 v4-result-row"><span>Jawapan betul</span><span class="v">5 / 5</span></div>
+                <div class="v4 v4-result-row"><span>XP diperolehi</span><span class="v">+220 XP</span></div>
+                <div class="v4 v4-result-row"><span>Token</span><span class="v">+75 🪙</span></div>
+              </div>
+              <button class="v4 v4-result-btn result-next">Tahap Seterusnya ›</button>
+              <button class="v4 v4-result-btn secondary result-close">Kembali ke Home</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <script>
+<script>
     // ============================================================
-    // Tab switching - scoped per phone (v1 vs v2 vs v3)
+    // Tab switching - scoped per phone (v1 vs v2 vs v3 vs v4)
     // ============================================================
     document.querySelectorAll('.tab-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -2871,12 +3558,30 @@
       });
     });
 
+    // v4 has its own tab class (.v4-tab-item) with shared data-version="v4" / data-target
+    document.querySelectorAll('.v4-tab-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const version = item.dataset.version;
+        const target = item.dataset.target;
+
+        document.querySelectorAll(`.v4-tab-item[data-version="${version}"]`).forEach(i => {
+          i.classList.toggle('active', i === item);
+        });
+        document.querySelectorAll(`.tab-screen[data-version="${version}"]`).forEach(screen => {
+          screen.classList.toggle('active', screen.dataset.tab === target);
+        });
+      });
+    });
+
     // ============================================================
-    // Level card → result modal (all three phones)
+    // Level card → result modal (all four phones)
     // ============================================================
     document.querySelectorAll('.phone-half').forEach(half => {
-      const version = half.querySelector('.tab-item')?.dataset.version;
+      // detect which tab-class this phone uses (v1/v2/v3 use .tab-item, v4 uses .v4-tab-item)
+      const anyTab = half.querySelector('.tab-item') || half.querySelector('.v4-tab-item');
+      const version = anyTab?.dataset.version;
       if (!version) return;
+      const tabSelector = half.querySelector('.tab-item') ? '.tab-item' : '.v4-tab-item';
       const resultModal = half.querySelector('.result-modal');
 
       // Find all "level-trigger" elements (level cards, subject cards, recent quiz)
@@ -2893,7 +3598,7 @@
         resultClose.addEventListener('click', () => {
           resultModal.classList.remove('visible');
           // jump to home tab
-          const homeTab = half.querySelector(`.tab-item[data-target="home"]`);
+          const homeTab = half.querySelector(`${tabSelector}[data-target="home"]`);
           if (homeTab) homeTab.click();
         });
       }
@@ -2902,7 +3607,7 @@
         resultNext.addEventListener('click', () => {
           resultModal.classList.remove('visible');
           // jump to kuiz tab
-          const kuizTab = half.querySelector(`.tab-item[data-target="kuiz"]`);
+          const kuizTab = half.querySelector(`${tabSelector}[data-target="kuiz"]`);
           if (kuizTab) kuizTab.click();
         });
       }

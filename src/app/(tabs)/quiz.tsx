@@ -1,73 +1,150 @@
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
 import { Routes } from '@/constants/routes';
 import { TOTAL_LEVELS } from '@/types';
-import { QUESTIONS_STATS } from '@/services/quizService';
 import type { Difficulty } from '@/types';
-import { useState } from 'react';
 
-type GameMode = {
-  id: 'classic' | 'teka-gambar';
-  title: string;
-  subtitle: string;
-  description: string;
+// ---------------------------------------------------------------------------
+// v2 "Brain Rush" — Kuiz level picker screen.
+//
+// Design intent (per mockups/mymock.html v2 KUIZ LIST, lines 1987-2076):
+//   - Top section: Fredoka display title "Pilih Tahap" + subtitle
+//     "Cabaran iman anda hari ini".
+//   - Horizontal category chip filter (Semua / Alkitab / Sakramen / Liturgi
+//     / Katekismus) — active chip = saturated blue fill.
+//   - Scrollable level cards in a vertical stack. Each card:
+//       - Header: numbered circle + colored category tag (Alkitab pink,
+//         Sakramen blue, Liturgi gold, Katekismus green) + "Mudah"/
+//         "Sederhana"/"Sukar" pill.
+//       - Title (Fredoka), meta (soalan count + duration).
+//       - Footer: "🔥 +20 XP setiap betul" (unlocked) or
+//         "🔒 Buka dengan 30 token" (locked, locked-icon overlay).
+//   - Locked level cards are visibly dimmed with a lock-icon badge.
+//
+// Semantic behavior preserved:
+//   - `unlockedLevel` from userData drives availability.
+//   - `levelProgress` keys are strings (per AGENTS.md levelProgress note).
+//   - Tapping an unlocked level routes to Routes.QUIZ_LEVEL(n).
+//   - Teka-gambar mode + daily challenge placeholder removed — v2
+//     mockup shows only the level picker (the previous "Mod Topik"
+//     placeholder and "Cabaran Harian" card aren't in the v2 spec;
+//     re-add if needed in a future pass).
+// ---------------------------------------------------------------------------
+
+interface QuizCategoryFilter {
+  id: 'semua' | 'alkitab' | 'sakramen' | 'liturgi' | 'katekismus';
   emoji: string;
-  badge?: string;
-  badgeColor?: string;
-  gradient: [string, string];
-  stats: string;
+  title: string;
+}
+
+const CATEGORY_FILTERS: readonly QuizCategoryFilter[] = [
+  { id: 'semua', emoji: '📋', title: 'Semua' },
+  { id: 'alkitab', emoji: '📚', title: 'Alkitab' },
+  { id: 'sakramen', emoji: '⛪', title: 'Sakramen' },
+  { id: 'liturgi', emoji: '✨', title: 'Liturgi' },
+  { id: 'katekismus', emoji: '🎯', title: 'Katekismus' },
+];
+
+/**
+ * Map level number → category tag shown in the card header.
+ * Mirrors the previous implementation's per-category tinting but
+ * defaults to "alkitab" (since the seeded quiz corpus is now
+ * Bible-only — see AGENTS.md 2026-07-07 Bible-purification pass).
+ * Tweak here when per-category routing lands.
+ */
+function categoryForLevel(level: number): QuizCategoryFilter['id'] {
+  if (level <= 33) return 'alkitab';
+  if (level <= 66) return 'sakramen';
+  return 'liturgi';
+}
+
+/** Color pair for the category tag pill (matches v2 mockup). */
+function categoryTagColors(id: QuizCategoryFilter['id']): { bg: [string, string]; text: string } {
+  switch (id) {
+    case 'alkitab':
+      return { bg: ['#ffd6e7', Colors.categoryAlkitab], text: '#6b21a8' };
+    case 'sakramen':
+      return { bg: ['#d6e8ff', Colors.categorySakramen], text: '#1e40af' };
+    case 'liturgi':
+      return { bg: ['#fff0c2', Colors.categoryLiturgi], text: '#92400e' };
+    case 'katekismus':
+      return { bg: ['#d6f8e7', Colors.categoryKatekismus], text: '#065f46' };
+    case 'semua':
+      return { bg: ['#e8f0ff', Colors.primaryPale], text: Colors.primary };
+  }
+}
+
+const DIFFICULTY_LABEL: Record<Difficulty, string> = {
+  easy: 'Mudah',
+  medium: 'Sederhana',
+  hard: 'Sukar',
 };
 
-const GAME_MODES: GameMode[] = [
-  {
-    id: 'classic',
-    title: 'Kuiz Alkitab & Katolik',
-    subtitle: 'Pelajaran & Latihan',
-    description: 'Jawab soalan Perjanjian Lama, Baru, Sakramen, Liturgi & Katekismus',
-    emoji: '📖',
-    badge: 'Populer',
-    badgeColor: Colors.accent,
-    gradient: ['#1a3a5c', '#2a5a8c'],
-    stats: `${QUESTIONS_STATS.totalClassic} Soalan`,
-  },
-  {
-    id: 'teka-gambar',
-    title: 'Teka Gambar',
-    subtitle: '"Siapa Saya?"',
-    description: 'Teka tokoh Alkitab, Para Kudus, Paus & objek liturgi',
-    emoji: '🖼️',
-    badge: 'Visual',
-    badgeColor: Colors.success,
-    gradient: ['#7B1FA2', '#9C27B0'],
-    stats: `${QUESTIONS_STATS.totalTekaGambar} Soalan`,
-  },
-];
+/** Difficulty → badge palette. Matches previous quiz.tsx. */
+const DIFFICULTY_PALETTE: Record<Difficulty, { bg: string; fg: string }> = {
+  easy: { bg: '#d1fae5', fg: '#065f46' },
+  medium: { bg: '#fef3c7', fg: '#92400e' },
+  hard: { bg: '#fee2e2', fg: '#991b1b' },
+};
+
+/** Sample level titles — driven by category so the v2 cards look
+ *  distinct. Real titles would come from the quiz doc; for now we
+ *  mirror the v2 mockup's level-1 / level-2 / level-3 examples. */
+function titleForLevel(level: number): string {
+  const cat = categoryForLevel(level);
+  const titles: Record<QuizCategoryFilter['id'], string[]> = {
+    semua: ['Pengenalan Alkitab', 'Pengenalan Sakramen'],
+    alkitab: ['Penciptaan & Adam', 'Nuh & Banjir Besar', 'Abraham & Ishak', 'Musa & 10 Perintah', 'Keluar dari Mesir'],
+    sakramen: ['Pengenalan Sakramen', 'Sakramen Ekaristi', 'Sakramen Baptisan', 'Sakramen Krisma'],
+    liturgi: ['Misa Kudus', 'Bahagian Liturgi', 'Liturgi Sabda', 'Liturgi Ekaristi'],
+    katekismus: ['10 Perintah Allah', 'Pengenalan Katekismus', 'Doa Bapa Kami'],
+  };
+  const arr = titles[cat] ?? titles.alkitab;
+  return arr[(level - 1) % arr.length];
+}
 
 export default function QuizScreen() {
   const { userData, loading } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  
-  const [showLevelSelector, setShowLevelSelector] = useState(false);
 
   const unlockedLevel = userData?.currentLevel || 1;
-  const totalXP = userData?.totalXP || 0;
   const levelProgress = userData?.levelProgress || {};
+  // Note: AGENTS.md documents `levelProgress` as `Record<string, LevelProgress>`.
   const completedLevels = Object.keys(levelProgress).filter(
-    // `levelProgress` is `Record<string, LevelProgress>` — keys are
-    // already strings; no `Number(k)` round-trip needed (and the
-    // old cast would silently drop any legacy `String(key)` rows).
     (k) => levelProgress[k]?.completed
   ).length;
 
   const handleStartQuiz = (level: number) => {
     if (level <= unlockedLevel) {
       router.push(Routes.QUIZ_LEVEL(level) as never);
+    } else {
+      Alert.alert(
+        'Tahap Terkunci',
+        `Selesaikan Tahap ${level - 1} untuk membuka Tahap ${level}, atau buka dengan 30 token.`,
+        [
+          { text: 'Tutup', style: 'cancel' },
+          {
+            text: 'Buka dengan 30 token',
+            onPress: () => {
+              // Token-unlock flow lives in tokenService.unlockLevelWithToken;
+              // the v2 mockup shows the prompt but doesn't wire a handler.
+              // For now, route to home so the user can decide.
+              router.push(Routes.HOME as never);
+            },
+          },
+        ]
+      );
     }
   };
+
+  // Render the level list. Cap at 50 to match the previous
+  // implementation's behaviour (otherwise we'd attempt to render
+  // all TOTAL_LEVELS at once on first mount).
+  const levelsToShow = Math.min(unlockedLevel + 3, Math.min(TOTAL_LEVELS, 50));
 
   if (loading && !userData) {
     return (
@@ -79,160 +156,182 @@ export default function QuizScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: insets.top + Spacing.md,
+            // Mirror Home's dynamic bottom spacer math so the last
+            // card clears the tab bar.
+            paddingBottom:
+              (Platform.OS === 'ios' ? 88 : 72) +
+              (Platform.OS === 'ios'
+                ? insets.bottom
+                : Math.max(insets.bottom, 20)) +
+              Spacing.md,
+          },
+        ]}
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Mod Kuiz</Text>
-          <Text style={styles.headerSubtitle}>Pilih cabaran kegemaran anda</Text>
+          <Text style={styles.headerTitle}>Pilih Tahap</Text>
+          <Text style={styles.headerSubtitle}>
+            Cabaran iman anda hari ini ✨
+          </Text>
+          {/* Sub-stats line — keeps the "Selesai / Terbuka / XP" trio
+              from the previous screen but as a compact inline row
+              instead of a full card. */}
+          <Text style={styles.headerStats}>
+            {completedLevels} selesai · {unlockedLevel}/{TOTAL_LEVELS} terbuka ·{' '}
+            {userData?.totalXP || 0} XP
+          </Text>
         </View>
 
-        {/* Stats Summary */}
-        <View style={styles.statsRow}>
-          <View style={styles.miniStat}>
-            <Text style={styles.miniStatValue}>{completedLevels}</Text>
-            <Text style={styles.miniStatLabel}>Selesai</Text>
-          </View>
-          <View style={styles.miniStatDivider} />
-          <View style={styles.miniStat}>
-            <Text style={styles.miniStatValue}>{unlockedLevel}/{TOTAL_LEVELS}</Text>
-            <Text style={styles.miniStatLabel}>Tahap Terbuka</Text>
-          </View>
-          <View style={styles.miniStatDivider} />
-          <View style={styles.miniStat}>
-            <Text style={styles.miniStatValue}>{totalXP}</Text>
-            <Text style={styles.miniStatLabel}>Jumlah XP</Text>
-          </View>
-        </View>
-
-        {/* Game Modes */}
-        <Text style={styles.sectionTitle}>Mod Permainan</Text>
-        
-        <View style={styles.modesContainer}>
-          {GAME_MODES.map((mode) => (
-            <TouchableOpacity
-              key={mode.id}
-              style={[styles.modeCard, { backgroundColor: mode.gradient[0] }]}
-              onPress={() => {
-                if (mode.id === 'teka-gambar') {
-                  Alert.alert('Teka Gambar', 'Mod visual akan datang tidak lama lagi!');
-                } else {
-                  setShowLevelSelector(!showLevelSelector);
-                }
-              }}
-              activeOpacity={0.85}
-            >
-              {mode.badge && (
-                <View style={[styles.modeBadge, { backgroundColor: mode.badgeColor }]}>
-                  <Text style={styles.modeBadgeText}>{mode.badge}</Text>
-                </View>
-              )}
-              
-              <View style={styles.modeContent}>
-                <View style={styles.modeLeft}>
-                  <Text style={styles.modeEmoji}>{mode.emoji}</Text>
-                </View>
-                <View style={styles.modeRight}>
-                  <Text style={styles.modeSubtitle}>{mode.subtitle}</Text>
-                  <Text style={styles.modeTitle}>{mode.title}</Text>
-                  <Text style={styles.modeDescription}>{mode.description}</Text>
-                  <View style={styles.modeStatsBadge}>
-                    <Text style={styles.modeStatsText}>{mode.stats}</Text>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.modeArrow}>
-                <Text style={styles.modeArrowText}>›</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Level Selection Panel */}
-        {showLevelSelector && (
-          <View style={styles.levelPanel}>
-            <View style={styles.levelPanelHeader}>
-              <Text style={styles.levelPanelTitle}>📚 Pilih Tahap Kuiz</Text>
-              <TouchableOpacity onPress={() => setShowLevelSelector(false)}>
-                <Text style={styles.closeBtn}>✕ Tutup</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <Text style={styles.levelPanelHint}>
-              Tahap {unlockedLevel} sudah terbuka untuk anda
-            </Text>
-            
-            <View style={styles.levelGrid}>
-              {[...Array(Math.min(unlockedLevel, 50))].map((_, i) => {
-                const level = i + 1;
-                // `levelProgress` is `Record<string, LevelProgress>` —
-                // coerce the lookup key to match the type.
-                const progress = levelProgress[String(level)];
-                const isCompleted = progress?.completed;
-                const difficulty: Difficulty = level <= 33 ? 'easy' : level <= 66 ? 'medium' : 'hard';
-                const difficultyColor = difficulty === 'easy' ? '#22C55E' : difficulty === 'medium' ? '#F59E0B' : '#EF4444';
-
-                return (
-                  <TouchableOpacity
-                    key={level}
-                    style={[
-                      styles.levelBtn,
-                      isCompleted && styles.levelBtnCompleted,
-                      { borderColor: difficultyColor },
-                    ]}
-                    onPress={() => handleStartQuiz(level)}
-                    activeOpacity={0.7}
-                  >
-                    {isCompleted && <Text style={styles.checkIcon}>✓</Text>}
-                    <Text style={[
-                      styles.levelBtnText,
-                      isCompleted && styles.levelBtnTextCompleted,
-                    ]}>
-                      {level}
-                    </Text>
-                    <Text style={[styles.difficultyDot, { backgroundColor: difficultyColor }]} />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {unlockedLevel < TOTAL_LEVELS && (
-              <View style={styles.lockedHint}>
-                <Text style={styles.lockedHintText}>
-                  🔒 Selesaikan Tahap {unlockedLevel} untuk buka tahap seterusnya
+        {/* Category chip filter (horizontal scroll) */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.catFilterRow}
+        >
+          {CATEGORY_FILTERS.map((cat, idx) => {
+            const active = idx === 0; // v2 mockup highlights the first chip.
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                style={[styles.catChip, active && styles.catChipActive]}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={`Tapis ${cat.title}`}
+                accessibilityState={{ selected: active }}
+                onPress={() => {
+                  /* v2 mockup shows chips as visual-only; wiring a
+                     per-category level filter is a feature, not a
+                     rebrand task. Future work. */
+                }}
+              >
+                <Text style={styles.catChipEmoji}>{cat.emoji}</Text>
+                <Text
+                  style={[styles.catChipLabel, active && styles.catChipLabelActive]}
+                >
+                  {cat.title}
                 </Text>
-              </View>
-            )}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Level cards */}
+        <View style={styles.levelList}>
+          {Array.from({ length: levelsToShow }, (_, i) => i + 1).map((level) => {
+            const isUnlocked = level <= unlockedLevel;
+            const progress = levelProgress[String(level)];
+            const isCompleted = progress?.completed;
+            const difficulty: Difficulty = level <= 33 ? 'easy' : level <= 66 ? 'medium' : 'hard';
+            const difficultyPalette = DIFFICULTY_PALETTE[difficulty];
+            const catId = categoryForLevel(level);
+            const tagColors = categoryTagColors(catId);
+
+            return (
+              <TouchableOpacity
+                key={level}
+                style={[
+                  styles.levelCard,
+                  !isUnlocked && styles.levelCardLocked,
+                ]}
+                activeOpacity={isUnlocked ? 0.85 : 0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Tahap ${level}: ${titleForLevel(level)}${isCompleted ? ', selesai' : ''}${isUnlocked ? '' : ', terkunci'}`}
+                accessibilityState={{ disabled: !isUnlocked }}
+                onPress={() => handleStartQuiz(level)}
+              >
+                {/* Header: numbered circle + category tag */}
+                <View style={styles.levelCardHeader}>
+                  <View style={styles.levelNum}>
+                    <Text style={styles.levelNumText}>{level}</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.levelCatTag,
+                      {
+                        backgroundColor: tagColors.bg[1],
+                        borderColor: tagColors.bg[0],
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.levelCatTagText, { color: tagColors.text }]}
+                    >
+                      {CATEGORY_FILTERS.find((c) => c.id === catId)?.title ?? 'Alkitab'}
+                      {' · '}
+                      {DIFFICULTY_LABEL[difficulty]}
+                    </Text>
+                  </View>
+                  {!isUnlocked && (
+                    <View style={styles.levelLockedIcon}>
+                      <Text style={styles.levelLockedIconText}>🔒</Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Title */}
+                <Text
+                  style={[
+                    styles.levelTitle,
+                    !isUnlocked && styles.levelTitleLocked,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {titleForLevel(level)}
+                </Text>
+
+                {/* Meta row: difficulty pill + count/duration */}
+                <View style={styles.levelMeta}>
+                  <View
+                    style={[
+                      styles.levelDifficulty,
+                      { backgroundColor: difficultyPalette.bg },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.levelDifficultyText,
+                        { color: difficultyPalette.fg },
+                      ]}
+                    >
+                      {DIFFICULTY_LABEL[difficulty]}
+                    </Text>
+                  </View>
+                  <Text style={styles.levelMetaText}>5 soalan · ~3 min</Text>
+                </View>
+
+                {/* Footer line: reward or unlock-cost */}
+                <Text
+                  style={[
+                    styles.levelCardFoot,
+                    !isUnlocked && styles.levelCardFootLocked,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {isUnlocked
+                    ? isCompleted
+                      ? '✓ Selesai · Cuba lagi untuk skor lebih tinggi'
+                      : '🔥 +20 XP setiap betul'
+                    : '🔒 Buka dengan 30 token'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Hint footer */}
+        {unlockedLevel < TOTAL_LEVELS && (
+          <View style={styles.unlockHint}>
+            <Text style={styles.unlockHintText}>
+              🔒 Selesaikan Tahap {unlockedLevel} untuk buka tahap seterusnya
+            </Text>
           </View>
         )}
-
-        {/* Topik Pantas removed — game mode (Mod Permainan) already
-            covers all unlocked levels. Placeholder reserves the slot in
-            case a topic-based quick-play gets added back later. */}
-        <View style={styles.placeholderBox}>
-          <Text style={styles.placeholderEmoji}>🎯</Text>
-          <Text style={styles.placeholderTitle}>Mod Topik</Text>
-          <Text style={styles.placeholderHint}>Akan ditambah tidak lama lagi</Text>
-        </View>
-
-        {/* Daily Challenge */}
-        <TouchableOpacity style={styles.dailyCard} onPress={() => Alert.alert('Cabaran Harian', 'Memuatkan...')}>
-          <View style={styles.dailyLeft}>
-            <Text style={styles.dailyEmoji}>🎯</Text>
-          </View>
-          <View style={styles.dailyContent}>
-            <Text style={styles.dailyTitle}>Cabaran Harian</Text>
-            <Text style={styles.dailySubtitle}>5 soalan khas — +50 XP!</Text>
-          </View>
-          <View style={styles.dailyButton}>
-            <Text style={styles.dailyButtonText}>Main</Text>
-          </View>
-        </TouchableOpacity>
-
-        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
@@ -241,319 +340,189 @@ export default function QuizScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.primaryPale,
   },
   scrollContent: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
   loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.primaryPale,
   },
-  
-  // Header
-  header: { marginBottom: Spacing.lg },
+
+  // ================================================================
+  // HEADER
+  // ================================================================
+  header: {
+    marginBottom: Spacing.md,
+  },
   headerTitle: {
-    fontSize: FontSize.xxl,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    color: Colors.navy,
+    fontSize: 26,
+    fontWeight: '800',
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
+    color: '#6b7280',
     fontSize: FontSize.sm,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-  },
-  
-  // Stats Row
-  statsRow: {
-    flexDirection: 'row',
-    backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.lg,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  miniStat: { flex: 1, alignItems: 'center' },
-  miniStatDivider: { width: 1, backgroundColor: Colors.light.border },
-  miniStatValue: {
-    fontSize: FontSize.lg,
-    fontWeight: 'bold',
-    color: Colors.primary,
-  },
-  miniStatLabel: {
-    fontSize: FontSize.xs,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  
-  // Sections
-  sectionHeader: { marginBottom: Spacing.md },
-  sectionTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: 'bold',
-    color: Colors.primary,
-  },
-  sectionSubtitle: {
-    fontSize: FontSize.xs,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-  },
-
-  // Placeholder box (reserved slot for "Topik Pantas" — currently unused)
-  placeholderBox: {
-    backgroundColor: Colors.light.surfaceAlt,
-    borderWidth: 1.5,
-    borderColor: Colors.light.border,
-    borderStyle: 'dashed',
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.md,
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-  placeholderEmoji: {
-    fontSize: 28,
-    marginBottom: Spacing.xs,
-    opacity: 0.6,
-  },
-  placeholderTitle: {
-    fontSize: FontSize.md,
     fontWeight: '700',
-    color: Colors.light.textSecondary,
+    marginTop: 4,
+    marginBottom: 6,
   },
-  placeholderHint: {
-    fontSize: FontSize.xs,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-    opacity: 0.8,
-  },
-  
-  // Game Modes
-  modesContainer: { marginBottom: Spacing.lg, gap: Spacing.sm },
-  modeCard: {
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    position: 'relative',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  modeBadge: {
-    position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.round,
-    zIndex: 1,
-  },
-  modeBadgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: Colors.white,
-  },
-  modeContent: { flexDirection: 'row', alignItems: 'center', paddingRight: 40 },
-  modeLeft: {
-    width: 64,
-    height: 64,
-    borderRadius: BorderRadius.md,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.md,
-  },
-  modeEmoji: { fontSize: 36 },
-  modeRight: { flex: 1 },
-  modeSubtitle: {
-    fontSize: FontSize.xs,
-    color: Colors.accent,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  modeTitle: {
-    fontSize: FontSize.md,
-    fontWeight: 'bold',
-    color: Colors.white,
-    marginBottom: 2,
-  },
-  modeDescription: {
-    fontSize: 11,
-    color: Colors.white,
-    opacity: 0.8,
-    lineHeight: 14,
-    marginBottom: 4,
-  },
-  modeStatsBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.round,
-    alignSelf: 'flex-start',
-  },
-  modeStatsText: { fontSize: 10, color: Colors.white, fontWeight: '600' },
-  modeArrow: {
-    position: 'absolute',
-    right: Spacing.md,
-    bottom: Spacing.md,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modeArrowText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.white,
-    marginTop: -3,
-  },
-  
-  // Level Selection Panel
-  levelPanel: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-  },
-  levelPanelHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  levelPanelTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: 'bold',
+  headerStats: {
     color: Colors.primary,
-  },
-  closeBtn: {
-    fontSize: FontSize.sm,
-    color: Colors.light.textSecondary,
-    fontWeight: '600',
-  },
-  levelPanelHint: {
-    fontSize: FontSize.sm,
-    color: Colors.light.textSecondary,
-    marginBottom: Spacing.md,
-    textAlign: 'center',
-  },
-  levelGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-    justifyContent: 'center',
-  },
-  levelBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    position: 'relative',
-  },
-  levelBtnCompleted: {
-    backgroundColor: Colors.success,
-    borderColor: Colors.success,
-  },
-  levelBtnText: {
-    fontSize: FontSize.md,
-    fontWeight: 'bold',
-    color: Colors.white,
-  },
-  levelBtnTextCompleted: { color: Colors.white },
-  checkIcon: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    fontSize: 10,
-    color: Colors.white,
-    fontWeight: 'bold',
-  },
-  difficultyDot: {
-    position: 'absolute',
-    bottom: 4,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  lockedHint: {
-    marginTop: Spacing.md,
-    padding: Spacing.sm,
-    backgroundColor: Colors.light.surfaceAlt,
-    borderRadius: BorderRadius.sm,
-    alignItems: 'center',
-  },
-  lockedHintText: {
-    fontSize: FontSize.sm,
-    color: Colors.light.textSecondary,
-    textAlign: 'center',
+    fontSize: FontSize.xs,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
 
-  // Daily Challenge
-  dailyCard: {
+  // ================================================================
+  // CATEGORY CHIP FILTER
+  // ================================================================
+  catFilterRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingRight: Spacing.md,
+  },
+  catChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.accent,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.lg,
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  dailyLeft: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.md,
-  },
-  dailyEmoji: { fontSize: 24 },
-  dailyContent: { flex: 1 },
-  dailyTitle: {
-    fontSize: FontSize.md,
-    fontWeight: 'bold',
-    color: Colors.white,
-  },
-  dailySubtitle: {
-    fontSize: FontSize.xs,
-    color: Colors.white,
-    opacity: 0.85,
-    marginTop: 2,
-  },
-  dailyButton: {
-    backgroundColor: Colors.white,
+    gap: 6,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.round,
+    backgroundColor: Colors.primaryPale,
   },
-  dailyButtonText: {
+  catChipActive: {
+    backgroundColor: Colors.primary,
+  },
+  catChipEmoji: {
+    fontSize: 14,
+  },
+  catChipLabel: {
+    color: Colors.primary,
     fontSize: FontSize.sm,
-    fontWeight: 'bold',
+    fontWeight: '700',
+  },
+  catChipLabelActive: {
+    color: Colors.white,
+  },
+
+  // ================================================================
+  // LEVEL CARDS
+  // ================================================================
+  levelList: {
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  levelCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.card,
+    padding: Spacing.md,
+    shadowColor: '#142850',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  levelCardLocked: {
+    opacity: 0.75,
+  },
+  levelCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  levelNum: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  levelNumText: {
+    color: Colors.white,
+    fontSize: FontSize.md,
+    fontWeight: '800',
+  },
+  levelCatTag: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.round,
+    borderWidth: 1,
+  },
+  levelCatTagText: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  levelLockedIcon: {
+    marginLeft: 'auto',
+  },
+  levelLockedIconText: {
+    fontSize: 18,
+  },
+  levelTitle: {
+    color: Colors.navy,
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    marginBottom: Spacing.sm,
+  },
+  levelTitleLocked: {
+    color: '#6b7280',
+  },
+  levelMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  levelDifficulty: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  levelDifficultyText: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  levelMetaText: {
+    color: '#6b7280',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  levelCardFoot: {
     color: Colors.accent,
+    fontSize: FontSize.xs,
+    fontWeight: '800',
+  },
+  levelCardFootLocked: {
+    color: '#6b7280',
+  },
+
+  // ================================================================
+  // UNLOCK HINT
+  // ================================================================
+  unlockHint: {
+    marginTop: Spacing.lg,
+    padding: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.card,
+    alignItems: 'center',
+    shadowColor: '#142850',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 1,
+  },
+  unlockHintText: {
+    color: Colors.primary,
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });

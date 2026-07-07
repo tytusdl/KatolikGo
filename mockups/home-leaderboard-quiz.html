@@ -1,1600 +1,456 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KatolikGo — Mockup UI v2 (Orange Direction)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      /* Brand */
-      --orange: #ff6b35;
-      --orange-dark: #e85a2a;
-      --orange-light: #ffa45c;
-      --orange-soft: #ffd4b8;
-      --cream: #fff6e5;
-      --cream-deep: #fdebc8;
-      --gold: #ffb627;
-      --gold-deep: #d9951a;
-      --green: #4ade80;
-      --green-deep: #16a34a;
-      --black: #1a1a1a;
-      --dark: #2d2d2d;
-      --gray: #8b8b8b;
-      --gray-light: #d6d6d6;
-      --white: #ffffff;
-      --pill-bg: #1a1a1a;
-      --shadow-card: 0 6px 18px rgba(255, 107, 53, 0.12);
-      --shadow-phone: 0 30px 60px rgba(20, 20, 20, 0.18), 0 8px 20px rgba(20, 20, 20, 0.10);
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KatolikGo v5 — Block &amp; Bible (Minecraft Style)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   KATOLIKGO v5 — BLOCK & BIBLE  (working / iteration file)
+   ========================================================= */
+:root {
+  --grass-top:#5da831; --grass-side:#4d8a26;
+  --dirt:#8b5a2b;      --dirt-dark:#6b4520;
+  --stone:#7a7a7a;     --stone-dark:#5a5a5a;
+  --cobble:#6e6e6e;
+  --sky:#5fb4f2;       --sky-dark:#3a8acc;
+  --cloud:#f5f5f5;
+  --leaves:#3a7826;    --leaves-dark:#2a5c1a;
+  --wood:#6b4423;      --wood-dark:#4a2e15;
 
-      --ff: 'Nunito', 'Inter', system-ui, sans-serif;
-    }
+  --gold:#c9a227;      --gold-light:#e8c662;  --gold-dark:#8a6e15;
+  --cross-white:#f5f0e1;
+  --stained-red:#b3261e;
+  --stained-blue:#1e3a8a;
+  --parchment:#f4e8c1; --parchment-dark:#d8c89a;
+  --withered:#2d2d2d;
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  --shadow-offset:4px;
+  --shadow-offset-lg:6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--sky); font-family: 'VT323', monospace; color: var(--withered); }
+body {
+  background:
+    radial-gradient(circle at 50px 80px, var(--cloud) 24px, transparent 25px),
+    radial-gradient(circle at 480px 60px, var(--cloud) 20px, transparent 21px),
+    radial-gradient(circle at 200px 200px, var(--cloud) 16px, transparent 17px),
+    var(--sky);
+  background-size: 600px 300px;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+.pixel {
+  font-family: 'Press Start 2P', monospace;
+  image-rendering: pixelated;
+  text-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--withered);
+  letter-spacing: 1px;
+}
 
-    html, body { height: 100%; }
+/* ===== PHONE ===== */
+.phone-row { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; align-items: flex-start; padding: 16px; }
+.phone {
+  width: 320px; height: 690px;
+  background: var(--withered);
+  border: var(--shadow-offset-lg) solid var(--withered);
+  box-shadow: 8px 8px 0 var(--stone-dark), 12px 12px 0 var(--stone);
+  display: flex; flex-direction: column; overflow: hidden; position: relative;
+}
+.phone-title { background: var(--withered); color: var(--gold); font-family: 'Press Start 2P', monospace; font-size: 9px; text-align: center; padding: 8px; letter-spacing: 1px; border-bottom: 4px solid var(--gold); }
+.screen { flex: 1; background: var(--cloud); overflow-y: auto; position: relative; scrollbar-width: thin; scrollbar-color: var(--dirt) var(--cloud); }
 
-    body {
-      font-family: var(--ff);
-      background:
-        radial-gradient(at 0% 0%, #ffe9d4 0%, transparent 45%),
-        radial-gradient(at 100% 0%, #fff3e0 0%, transparent 45%),
-        #fffaf0;
-      min-height: 100vh;
-      color: var(--dark);
-      padding: 28px 18px 60px;
-    }
+/* ===== STATUS ===== */
+.status-bar { height: 20px; background: var(--withered); color: var(--cloud); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'VT323', monospace; font-size: 14px; border-bottom: 2px solid var(--gold); }
 
-    .preview-label {
-      max-width: 1840px;
-      margin: 0 auto 22px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--dark);
-      letter-spacing: 0.2px;
-    }
-    .preview-label .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: var(--orange);
-      color: white;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-    }
-    .preview-label .sub {
-      color: var(--gray);
-      font-weight: 600;
-    }
+/* ===== HEADER ===== */
+.app-header { background: radial-gradient(circle at 280px 28px, var(--gold-light) 8px, var(--gold) 9px 14px, transparent 15px), radial-gradient(circle at 60px 18px, var(--cloud) 10px, transparent 11px), radial-gradient(circle at 80px 14px, var(--cloud) 6px, transparent 7px), var(--sky); height: 110px; border-bottom: 4px solid var(--withered); padding: 12px; position: relative; }
+.grass-strip { height: 8px; background: repeating-linear-gradient(90deg, var(--grass-top) 0, var(--grass-top) 6px, var(--grass-side) 6px, var(--grass-side) 8px); border-bottom: 4px solid var(--dirt); }
 
-    /* ---------- Phone Frame ---------- */
-    .phones-row {
-      max-width: 1840px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 22px;
-      align-items: start;
-    }
+/* ===== HOME BLOCKS ===== */
+.tab-screen { display: none; padding-bottom: 90px; }
+.tab-screen.active { display: block; }
 
-    .phone {
-      width: 100%;
-      aspect-ratio: 340 / 700;
-      background: var(--cream);
-      border-radius: 48px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow-phone);
-      border: 8px solid #1c1c1e;
-      isolation: isolate;
-    }
+.greet-row { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--parchment); border-bottom: 4px solid var(--dirt); }
+.avatar-block { width: 48px; height: 48px; background: var(--gold); border: 3px solid var(--withered); box-shadow: 3px 3px 0 var(--dirt-dark); display: flex; align-items: center; justify-content: center; position: relative; }
+.avatar-cross { width: 22px; height: 22px; position: relative; display: flex; align-items: center; justify-content: center; }
+.avatar-cross::before, .avatar-cross::after { content: ''; background: var(--cross-white); position: absolute; box-shadow: 2px 2px 0 var(--withered); }
+.avatar-cross::before { width: 8px; height: 22px; }
+.avatar-cross::after  { width: 22px; height: 8px; }
+.greet-text { font-family: 'VT323', monospace; font-size: 18px; color: var(--withered); line-height: 1.2; }
+.greet-text strong { font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--stained-blue); display: block; margin-bottom: 4px; text-shadow: 1px 1px 0 var(--gold); }
 
-    .phone-label {
-      position: absolute;
-      bottom: -28px;
-      left: 0; right: 0;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--gray);
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-    }
+.continue-block { margin: 12px; padding: 12px; background: var(--cobble); border: 3px solid var(--withered); box-shadow: inset 0 0 0 2px var(--stone-dark), 4px 4px 0 var(--withered); position: relative; }
+.continue-block .label { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--gold); text-shadow: 1px 1px 0 var(--withered); margin-bottom: 6px; }
+.continue-block .title { font-family: 'VT323', monospace; font-size: 18px; color: var(--cross-white); margin-bottom: 8px; line-height: 1.2; }
+.progress { height: 14px; background: var(--stone-dark); border: 2px solid var(--withered); position: relative; margin-bottom: 10px; }
+.progress > .fill { position: absolute; left: 0; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, var(--grass-top) 0, var(--grass-top) 4px, var(--grass-side) 4px, var(--grass-side) 6px); width: 60%; }
+.play-btn { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; background: var(--gold); border: 3px solid var(--withered); box-shadow: 3px 3px 0 var(--withered); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.play-btn::after { content: ''; width: 0; height: 0; border-left: 14px solid var(--withered); border-top: 8px solid transparent; border-bottom: 8px solid transparent; margin-left: 4px; }
 
-    /* Notch + status bar */
-    .notch {
-      position: absolute;
-      top: 8px; left: 50%;
-      transform: translateX(-50%);
-      width: 110px; height: 28px;
-      background: #1c1c1e;
-      border-radius: 999px;
-      z-index: 50;
-    }
-    .statusbar {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 28px 0;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--dark);
-      z-index: 40;
-    }
-    .statusbar .icons {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
+.resources { margin: 0 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.res-block { padding: 8px 6px; text-align: center; background: var(--wood); border: 2px solid var(--withered); box-shadow: inset 0 0 0 2px var(--wood-dark), 3px 3px 0 var(--withered); color: var(--cross-white); }
+.res-block.gold   { background: var(--gold); box-shadow: inset 0 0 0 2px var(--gold-dark), 3px 3px 0 var(--withered); }
+.res-block.red    { background: var(--stained-red); box-shadow: inset 0 0 0 2px #80180f, 3px 3px 0 var(--withered); }
+.res-block .icon-block { width: 18px; height: 18px; margin: 0 auto 4px; }
+.xp-icon { background: var(--leaves); border: 1px solid var(--withered); position: relative; }
+.xp-icon::after { content: 'XP'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Press Start 2P', monospace; font-size: 6px; color: var(--cross-white); text-shadow: 1px 1px 0 var(--withered); }
+.heart-icon { width: 18px; height: 18px; background: radial-gradient(circle at 4px 6px, var(--stained-red) 4px, transparent 5px), radial-gradient(circle at 14px 6px, var(--stained-red) 4px, transparent 5px), linear-gradient(180deg, transparent 4px, var(--stained-red) 4px, var(--stained-red) 14px, transparent 14px), var(--withered); box-shadow: 1px 1px 0 var(--withered); }
+.token-icon { background: var(--gold); border: 1px solid var(--withered); position: relative; }
+.token-icon::after { content: '+'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--withered); }
+.res-block .num { font-family: 'Press Start 2P', monospace; font-size: 9px; display: block; text-shadow: 1px 1px 0 var(--withered); }
+.res-block .lbl { font-family: 'VT323', monospace; font-size: 13px; display: block; opacity: 0.85; margin-top: 2px; }
 
-    /* Sparkles decorations */
-    .sparkles {
-      position: absolute; inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .sparkles::before,
-    .sparkles::after,
-    .sparkles span {
-      position: absolute;
-      font-size: 18px;
-      color: var(--orange);
-      opacity: 0.7;
-    }
-    .sparkles::before { content: '✦'; top: 14%; left: 8%; transform: rotate(15deg); font-size: 22px; color: var(--gold); }
-    .sparkles::after  { content: '✧'; bottom: 28%; right: 6%; transform: rotate(-10deg); font-size: 26px; color: var(--green); }
-    .sparkles .s1 { top: 30%; right: 14%; font-size: 16px; color: var(--orange); transform: rotate(20deg); }
-    .sparkles .s2 { bottom: 18%; left: 12%; font-size: 14px; color: var(--gold); transform: rotate(-15deg); }
-    .sparkles .s3 { top: 50%; left: 4%; font-size: 20px; color: var(--green); transform: rotate(8deg); }
+.section-title { margin: 16px 12px 8px; font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--stained-blue); text-shadow: 1px 1px 0 var(--cross-white); letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+.section-title::before { content: '✝'; color: var(--gold); font-size: 14px; text-shadow: 1px 1px 0 var(--withered); }
 
-    /* ---------- ONBOARDING ---------- */
-    .onboarding {
-      background: var(--cream);
-    }
-    .onb-art {
-      position: absolute;
-      top: 14%; left: 50%;
-      transform: translateX(-50%);
-      width: 78%;
-      z-index: 1;
-    }
-    .onb-art .swirl-tr {
-      position: absolute;
-      top: -16%; right: -8%;
-      width: 110px; height: 110px;
-      border: 14px solid var(--orange);
-      border-radius: 50%;
-      border-top-color: transparent;
-      transform: rotate(35deg);
-      opacity: 0.85;
-    }
-    .onb-art .swirl-bl {
-      position: absolute;
-      bottom: -10%; left: -8%;
-      width: 90px; height: 90px;
-      border: 12px solid var(--green);
-      border-radius: 50%;
-      border-bottom-color: transparent;
-      transform: rotate(-25deg);
-      opacity: 0.8;
-    }
-    .onb-mascot {
-      position: relative;
-      z-index: 2;
-      margin: 12% auto 0;
-      width: 200px; height: 220px;
-    }
-    .onb-text {
-      position: absolute;
-      left: 26px; right: 26px;
-      bottom: 130px;
-      z-index: 5;
-    }
-    .onb-text h1 {
-      font-size: 34px;
-      font-weight: 900;
-      line-height: 1.05;
-      color: var(--dark);
-      letter-spacing: -0.8px;
-    }
-    .onb-text p {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--gray);
-      font-weight: 600;
-      line-height: 1.4;
-    }
-    .onb-dots {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 88px;
-      display: flex; gap: 6px;
-      z-index: 5;
-    }
-    .onb-dots span {
-      width: 24px; height: 5px;
-      background: var(--gray-light);
-      border-radius: 999px;
-    }
-    .onb-dots span.active { background: var(--orange); width: 28px; }
-    .onb-slide {
-      position: absolute;
-      left: 26px; right: 26px;
-      bottom: 24px;
-      height: 56px;
-      background: white;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 8px 0 8px;
-      box-shadow: 0 8px 22px rgba(255, 107, 53, 0.22);
-      z-index: 5;
-    }
-    .onb-slide .arrow {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: var(--orange);
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-weight: 900;
-      font-size: 18px;
-    }
-    .onb-slide .label {
-      flex: 1;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-    .onb-slide .chev {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--gray);
-      font-size: 18px;
-    }
+.subjects { margin: 0 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.subject-card { background: var(--dirt); border: 3px solid var(--withered); box-shadow: inset 0 0 0 2px var(--dirt-dark), 3px 3px 0 var(--withered); padding: 10px 8px 12px; text-align: center; cursor: pointer; position: relative; }
+.subject-card .book { width: 36px; height: 32px; margin: 4px auto 6px; position: relative; }
+.book-cover { width: 100%; height: 100%; background: var(--leaves); border: 2px solid var(--withered); position: relative; box-shadow: inset -4px 0 0 var(--leaves-dark); }
+.book-cover::before { content: ''; position: absolute; top: 10px; left: 14px; width: 4px; height: 12px; background: var(--gold); box-shadow: 1px 1px 0 var(--withered); }
+.book-cover::after  { content: ''; position: absolute; top: 14px; left: 10px; width: 12px; height: 4px; background: var(--gold); box-shadow: 1px 1px 0 var(--withered); }
+.subject-card .name { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--cross-white); text-shadow: 1px 1px 0 var(--withered); margin-bottom: 4px; }
+.subject-card .lvl  { font-family: 'VT323', monospace; font-size: 14px; color: var(--gold); }
+.subject-card.alt { background: var(--wood); box-shadow: inset 0 0 0 2px var(--wood-dark), 3px 3px 0 var(--withered); }
+.subject-card.locked { opacity: 0.7; cursor: not-allowed; }
 
-    /* ---------- Pill nav (shared) ---------- */
-    .pill-nav {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 14px;
-      height: 56px;
-      background: var(--pill-bg);
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      padding: 6px;
-      gap: 4px;
-      z-index: 30;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-    }
-    .pill-nav .item {
-      width: 44px; height: 44px;
-      border-radius: 999px;
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-size: 18px;
-      transition: all 0.18s;
-    }
-    .pill-nav .item.active {
-      background: var(--orange);
-      padding: 0 18px;
-      gap: 8px;
-      width: auto;
-      font-size: 13px;
-      font-weight: 800;
-    }
+.chest-block { margin: 16px 12px 0; background: var(--wood); border: 3px solid var(--withered); box-shadow: inset 0 0 0 2px var(--wood-dark), 3px 3px 0 var(--withered); padding: 10px; position: relative; }
+.chest-block .lock { position: absolute; top: 8px; right: 8px; width: 12px; height: 12px; background: var(--gold); border: 2px solid var(--withered); }
+.chest-block .verse { font-family: 'VT323', monospace; font-size: 15px; color: var(--cross-white); line-height: 1.3; padding-right: 18px; }
+.chest-block .ref { font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--gold); margin-top: 6px; text-shadow: 1px 1px 0 var(--withered); }
 
-    /* ---------- HOME ---------- */
-    .home-screen {
-      position: absolute;
-      inset: 44px 0 0;
-      padding: 8px 20px 0;
-      display: flex;
-      flex-direction: column;
-      z-index: 2;
-    }
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .top-bar .user {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .top-bar .avatar-sm {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--orange);
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-weight: 800;
-      font-size: 14px;
-    }
-    .top-bar .uname {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-    .top-bar .coins {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: white;
-      padding: 6px 10px;
-      border-radius: 999px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .top-bar .coins .n {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--dark);
-    }
+/* ===== QUIZ TAB ===== */
+.tab-bar-title { background: var(--wood); border-bottom: 3px solid var(--withered); padding: 10px 12px; font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--gold); text-shadow: 1px 1px 0 var(--withered); }
+.level-grid { margin: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.lvl-tile { aspect-ratio: 1; background: var(--stone); border: 2px solid var(--withered); box-shadow: inset 0 0 0 1px var(--stone-dark), 2px 2px 0 var(--withered); display: flex; align-items: center; justify-content: center; font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--cloud); text-shadow: 1px 1px 0 var(--withered); cursor: pointer; position: relative; }
+.lvl-tile.done    { background: var(--leaves); box-shadow: inset 0 0 0 1px var(--leaves-dark), 2px 2px 0 var(--withered); }
+.lvl-tile.unlock  { background: var(--gold);   box-shadow: inset 0 0 0 1px var(--gold-dark), 2px 2px 0 var(--withered); }
+.lvl-tile.locked  { background: var(--stone-dark); opacity: 0.55; cursor: not-allowed; }
+.lvl-tile.unlock::after { content: '▶'; position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--stained-red); border: 2px solid var(--withered); color: var(--cross-white); font-size: 7px; display: flex; align-items: center; justify-content: center; }
 
-    .search {
-      background: white;
-      border-radius: 999px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      gap: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      margin-bottom: 14px;
-    }
-    .search input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 13px;
-      color: var(--dark);
-      background: transparent;
-      font-family: var(--ff);
-      font-weight: 600;
-    }
-    .search .filter {
-      width: 28px; height: 28px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--orange);
-      font-size: 14px;
-      border-left: 1px solid var(--gray-light);
-      padding-left: 8px;
-    }
+.quiz-header { background: var(--withered); color: var(--cloud); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-family: 'VT323', monospace; font-size: 18px; border-bottom: 3px solid var(--gold); }
+.quiz-header .back { width: 28px; height: 28px; background: var(--gold); border: 2px solid var(--withered); box-shadow: 2px 2px 0 var(--cross-white); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--withered); }
+.quiz-header .lives { display: flex; gap: 2px; }
+.quiz-header .lives .h { width: 12px; height: 10px; background: radial-gradient(circle at 3px 4px, var(--stained-red) 3px, transparent 4px), radial-gradient(circle at 9px 4px, var(--stained-red) 3px, transparent 4px), linear-gradient(180deg, transparent 3px, var(--stained-red) 3px, var(--stained-red) 9px, transparent 9px); }
 
-    .home-headline {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .home-headline h2 {
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--dark);
-      line-height: 1.05;
-      letter-spacing: -0.5px;
-    }
-    .home-headline .see-all {
-      font-size: 12px;
-      color: var(--orange);
-      font-weight: 800;
-    }
+.quiz-body { padding: 12px; }
+.quiz-cat { font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--stained-blue); text-shadow: 1px 1px 0 var(--cross-white); margin-bottom: 8px; }
+.q-card { background: var(--parchment); border: 3px solid var(--withered); box-shadow: inset 0 0 0 2px var(--parchment-dark), 4px 4px 0 var(--withered); padding: 14px; margin-bottom: 12px; }
+.q-card .q-text { font-family: 'VT323', monospace; font-size: 18px; line-height: 1.3; color: var(--withered); margin-bottom: 8px; }
+.q-card .scripture { font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--stained-red); text-shadow: 1px 1px 0 var(--parchment-dark); }
 
-    .hero-card {
-      position: relative;
-      border-radius: 24px;
-      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-card);
-      overflow: hidden;
-      min-height: 230px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .hero-card::before {
-      content: '';
-      position: absolute;
-      top: -40%; right: -10%;
-      width: 180px; height: 180px;
-      background: rgba(255,255,255,0.18);
-      border-radius: 50%;
-    }
-    .hero-card::after {
-      content: '';
-      position: absolute;
-      bottom: -50%; left: -20%;
-      width: 200px; height: 200px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 50%;
-    }
-    .hero-card h3 {
-      font-size: 22px;
-      font-weight: 900;
-      color: white;
-      position: relative;
-      z-index: 2;
-    }
-    .hero-card .mascot-art {
-      position: absolute;
-      right: 6px;
-      bottom: -10px;
-      width: 130px;
-      z-index: 2;
-    }
-    .hero-card .play-btn {
-      position: relative;
-      z-index: 3;
-      align-self: center;
-      margin-top: auto;
-      background: var(--orange-dark);
-      color: white;
-      border-radius: 999px;
-      padding: 10px 28px;
-      font-size: 14px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
-    }
-    .hero-card .play-btn::before {
-      content: '▶';
-      font-size: 11px;
-    }
+.timer-bar { height: 16px; background: var(--stone-dark); border: 2px solid var(--withered); margin-bottom: 12px; position: relative; box-shadow: inset 0 0 0 1px #2a2a2a; }
+.timer-bar > .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 65%; background: repeating-linear-gradient(90deg, var(--stained-red) 0, var(--stained-red) 6px, var(--gold) 6px, var(--gold) 8px); }
 
-    .hero-dots {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      margin-top: 14px;
-    }
-    .hero-dots span {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--gray-light);
-    }
-    .hero-dots span.active { width: 22px; background: var(--orange); border-radius: 999px; }
+.opt { width: 100%; background: var(--cobble); border: 2px solid var(--withered); box-shadow: inset 0 0 0 1px var(--stone-dark), 3px 3px 0 var(--withered); padding: 10px 10px 10px 36px; margin-bottom: 8px; font-family: 'VT323', monospace; font-size: 16px; text-align: left; color: var(--cross-white); cursor: pointer; position: relative; }
+.opt .ltr { position: absolute; left: 8px; top: 8px; width: 20px; height: 20px; background: var(--cloud); color: var(--withered); font-family: 'Press Start 2P', monospace; font-size: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--withered); }
+.opt.correct { background: var(--leaves);  box-shadow: inset 0 0 0 1px var(--leaves-dark), 3px 3px 0 var(--withered); }
+.opt.wrong   { background: var(--stained-red); box-shadow: inset 0 0 0 1px #80180f, 3px 3px 0 var(--withered); }
 
-    /* Carousel of category cards */
-    .card-carousel {
-      position: relative;
-      margin: 0 -20px;
-      padding: 4px 20px 12px;
-      overflow: hidden;
-    }
-    .card-track {
-      display: flex;
-      gap: 12px;
-      transition: transform 0.3s;
-    }
-    .cat-card {
-      position: relative;
-      flex: 0 0 78%;
-      border-radius: 22px;
-      padding: 14px 14px 12px;
-      overflow: hidden;
-      box-shadow: var(--shadow-card);
-      min-height: 210px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .cat-card.orange { background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%); color: white; }
-    .cat-card.green  { background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%); color: white; }
-    .cat-card.purple { background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%); color: white; }
-    .cat-card.blue   { background: linear-gradient(135deg, #38bdf8 0%, #7dd3fc 100%); color: white; }
-    .cat-card .spark {
-      position: absolute;
-      top: -20%; right: -10%;
-      width: 130px; height: 130px;
-      background: rgba(255,255,255,0.18);
-      border-radius: 50%;
-    }
-    .cat-card .spark2 {
-      position: absolute;
-      bottom: -40%; left: -10%;
-      width: 140px; height: 140px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 50%;
-    }
-    .cat-card .badge {
-      position: relative;
-      z-index: 2;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,255,255,0.25);
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      align-self: flex-start;
-      backdrop-filter: blur(4px);
-    }
-    .cat-card h3 {
-      position: relative;
-      z-index: 2;
-      font-size: 19px;
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.3px;
-      margin-top: 8px;
-    }
-    .cat-card .meta {
-      position: relative;
-      z-index: 2;
-      font-size: 11px;
-      font-weight: 700;
-      opacity: 0.95;
-      margin-top: 2px;
-    }
-    .cat-card .illus {
-      position: absolute;
-      right: -8px;
-      bottom: -10px;
-      width: 110px;
-      z-index: 2;
-    }
-    .cat-card .play {
-      position: relative;
-      z-index: 3;
-      align-self: flex-start;
-      background: rgba(0,0,0,0.30);
-      color: white;
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-size: 11px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      backdrop-filter: blur(4px);
-    }
-    .cat-card .play::before { content: '▶'; font-size: 8px; }
+.powerups { display: flex; gap: 6px; margin: 8px 0; }
+.pu { flex: 1; background: var(--stained-blue); color: var(--cross-white); border: 2px solid var(--withered); box-shadow: 3px 3px 0 var(--withered); padding: 8px; font-family: 'Press Start 2P', monospace; font-size: 8px; text-align: center; cursor: pointer; }
+.pu.hint  { background: var(--gold);  color: var(--withered); }
+.pu .cost { display: block; font-family: 'VT323', monospace; font-size: 13px; margin-top: 4px; }
+.next-btn { width: 100%; background: var(--grass-top); border: 3px solid var(--withered); box-shadow: 3px 3px 0 var(--withered); padding: 12px; font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--cross-white); text-shadow: 1px 1px 0 var(--withered); margin-top: 8px; cursor: pointer; }
 
-    /* Recent quizzes list */
-    .recent-row {
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .recent-row .head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 0 2px;
-    }
-    .recent-row .head h4 {
-      font-size: 14px;
-      font-weight: 900;
-      color: var(--dark);
-    }
-    .recent-row .head .more {
-      font-size: 11px;
-      color: var(--orange);
-      font-weight: 800;
-    }
-    .recent {
-      background: white;
-      border-radius: 14px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .recent .thumb {
-      width: 38px; height: 38px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .recent.green .thumb { background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%); }
-    .recent .body { flex: 1; min-width: 0; }
-    .recent .ttl {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--dark);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .recent .sub {
-      font-size: 10px;
-      color: var(--gray);
-      font-weight: 600;
-      margin-top: 1px;
-    }
-    .recent .score {
-      font-size: 11px;
-      font-weight: 900;
-      color: var(--green-deep);
-      background: #d6f5e0;
-      padding: 4px 8px;
-      border-radius: 999px;
-    }
+/* ===== PROFIL ===== */
+.profile-hero { background: radial-gradient(circle at 240px 60px, var(--cloud) 30px, transparent 31px), var(--sky); height: 120px; border-bottom: 4px solid var(--withered); display: flex; align-items: center; justify-content: center; position: relative; }
+.profile-skin { width: 80px; height: 110px; background: linear-gradient(180deg, var(--gold) 0 30px, var(--gold-dark) 30px 32px, var(--parchment) 32px 100%); border: 3px solid var(--withered); box-shadow: 4px 4px 0 var(--withered); position: relative; }
+.profile-skin::before { content: ''; position: absolute; top: 12px; left: 28px; width: 6px; height: 6px; background: var(--withered); box-shadow: 12px 0 0 var(--withered); }
+.profile-skin::after { content: ''; position: absolute; top: 8px; left: 14px; width: 50px; height: 12px; background: var(--stained-red); border: 3px solid var(--withered); }
 
-    /* ---------- QUIZ PLAY ---------- */
-    .quiz-screen {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      z-index: 2;
-    }
-    .quiz-top {
-      position: relative;
-      background: linear-gradient(160deg, var(--orange) 0%, var(--orange-light) 100%);
-      padding: 60px 18px 22px;
-      color: white;
-      overflow: hidden;
-    }
-    .quiz-top::before {
-      content: '';
-      position: absolute;
-      top: -40%; left: -10%;
-      width: 200px; height: 200px;
-      background: rgba(255,255,255,0.16);
-      border-radius: 50%;
-    }
-    .quiz-top .back-btn {
-      position: absolute;
-      top: 50px; left: 16px;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.22);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-      color: white;
-      font-weight: 700;
-    }
-    .quiz-top .hint-btn {
-      position: absolute;
-      top: 50px; right: 16px;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.22);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-      color: white;
-    }
-    .quiz-top .qmeta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding: 0 6px;
-    }
-    .quiz-top .qmeta .label {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      opacity: 0.95;
-    }
-    .quiz-top .qmeta .counter {
-      font-size: 12px;
-      font-weight: 700;
-      opacity: 0.85;
-    }
-    .quiz-top .progress {
-      height: 6px;
-      background: rgba(255,255,255,0.30);
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-      z-index: 2;
-    }
-    .quiz-top .progress .fill {
-      width: 43%;
-      height: 100%;
-      background: white;
-      border-radius: 999px;
-    }
-    .quiz-top .mascot {
-      position: absolute;
-      right: -10px;
-      top: 38%;
-      width: 110px;
-      opacity: 0.95;
-    }
+.profile-name-row { background: var(--parchment); border-bottom: 4px solid var(--dirt); padding: 10px 12px; display: flex; align-items: center; gap: 12px; }
+.profile-name-row .name { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--withered); text-shadow: 1px 1px 0 var(--gold); line-height: 1.3; }
+.profile-name-row .handle { font-family: 'VT323', monospace; font-size: 14px; color: var(--stained-blue); }
+.level-chip { display: inline-block; background: var(--gold); border: 2px solid var(--withered); box-shadow: 2px 2px 0 var(--withered); padding: 2px 6px; font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--withered); }
 
-    .quiz-body {
-      flex: 1;
-      background: var(--cream);
-      padding: 18px 18px 90px;
-      display: flex;
-      flex-direction: column;
-    }
-    .quiz-body .question {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--dark);
-      line-height: 1.35;
-      margin-bottom: 18px;
-    }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px; }
+.stat-block { background: var(--stone); border: 3px solid var(--withered); box-shadow: inset 0 0 0 2px var(--stone-dark), 3px 3px 0 var(--withered); padding: 10px 8px; text-align: center; color: var(--cross-white); }
+.stat-block.alt  { background: var(--cobble); }
+.stat-block.gold { background: var(--gold); color: var(--withered); box-shadow: inset 0 0 0 2px var(--gold-dark), 3px 3px 0 var(--withered); }
+.stat-block.red  { background: var(--stained-red); box-shadow: inset 0 0 0 2px #80180f, 3px 3px 0 var(--withered); }
+.stat-block .icon-mini { width: 22px; height: 22px; margin: 0 auto 6px; background: var(--gold); border: 2px solid var(--withered); display: flex; align-items: center; justify-content: center; font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--withered); }
+.stat-block .val { font-family: 'Press Start 2P', monospace; font-size: 11px; text-shadow: 1px 1px 0 var(--withered); }
+.stat-block .lbl { font-family: 'VT323', monospace; font-size: 14px; opacity: 0.85; margin-top: 4px; }
 
-    .options { display: flex; flex-direction: column; gap: 10px; }
-    .option {
-      background: white;
-      border-radius: 16px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-      border: 2px solid transparent;
-    }
-    .option.selected {
-      border-color: var(--orange);
-      box-shadow: 0 4px 14px rgba(255, 107, 53, 0.18);
-    }
-    .option .dot {
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      border: 2px solid var(--gray-light);
-      flex-shrink: 0;
-    }
-    .option.selected .dot {
-      border-color: var(--orange);
-      background: var(--orange);
-      box-shadow: inset 0 0 0 3px white;
-    }
-    .option .text {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--dark);
-      flex: 1;
-    }
+.menu { margin: 8px 12px 12px; }
+.menu-item { display: flex; align-items: center; gap: 10px; background: var(--cobble); border: 2px solid var(--withered); box-shadow: inset 0 0 0 1px var(--stone-dark), 2px 2px 0 var(--withered); padding: 10px; margin-bottom: 4px; color: var(--cross-white); cursor: pointer; }
+.menu-item .ic { width: 24px; height: 24px; background: var(--gold); border: 2px solid var(--withered); display: flex; align-items: center; justify-content: center; font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--withered); }
+.menu-item .mlbl { font-family: 'VT323', monospace; font-size: 16px; flex: 1; }
+.menu-item .arr { color: var(--gold); font-family: 'Press Start 2P', monospace; font-size: 9px; }
 
-    .quiz-continue {
-      position: absolute;
-      left: 16px; right: 16px;
-      bottom: 18px;
-      height: 52px;
-      background: var(--orange);
-      color: white;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      font-weight: 800;
-      box-shadow: 0 8px 18px rgba(255, 107, 53, 0.35);
-      z-index: 4;
-    }
+/* ===== LEADERBOARD ===== */
+.leaderboard-title { background: var(--withered); padding: 12px; text-align: center; font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--gold); text-shadow: 2px 2px 0 var(--cloud); border-bottom: 3px solid var(--gold); }
+.podium-area { display: flex; justify-content: center; align-items: flex-end; height: 180px; background: radial-gradient(circle at 50% 80%, var(--grass-side) 0 4px, transparent 4px), repeating-linear-gradient(0deg, var(--sky) 0 30px, var(--sky-dark) 30px 31px), var(--sky); border-bottom: 4px solid var(--withered); }
+.podium-pillar { width: 70px; background: var(--stone); border: 3px solid var(--withered); box-shadow: inset -8px 0 0 var(--stone-dark), 4px 4px 0 var(--withered); text-align: center; font-family: 'Press Start 2P', monospace; color: var(--cloud); text-shadow: 1px 1px 0 var(--withered); position: relative; margin: 0 -4px; }
+.podium-pillar.gold   { background: var(--gold);   box-shadow: inset -8px 0 0 var(--gold-dark),  4px 4px 0 var(--withered); height: 140px; }
+.podium-pillar.silver { background: var(--cobble); box-shadow: inset -8px 0 0 var(--stone-dark), 4px 4px 0 var(--withered); height: 110px; }
+.podium-pillar.bronze { background: var(--dirt);   box-shadow: inset -8px 0 0 var(--dirt-dark),  4px 4px 0 var(--withered); height: 90px;  }
+.podium-avatar { width: 40px; height: 40px; background: var(--parchment); border: 3px solid var(--withered); position: absolute; top: -50px; left: 50%; margin-left: -23px; display: flex; align-items: center; justify-content: center; }
+.podium-avatar .a { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; position: relative; }
+.podium-avatar .a::before, .podium-avatar .a::after { content: ''; background: var(--gold); position: absolute; box-shadow: 1px 1px 0 var(--withered); }
+.podium-avatar .a::before { width: 6px; height: 18px; }
+.podium-avatar .a::after  { width: 18px; height: 6px; }
+.podium-1 .podium-avatar { background: var(--gold); }
+.podium-2 .podium-avatar { background: var(--cobble); }
+.podium-3 .podium-avatar { background: var(--dirt); }
+.podium-pillar .rank { font-size: 16px; padding-top: 16px; display: block; }
+.podium-pillar .name { font-family: 'VT323', monospace; font-size: 14px; display: block; margin-top: 6px; text-shadow: 1px 1px 0 var(--withered); }
+.podium-pillar .pts  { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--withered); margin-top: 4px; display: block; }
 
-    /* ---------- PROFILE ---------- */
-    .profile-screen {
-      position: absolute;
-      inset: 44px 0 0;
-      padding: 8px 20px 0;
-      display: flex;
-      flex-direction: column;
-      z-index: 2;
-    }
-    .profile-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .profile-head h2 {
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-    .profile-head .settings {
-      width: 30px; height: 30px;
-      border-radius: 8px;
-      background: white;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--dark);
-      font-size: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
+.rank-list { margin: 12px; }
+.rank-row { display: grid; grid-template-columns: 24px 36px 1fr auto; align-items: center; gap: 8px; background: var(--parchment); border: 2px solid var(--withered); box-shadow: 2px 2px 0 var(--withered); padding: 6px 8px; margin-bottom: 4px; font-family: 'VT323', monospace; font-size: 16px; color: var(--withered); }
+.rank-row .rank-n { font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--stained-blue); text-shadow: 1px 1px 0 var(--gold); text-align: center; }
+.rank-row .av { width: 30px; height: 30px; background: var(--gold); border: 2px solid var(--withered); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.rank-row .trend { font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 2px 4px; border: 2px solid var(--withered); }
+.rank-row .trend.up   { background: var(--leaves); color: var(--cross-white); }
+.rank-row .trend.down { background: var(--stained-red); color: var(--cross-white); }
+.rank-row .trend.same { background: var(--cobble); color: var(--cross-white); }
 
-    .profile-hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 6px 0 14px;
-    }
-    .profile-avatar {
-      width: 90px; height: 90px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-light) 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 40px;
-      color: white;
-      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.30);
-      margin-bottom: 10px;
-      position: relative;
-    }
-    .profile-avatar::after {
-      content: '';
-      position: absolute;
-      inset: -6px;
-      border: 2px dashed var(--gold);
-      border-radius: 50%;
-    }
-    .profile-name {
-      font-size: 18px;
-      font-weight: 900;
-      color: var(--dark);
-    }
-    .profile-handle {
-      margin-top: 4px;
-      background: var(--orange);
-      color: white;
-      padding: 3px 12px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-    }
+/* ===== TAB BAR ===== */
+.tab-bar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--withered); border-top: 4px solid var(--gold); display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; padding: 8px 0 10px; }
+.tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: var(--cobble); font-family: 'Press Start 2P', monospace; font-size: 7px; text-shadow: 1px 1px 0 var(--cloud); }
+.tab-item.active { color: var(--gold); text-shadow: 1px 1px 0 var(--cloud), 2px 2px 0 var(--stained-red); }
+.tab-item .icon { width: 30px; height: 30px; background: var(--stone); border: 2px solid var(--withered); box-shadow: 2px 2px 0 var(--cloud); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--cross-white); position: relative; }
+.tab-item.active .icon { background: var(--gold); color: var(--withered); box-shadow: 2px 2px 0 var(--stained-red); }
+.tab-item .icon::before { content: ''; width: 14px; height: 14px; background: currentColor; display: block; }
+.glyph-home::before { clip-path: polygon(0 60%, 50% 0, 100% 60%, 100% 100%, 60% 100%, 60% 65%, 40% 65%, 40% 100%, 0 100%); }
+.glyph-trophy::before { clip-path: polygon(20% 0, 80% 0, 80% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 20% 60%); }
+.glyph-user::before { border-radius: 50%; width: 12px !important; height: 12px !important; }
+.tab-item .icon.book::before { width: 16px; height: 18px; clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); background: currentColor; box-shadow: 6px 0 0 currentColor; border-left: 4px solid var(--withered); border-right: 4px solid var(--withered); }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .stat {
-      background: white;
-      border-radius: 16px;
-      padding: 14px 14px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .stat .top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .stat .ico {
-      width: 30px; height: 30px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-    }
-    .stat .v {
-      font-size: 19px;
-      font-weight: 900;
-      color: var(--dark);
-    }
-    .stat .lbl {
-      font-size: 11px;
-      color: var(--gray);
-      font-weight: 700;
-    }
-
-    .monthly-card {
-      background: white;
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-      position: relative;
-    }
-    .monthly-card .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .monthly-card .top .label {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--gray);
-    }
-    .monthly-card .top .pill-sm {
-      background: var(--cream-deep);
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--dark);
-      display: inline-flex; align-items: center; gap: 4px;
-    }
-    .monthly-card .top .pill-sm::after { content: '⌄'; font-size: 12px; }
-    .monthly-card .msg {
-      font-size: 13px;
-      color: var(--dark);
-      line-height: 1.35;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-    .monthly-card .msg b {
-      color: var(--orange);
-      font-weight: 900;
-    }
-    .ring-wrap {
-      position: relative;
-      width: 100px; height: 100px;
-      margin: 4px auto 0;
-    }
-    .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-    .ring-wrap .ring-bg { stroke: var(--cream-deep); }
-    .ring-wrap .ring-fg { stroke: var(--orange); }
-    .ring-wrap .v {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--dark);
-    }
-    .ring-wrap .v small {
-      display: block;
-      font-size: 10px;
-      color: var(--gray);
-      font-weight: 700;
-      text-align: center;
-      margin-top: -2px;
-    }
-
-    /* ---------- LEADERBOARD ---------- */
-    .lb-screen {
-      position: absolute;
-      inset: 44px 0 0;
-      padding: 8px 16px 0;
-      display: flex;
-      flex-direction: column;
-      z-index: 2;
-    }
-    .lb-head {
-      text-align: center;
-      padding: 4px 0 12px;
-    }
-    .lb-head h2 {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-    .tabs {
-      background: white;
-      border-radius: 999px;
-      padding: 4px;
-      display: flex;
-      gap: 2px;
-      margin-bottom: 16px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.04);
-    }
-    .tabs .t {
-      flex: 1;
-      text-align: center;
-      padding: 8px 0;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--gray);
-    }
-    .tabs .t.active {
-      background: var(--orange);
-      color: white;
-    }
-
-    .podium {
-      position: relative;
-      height: 220px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .podium .col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-    .podium .av {
-      width: 50px; height: 50px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-weight: 800;
-      font-size: 16px;
-      border: 3px solid var(--gold);
-      background: var(--orange);
-      margin-bottom: 6px;
-      position: relative;
-      z-index: 3;
-    }
-    .podium .av .ring {
-      position: absolute;
-      inset: -8px;
-      border: 2px dashed var(--gold);
-      border-radius: 50%;
-      opacity: 0.55;
-    }
-    .podium .name {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--dark);
-      margin-bottom: 2px;
-    }
-    .podium .coins {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      background: var(--orange);
-      color: white;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-    .podium .bar {
-      width: 80px;
-      border-radius: 10px 10px 4px 4px;
-      background: linear-gradient(180deg, var(--orange) 0%, var(--orange-dark) 100%);
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 10px;
-      color: white;
-      font-size: 28px;
-      font-weight: 900;
-      box-shadow: 0 6px 14px rgba(255, 107, 53, 0.25);
-    }
-    .podium .bar.first { height: 130px; }
-    .podium .bar.second { height: 95px; background: linear-gradient(180deg, #ffa45c 0%, var(--orange-light) 100%); }
-    .podium .bar.third { height: 75px; background: linear-gradient(180deg, #ffc89c 0%, var(--orange-soft) 100%); }
-
-    .lb-list {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      overflow: hidden;
-    }
-    .lb-row {
-      background: white;
-      border-radius: 14px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .lb-row .rank {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: var(--cream-deep);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-    .lb-row .av-sm {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--orange-light);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
-      font-weight: 800;
-      color: white;
-    }
-    .lb-row .nm {
-      flex: 1;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--dark);
-    }
-    .lb-row .pts {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-
-    /* ---------- Mascot SVG (Bible book with cross + sunglasses) ---------- */
-    .mascot-svg { display: block; }
-
-    /* responsive */
-    @media (max-width: 1700px) {
-      .phones-row { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 1100px) {
-      .phones-row { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 700px) {
-      .phones-row { grid-template-columns: 1fr; max-width: 380px; }
-    }
-  </style>
+</style>
 </head>
 <body>
 
-<div class="preview-label">
-  <span class="pill">v2</span>
-  Orange Direction — <span class="sub">onboarding / home / quiz / profile / leaderboard</span>
+<div style="text-align:center; padding: 14px 16px; background: var(--withered); color: var(--cloud); font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 1px;">
+  KATOLIKGO v5 — BLOCK &amp; BIBLE <span style="color:var(--gold); text-shadow:2px 2px 0 var(--stained-red);">[ MINECRAFT STYLE ]</span>
+  <div style="margin-top:8px; font-family: 'VT323', monospace; font-size: 16px; color: var(--gold);">
+    voxel pixel-art + Catholic DNA · working file (overwritten each iteration)
+  </div>
 </div>
 
-<div class="phones-row">
+<div class="phone-row">
 
-  <!-- 1. ONBOARDING -->
-  <div>
-    <div class="phone onboarding">
-      <div class="notch"></div>
-      <div class="statusbar">
-        <span>9:41</span>
-        <span class="icons">●●● ▮</span>
-      </div>
-      <div class="sparkles">
-        <span class="s1">✦</span>
-        <span class="s2">✧</span>
-        <span class="s3">✦</span>
-      </div>
+  <!-- ============== PHONE 1: HOME ============== -->
+  <div class="phone">
+    <div class="phone-title">v5 · HOME / UTAMA</div>
+    <div class="status-bar"><span>9:41</span><span>&#x20a6; 5 nyawa · lvl 4</span><span>&#x25C6; 86%</span></div>
+    <div class="screen">
+      <div class="tab-screen active" data-tab-screen="home">
+        <div class="app-header"></div>
+        <div class="grass-strip"></div>
 
-      <div class="onb-art">
-        <div class="swirl-tr"></div>
-        <div class="swirl-bl"></div>
-      </div>
-
-      <!-- Mascot: Bible with cross + sunglasses -->
-      <div class="onb-mascot">
-        <svg viewBox="0 0 200 240" class="mascot-svg" xmlns="http://www.w3.org/2000/svg">
-          <!-- shadow under feet -->
-          <ellipse cx="100" cy="232" rx="60" ry="6" fill="rgba(0,0,0,0.10)" />
-          <!-- legs -->
-          <rect x="78" y="180" width="14" height="38" rx="5" fill="#1a1a1a" />
-          <rect x="108" y="180" width="14" height="38" rx="5" fill="#1a1a1a" />
-          <!-- shoes -->
-          <ellipse cx="85" cy="222" rx="14" ry="7" fill="#ff6b35" />
-          <ellipse cx="115" cy="222" rx="14" ry="7" fill="#ff6b35" />
-          <rect x="72" y="217" width="26" height="6" rx="3" fill="#4ade80" />
-          <rect x="102" y="217" width="26" height="6" rx="3" fill="#4ade80" />
-          <!-- arms -->
-          <path d="M 50 110 Q 30 130 36 158" stroke="#1a1a1a" stroke-width="11" fill="none" stroke-linecap="round" />
-          <path d="M 150 110 Q 170 130 164 158" stroke="#1a1a1a" stroke-width="11" fill="none" stroke-linecap="round" />
-          <!-- book body -->
-          <rect x="40" y="60" width="120" height="130" rx="10" fill="#ff6b35" />
-          <rect x="46" y="64" width="108" height="120" rx="6" fill="#e85a2a" />
-          <!-- pages -->
-          <rect x="40" y="60" width="6" height="130" fill="#fff6e5" />
-          <rect x="154" y="60" width="6" height="130" fill="#fff6e5" />
-          <line x1="46" y1="68" x2="46" y2="190" stroke="#d9951a" stroke-width="1" />
-          <line x1="154" y1="68" x2="154" y2="190" stroke="#d9951a" stroke-width="1" />
-          <!-- spine -->
-          <rect x="40" y="60" width="10" height="130" fill="#c94d20" />
-          <!-- cross on cover -->
-          <rect x="92" y="100" width="16" height="50" rx="2" fill="#ffb627" />
-          <rect x="80" y="116" width="40" height="16" rx="2" fill="#ffb627" />
-          <!-- sunglasses -->
-          <rect x="60" y="78" width="36" height="22" rx="10" fill="#1a1a1a" />
-          <rect x="104" y="78" width="36" height="22" rx="10" fill="#1a1a1a" />
-          <rect x="96" y="86" width="8" height="6" fill="#1a1a1a" />
-          <rect x="64" y="82" width="14" height="8" rx="2" fill="#4ade80" />
-          <rect x="108" y="82" width="14" height="8" rx="2" fill="#4ade80" />
-          <!-- smile -->
-          <path d="M 80 148 Q 100 162 120 148" stroke="#1a1a1a" stroke-width="4" fill="none" stroke-linecap="round" />
-          <!-- wave hand -->
-          <circle cx="36" cy="156" r="11" fill="#fff6e5" />
-          <circle cx="164" cy="156" r="11" fill="#fff6e5" />
-        </svg>
-      </div>
-
-      <div class="onb-text">
-        <h1>Pilih Topik,<br/>Main, Menang!</h1>
-        <p>Ribuan soalan dari Alkitab, Katekismus, dan topik menarik — sedia uji iman anda!</p>
-      </div>
-
-      <div class="onb-dots">
-        <span class="active"></span><span></span><span></span><span></span>
-      </div>
-
-      <div class="onb-slide">
-        <div class="arrow">→</div>
-        <div class="label">Slide to start</div>
-        <div class="chev">›</div>
-      </div>
-
-      <div class="phone-label">Onboarding</div>
-    </div>
-  </div>
-
-  <!-- 2. HOME -->
-  <div>
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="statusbar">
-        <span>9:41</span>
-        <span class="icons">●●● ▮</span>
-      </div>
-      <div class="sparkles">
-        <span class="s1">✦</span>
-        <span class="s3">✧</span>
-      </div>
-
-      <div class="home-screen">
-        <div class="top-bar">
-          <div class="user">
-            <div class="avatar-sm">SB</div>
-            <span class="uname">Sean Bram</span>
-          </div>
-          <div class="coins">
-            <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffb627" stroke="#d9951a" stroke-width="2"/><text x="12" y="16" text-anchor="middle" font-size="12" font-weight="900" fill="#7a5a00">$</text></svg>
-            <span class="n">24,804</span>
-          </div>
-        </div>
-
-        <div class="search">
-          <span style="color:var(--gray)">🔍</span>
-          <input placeholder="Cari kuiz" />
-          <span class="filter">⇅</span>
-        </div>
-
-        <div class="home-headline">
-          <h2>Pilih<br/>permainan</h2>
-          <span class="see-all">Lihat semua</span>
-        </div>
-
-        <!-- Swipeable category carousel -->
-        <div class="card-carousel">
-          <div class="card-track">
-            <!-- 1. Alkitab -->
-            <div class="cat-card orange">
-              <div class="spark"></div><div class="spark2"></div>
-              <div>
-                <span class="badge">📖 Alkitab</span>
-                <h3>Belajar<br/>Alkitab</h3>
-                <div class="meta">24 soalan · 5 tahap</div>
-              </div>
-              <div class="illus">
-                <svg viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="20" y="30" width="100" height="100" rx="8" fill="#e85a2a" />
-                  <rect x="26" y="34" width="88" height="92" rx="4" fill="#ff6b35" />
-                  <rect x="20" y="30" width="6" height="100" fill="#fff6e5" />
-                  <rect x="114" y="30" width="6" height="100" fill="#fff6e5" />
-                  <rect x="20" y="30" width="8" height="100" fill="#c94d20" />
-                  <rect x="62" y="58" width="14" height="44" rx="2" fill="#ffb627" />
-                  <rect x="50" y="72" width="38" height="14" rx="2" fill="#ffb627" />
-                  <rect x="40" y="42" width="26" height="16" rx="6" fill="#1a1a1a" />
-                  <rect x="74" y="42" width="26" height="16" rx="6" fill="#1a1a1a" />
-                  <rect x="68" y="48" width="6" height="4" fill="#1a1a1a" />
-                  <rect x="44" y="46" width="10" height="6" rx="1" fill="#4ade80" />
-                  <rect x="78" y="46" width="10" height="6" rx="1" fill="#4ade80" />
-                  <path d="M 56 95 Q 70 105 84 95" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" />
-                </svg>
-              </div>
-              <div class="play">Main</div>
-            </div>
-
-            <!-- 2. Katekismus -->
-            <div class="cat-card green">
-              <div class="spark"></div><div class="spark2"></div>
-              <div>
-                <span class="badge">⛪ Katekismus</span>
-                <h3>Asas<br/>Katekismus</h3>
-                <div class="meta">18 soalan · 4 tahap</div>
-              </div>
-              <div class="illus">
-                <svg viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg">
-                  <!-- church -->
-                  <rect x="20" y="60" width="100" height="70" fill="#16a34a" />
-                  <polygon points="20,60 70,20 120,60" fill="#34d399" />
-                  <rect x="60" y="80" width="20" height="50" fill="#fff6e5" />
-                  <polygon points="60,80 70,68 80,80" fill="#fff6e5" />
-                  <!-- cross on top -->
-                  <rect x="67" y="6" width="6" height="22" fill="#ffb627" />
-                  <rect x="60" y="14" width="20" height="6" fill="#ffb627" />
-                  <!-- arched window -->
-                  <path d="M 30 90 Q 30 75 40 75 Q 50 75 50 90 L 50 110 L 30 110 Z" fill="#fff6e5" opacity="0.85" />
-                  <path d="M 90 90 Q 90 75 100 75 Q 110 75 110 90 L 110 110 L 90 110 Z" fill="#fff6e5" opacity="0.85" />
-                </svg>
-              </div>
-              <div class="play">Main</div>
-            </div>
-
-            <!-- 3. Sakramen -->
-            <div class="cat-card purple">
-              <div class="spark"></div><div class="spark2"></div>
-              <div>
-                <span class="badge">🍞 Sakramen</span>
-                <h3>Tujuh<br/>Sakramen</h3>
-                <div class="meta">21 soalan · 7 tahap</div>
-              </div>
-              <div class="illus">
-                <svg viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg">
-                  <!-- chalice -->
-                  <path d="M 40 50 Q 40 95 70 95 Q 100 95 100 50 Z" fill="#a78bfa" />
-                  <rect x="35" y="95" width="70" height="6" fill="#7c3aed" />
-                  <rect x="60" y="101" width="20" height="22" fill="#a78bfa" />
-                  <rect x="50" y="123" width="40" height="6" fill="#7c3aed" rx="2" />
-                  <!-- host (wafer) -->
-                  <circle cx="70" cy="38" r="14" fill="#ffb627" />
-                  <rect x="68" y="28" width="4" height="20" fill="#7c3aed" />
-                  <rect x="60" y="36" width="20" height="4" fill="#7c3aed" />
-                </svg>
-              </div>
-              <div class="play">Main</div>
+        <div class="greet-row">
+          <div class="avatar-block"><div class="avatar-cross"></div></div>
+          <div>
+            <div class="greet-text">
+              <strong>&#x271D;  SELAMAT DATANG</strong>
+              Saudara Andreas — Tuhan memberkati.
             </div>
           </div>
         </div>
 
-        <div class="hero-dots">
-          <span class="active"></span><span></span><span></span>
-        </div>
-
-        <!-- Recent quizzes -->
-        <div class="recent-row">
-          <div class="head">
-            <h4>Kuiz Terkini</h4>
-            <span class="more">Semua</span>
-          </div>
-          <div class="recent">
-            <div class="thumb">📖</div>
-            <div class="body">
-              <div class="ttl">Tahap 1 — Penciptaan</div>
-              <div class="sub">Alkitab · 2 jam lalu</div>
-            </div>
-            <div class="score">8/10</div>
-          </div>
-          <div class="recent green">
-            <div class="thumb">⛪</div>
-            <div class="body">
-              <div class="ttl">Tahap 2 — Tritunggal</div>
-              <div class="sub">Katekismus · Semalam</div>
-            </div>
-            <div class="score">9/10</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pill-nav">
-        <div class="item active">⌂</div>
-        <div class="item">🏆</div>
-        <div class="item">🔔</div>
-        <div class="item">👤</div>
-      </div>
-
-      <div class="phone-label">Home — Pilih Permainan</div>
-    </div>
-  </div>
-
-  <!-- 3. QUIZ PLAY -->
-  <div>
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="statusbar">
-        <span>9:41</span>
-        <span class="icons">●●● ▮</span>
-      </div>
-
-      <div class="quiz-screen">
-        <div class="quiz-top">
-          <div class="back-btn">‹</div>
-          <div class="hint-btn">☼</div>
-          <div class="qmeta">
-            <span class="label">03 Soalan</span>
-            <span class="counter">3 / 7</span>
-          </div>
+        <div class="continue-block">
+          <div class="label">&#x25B6; TERUSKAN KUIZ</div>
+          <div class="title">Tahap 5 — Musa &amp; 10 Perintah</div>
           <div class="progress"><div class="fill"></div></div>
+          <div class="play-btn"></div>
+          <div style="font-family: 'VT323', monospace; font-size: 14px; color: var(--cloud); margin-top: 2px;">6 / 10 soalan · tinggal lagi 4 lagi</div>
+        </div>
 
-          <div class="mascot">
-            <svg viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
-              <rect x="15" y="20" width="90" height="90" rx="8" fill="#e85a2a" />
-              <rect x="20" y="24" width="80" height="82" rx="4" fill="#ff6b35" />
-              <rect x="15" y="20" width="6" height="90" fill="#fff6e5" />
-              <rect x="99" y="20" width="6" height="90" fill="#fff6e5" />
-              <rect x="52" y="42" width="14" height="40" rx="2" fill="#ffb627" />
-              <rect x="42" y="55" width="34" height="14" rx="2" fill="#ffb627" />
-              <rect x="32" y="30" width="22" height="14" rx="5" fill="#1a1a1a" />
-              <rect x="62" y="30" width="22" height="14" rx="5" fill="#1a1a1a" />
-              <rect x="36" y="33" width="8" height="5" rx="1" fill="#4ade80" />
-              <rect x="66" y="33" width="8" height="5" rx="1" fill="#4ade80" />
-              <path d="M 48 76 Q 60 86 72 76" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" />
-            </svg>
-          </div>
+        <div class="section-title">SUMBER DAYA</div>
+        <div class="resources">
+          <div class="res-block"><div class="icon-block xp-icon"></div><span class="num">450</span><span class="lbl">XP</span></div>
+          <div class="res-block red"><div class="icon-block heart-icon"></div><span class="num">5</span><span class="lbl">NYAWA</span></div>
+          <div class="res-block gold"><div class="icon-block token-icon"></div><span class="num">120</span><span class="lbl">TOKEN</span></div>
+        </div>
+
+        <div class="section-title">TOPIK ALKITAB</div>
+        <div class="subjects">
+          <div class="subject-card"><div class="book"><div class="book-cover"></div></div><div class="name">ALKITAB</div><div class="lvl">12 Tahap</div></div>
+          <div class="subject-card alt"><div class="book"><div class="book-cover"></div></div><div class="name">SAKRAMEN</div><div class="lvl">7 Tahap</div></div>
+          <div class="subject-card"><div class="book"><div class="book-cover"></div></div><div class="name">KATEKISMUS</div><div class="lvl">15 Tahap</div></div>
+          <div class="subject-card alt"><div class="book"><div class="book-cover"></div></div><div class="name">SANTO</div><div class="lvl">10 Tahap</div></div>
+          <div class="subject-card"><div class="book"><div class="book-cover"></div></div><div class="name">LITURGI</div><div class="lvl">9 Tahap</div></div>
+          <div class="subject-card locked alt"><div class="book"><div class="book-cover"></div></div><div class="name">&#x1F512; SEJARAH</div><div class="lvl">Terbangun</div></div>
+        </div>
+
+        <div class="section-title">AYAT HARIAN</div>
+        <div class="chest-block">
+          <div class="lock"></div>
+          <div class="verse" style="font-style: italic;">"Pergilah ke seluruh dunia, beritakanlah Injil kepada segala makhluk."</div>
+          <div class="ref">— MARKUS 16:15 &#x271D;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item active" data-tab="home" data-target="home"><div class="icon glyph-home"></div>UTAMA</div>
+      <div class="tab-item" data-tab="home" data-target="kuiz"><div class="icon book"></div>KUIZ</div>
+      <div class="tab-item" data-tab="home" data-target="papan"><div class="icon glyph-trophy"></div>PAPAN</div>
+      <div class="tab-item" data-tab="home" data-target="profil"><div class="icon glyph-user"></div>PROFIL</div>
+    </div>
+  </div>
+
+  <!-- ============== PHONE 2: KUIZ ============== -->
+  <div class="phone">
+    <div class="phone-title">v5 · KUIZ TAB</div>
+    <div class="status-bar"><span>9:41</span><span>&#x20a6; 5 nyawa · lvl 4</span><span>&#x25C6; 86%</span></div>
+    <div class="screen">
+      <div class="tab-screen active" data-tab-screen="kuiz">
+        <div class="tab-bar-title">&#x271D;  PILIH TAHAP — ALKITAB</div>
+        <div class="level-grid">
+          <div class="lvl-tile done">1</div><div class="lvl-tile done">2</div><div class="lvl-tile done">3</div><div class="lvl-tile done">4</div>
+          <div class="lvl-tile unlock">5</div><div class="lvl-tile">6</div><div class="lvl-tile">7</div><div class="lvl-tile">8</div>
+          <div class="lvl-tile">9</div><div class="lvl-tile">10</div><div class="lvl-tile">11</div><div class="lvl-tile">12</div>
+          <div class="lvl-tile locked">13</div><div class="lvl-tile locked">14</div><div class="lvl-tile locked">15</div><div class="lvl-tile locked">16</div>
+        </div>
+
+        <div class="tab-bar-title">&#x271D;  KUIZ PLAY — TAHAP 5</div>
+        <div class="quiz-header">
+          <div class="back">&#x25C0;</div>
+          <span style="font-family: 'Press Start 2P', monospace; font-size: 9px;">SOALAN 6 / 10</span>
+          <div class="lives"><div class="h"></div><div class="h"></div><div class="h"></div><div class="h"></div><div class="h"></div></div>
         </div>
 
         <div class="quiz-body">
-          <div class="question">Apakah kitab pertama dalam Perjanjian Baru?</div>
-          <div class="options">
-            <div class="option"><div class="dot"></div><div class="text">Kejadian</div></div>
-            <div class="option"><div class="dot"></div><div class="text">Mazmur</div></div>
-            <div class="option selected"><div class="dot"></div><div class="text">Matius</div></div>
-            <div class="option"><div class="dot"></div><div class="text">Wahyu</div></div>
+          <div class="quiz-cat">&#x271D; LIMA BUKA · KITAB KELUARAN</div>
+          <div class="q-card">
+            <div class="q-text">Apakah gunung tempat Musa menerima Sepuluh Perintah Allah?</div>
+            <div class="scripture">— KELUARAN 19:20 &#x271D;</div>
           </div>
+
+          <div class="timer-bar"><div class="fill"></div></div>
+
+          <button class="opt"><span class="ltr">A</span>Gunung Sinai</button>
+          <button class="opt correct"><span class="ltr">B</span>Gunung Horeb <span style="color:var(--cross-white); margin-left:6px; font-family:'Press Start 2P';font-size:8px;">&#x2713;</span></button>
+          <button class="opt wrong"><span class="ltr">C</span>Gunung Karmel <span style="color:var(--cross-white); margin-left:6px; font-family:'Press Start 2P';font-size:8px;">&#x2717;</span></button>
+          <button class="opt"><span class="ltr">D</span>Gunung Zaitun</button>
+
+          <div class="powerups">
+            <div class="pu">50/50<span class="cost">2 token</span></div>
+            <div class="pu hint">PETUNJUK<span class="cost">1 token</span></div>
+          </div>
+
+          <button class="next-btn">&#x25B6; SETERUSNYA</button>
         </div>
-
-        <div class="quiz-continue">Seterusnya</div>
       </div>
+    </div>
 
-      <div class="phone-label">Quiz Play</div>
+    <div class="tab-bar">
+      <div class="tab-item" data-tab="kuiz" data-target="home"><div class="icon glyph-home"></div>UTAMA</div>
+      <div class="tab-item active" data-tab="kuiz" data-target="kuiz"><div class="icon book"></div>KUIZ</div>
+      <div class="tab-item" data-tab="kuiz" data-target="papan"><div class="icon glyph-trophy"></div>PAPAN</div>
+      <div class="tab-item" data-tab="kuiz" data-target="profil"><div class="icon glyph-user"></div>PROFIL</div>
     </div>
   </div>
 
-  <!-- 4. PROFILE -->
-  <div>
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="statusbar">
-        <span>9:41</span>
-        <span class="icons">●●● ▮</span>
-      </div>
-      <div class="sparkles">
-        <span class="s1">✦</span>
-        <span class="s2">✧</span>
-      </div>
+  <!-- ============== PHONE 3: PROFIL ============== -->
+  <div class="phone">
+    <div class="phone-title">v5 · PROFIL</div>
+    <div class="status-bar"><span>9:41</span><span>&#x20a6; 5 nyawa · lvl 4</span><span>&#x25C6; 86%</span></div>
+    <div class="screen">
+      <div class="tab-screen active" data-tab-screen="profil">
+        <div class="profile-hero"><div class="profile-skin"></div></div>
 
-      <div class="profile-screen">
-        <div class="profile-head">
-          <h2>Profil Saya</h2>
-          <div class="settings">⚙</div>
-        </div>
-
-        <div class="profile-hero">
-          <div class="profile-avatar">⛪</div>
-          <div class="profile-name">Sean Bram</div>
-          <div class="profile-handle">@carolang12</div>
+        <div class="profile-name-row">
+          <div>
+            <div class="name">ANDREAS<br/><span style="font-size:9px;color:var(--stained-blue);">@andreas_k</span></div>
+          </div>
+          <div style="margin-left:auto;"><span class="level-chip">LVL 4</span></div>
         </div>
 
         <div class="stats-grid">
-          <div class="stat">
-            <div class="top">
-              <div class="ico" style="background:var(--orange-soft);color:var(--orange-dark)">🔥</div>
-            </div>
-            <div class="v">210</div>
-            <div class="lbl">Streak Menang</div>
-          </div>
-          <div class="stat">
-            <div class="top">
-              <div class="ico" style="background:#d6f5e0;color:var(--green-deep)">📘</div>
-            </div>
-            <div class="v">10</div>
-            <div class="lbl">Jumlah Kuiz</div>
-          </div>
-          <div class="stat">
-            <div class="top">
-              <div class="ico" style="background:#e8e3ff;color:#6d4ed1">👥</div>
-            </div>
-            <div class="v">40</div>
-            <div class="lbl">Rakan</div>
-          </div>
-          <div class="stat">
-            <div class="top">
-              <div class="ico" style="background:#fff1c2;color:var(--gold-deep)">📊</div>
-            </div>
-            <div class="v">93%</div>
-            <div class="lbl">Skor Tinggi</div>
-          </div>
+          <div class="stat-block gold"><div class="icon-mini">7</div><div class="val">7</div><div class="lbl">STREAK</div></div>
+          <div class="stat-block"><div class="icon-mini">12</div><div class="val">12</div><div class="lbl">TAHAP</div></div>
+          <div class="stat-block red"><div class="icon-mini">&#x2665;</div><div class="val">5</div><div class="lbl">NYAWA</div></div>
+          <div class="stat-block alt"><div class="icon-mini">&#x2713;</div><div class="val">87%</div><div class="lbl">KETEPATAN</div></div>
         </div>
 
-        <div class="monthly-card">
-          <div class="top">
-            <span class="label">BULANAN</span>
-            <span class="pill-sm">Bulanan</span>
-          </div>
-          <div class="msg">Anda telah bermain <b>24 kuiz</b> bulan ini!</div>
-          <div class="ring-wrap">
-            <svg viewBox="0 0 100 100">
-              <circle class="ring-bg" cx="50" cy="50" r="42" fill="none" stroke-width="9" />
-              <circle class="ring-fg" cx="50" cy="50" r="42" fill="none" stroke-width="9"
-                      stroke-dasharray="263.9" stroke-dashoffset="68" stroke-linecap="round" />
-            </svg>
-            <div class="v">37<small>/50</small></div>
-          </div>
+        <div class="section-title">MENU</div>
+        <div class="menu">
+          <div class="menu-item"><div class="ic">&#x2605;</div><div class="mlbl">Pencapaian</div><div class="arr">&#x25B6;</div></div>
+          <div class="menu-item"><div class="ic" style="background:var(--stained-blue); color:var(--cross-white);">&#x269D;</div><div class="mlbl">Parish saya</div><div class="arr">&#x25B6;</div></div>
+          <div class="menu-item"><div class="ic" style="background:var(--gold); color:var(--withered);">&#x2728;</div><div class="mlbl">Premium (emas)</div><div class="arr">&#x25B6;</div></div>
+          <div class="menu-item"><div class="ic" style="background:var(--stained-red); color:var(--cross-white);">&#x2716;</div><div class="mlbl">Log Keluar</div><div class="arr">&#x25B6;</div></div>
         </div>
-      </div>
 
-      <div class="pill-nav">
-        <div class="item">⌂</div>
-        <div class="item">🏆</div>
-        <div class="item">🔔</div>
-        <div class="item active">👤 Profil</div>
+        <div style="text-align:center; padding: 12px; font-family: 'VT323', monospace; font-size: 12px; color: var(--dirt);">&#x271D; Tuhan memberkati hari anda &#x271D;<br/>KatolikGo v1.0.0</div>
       </div>
+    </div>
 
-      <div class="phone-label">Profile</div>
+    <div class="tab-bar">
+      <div class="tab-item" data-tab="profil" data-target="home"><div class="icon glyph-home"></div>UTAMA</div>
+      <div class="tab-item" data-tab="profil" data-target="kuiz"><div class="icon book"></div>KUIZ</div>
+      <div class="tab-item" data-tab="profil" data-target="papan"><div class="icon glyph-trophy"></div>PAPAN</div>
+      <div class="tab-item active" data-tab="profil" data-target="profil"><div class="icon glyph-user"></div>PROFIL</div>
     </div>
   </div>
 
-  <!-- 5. LEADERBOARD -->
-  <div>
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="statusbar">
-        <span>9:41</span>
-        <span class="icons">●●● ▮</span>
-      </div>
-      <div class="sparkles">
-        <span class="s1">✦</span>
-        <span class="s3">✧</span>
-        <span class="s2">✦</span>
-      </div>
-
-      <div class="lb-screen">
-        <div class="lb-head">
-          <h2>Papan Pendahulu</h2>
-        </div>
-
-        <div class="tabs">
-          <div class="t">Hari Ini</div>
-          <div class="t">Mingguan</div>
-          <div class="t active">Bulanan</div>
-        </div>
-
-        <div class="podium">
-          <div class="col">
-            <div class="av" style="background:#5a8ed1">EC<div class="ring"></div></div>
-            <div class="name">Ethan Carter</div>
-            <div class="coins">$ 632</div>
-            <div class="bar second">2</div>
+  <!-- ============== PHONE 4: PAPAN ============== -->
+  <div class="phone">
+    <div class="phone-title">v5 · PAPAN</div>
+    <div class="status-bar"><span>9:41</span><span>&#x20a6; 5 nyawa · lvl 4</span><span>&#x25C6; 86%</span></div>
+    <div class="screen">
+      <div class="tab-screen active" data-tab-screen="papan">
+        <div class="leaderboard-title">&#x2728; PAPAN PENDUDUK &#x2728;</div>
+        <div class="podium-area">
+          <div class="podium-pillar silver podium-2">
+            <div class="podium-avatar"><div class="a"></div></div>
+            <span class="rank">2</span><span class="name">Bernadette</span><span class="pts">1,250 XP</span>
           </div>
-          <div class="col">
-            <div class="av" style="background:#ff8a4a">NM<div class="ring"></div></div>
-            <div class="name">Noah Martinez</div>
-            <div class="coins">$ 741</div>
-            <div class="bar first">1</div>
+          <div class="podium-pillar gold podium-1">
+            <div class="podium-avatar"><div class="a"></div></div>
+            <span class="rank">1</span><span class="name">Andreas</span><span class="pts">2,100 XP</span>
+            <span style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); font-size:14px; color:var(--gold-light); text-shadow:1px 1px 0 var(--withered);">&#x2728;</span>
           </div>
-          <div class="col">
-            <div class="av" style="background:#5cb87a">RK<div class="ring"></div></div>
-            <div class="name">Ryan Kim</div>
-            <div class="coins">$ 741</div>
-            <div class="bar third">3</div>
+          <div class="podium-pillar bronze podium-3">
+            <div class="podium-avatar"><div class="a"></div></div>
+            <span class="rank">3</span><span class="name">Cornelius</span><span class="pts">980 XP</span>
           </div>
         </div>
 
-        <div class="lb-list">
-          <div class="lb-row">
-            <div class="rank">4</div>
-            <div class="av-sm" style="background:#d18a5a">MD</div>
-            <div class="nm">Madelyn Dias</div>
-            <div class="pts">$ 590</div>
-          </div>
-          <div class="lb-row">
-            <div class="rank">5</div>
-            <div class="av-sm" style="background:#a07ad1">LM</div>
-            <div class="nm">Liam Murphy</div>
-            <div class="pts">$ 521</div>
-          </div>
+        <div class="rank-list">
+          <div class="rank-row"><span class="rank-n">4</span><div class="av">&#x2713;</div><span>Maria S.</span><span class="trend down">&#x25BC; 7</span></div>
+          <div class="rank-row"><span class="rank-n">5</span><div class="av">&#x2605;</div><span>Yusuf K.</span><span class="trend up">&#x25B2; 12</span></div>
+          <div class="rank-row"><span class="rank-n">6</span><div class="av">&#x2605;</div><span>Petra A.</span><span class="trend same">—</span></div>
+          <div class="rank-row"><span class="rank-n">7</span><div class="av">&#x2605;</div><span>Daniel L.</span><span class="trend up">&#x25B2; 3</span></div>
+          <div class="rank-row"><span class="rank-n">8</span><div class="av">&#x2605;</div><span>Elisabeth</span><span class="trend down">&#x25BC; 5</span></div>
         </div>
       </div>
+    </div>
 
-      <div class="pill-nav">
-        <div class="item">⌂</div>
-        <div class="item active">🏆 Ranking</div>
-        <div class="item">🔔</div>
-        <div class="item">👤</div>
-      </div>
-
-      <div class="phone-label">Leaderboard</div>
+    <div class="tab-bar">
+      <div class="tab-item" data-tab="papan" data-target="home"><div class="icon glyph-home"></div>UTAMA</div>
+      <div class="tab-item" data-tab="papan" data-target="kuiz"><div class="icon book"></div>KUIZ</div>
+      <div class="tab-item active" data-tab="papan" data-target="papan"><div class="icon glyph-trophy"></div>PAPAN</div>
+      <div class="tab-item" data-tab="papan" data-target="profil"><div class="icon glyph-user"></div>PROFIL</div>
     </div>
   </div>
 
 </div>
+
+<script>
+// Each phone shows one tab's screen + its own tab-bar.
+// For full switching (each phone cycles its tabs locally), wire tab-items to swap their SIBLING tab-screens.
+document.querySelectorAll('.tab-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const phone = item.closest('.phone');
+    const target = item.dataset.target;
+    // Hide all screens in this phone
+    phone.querySelectorAll('.tab-screen').forEach(s => s.classList.remove('active'));
+    // Find the matching screen (by data-tab-screen)
+    phone.querySelectorAll(`.tab-screen[data-tab-screen="${target}"]`).forEach(s => s.classList.add('active'));
+    // Update active tab
+    phone.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+</script>
 
 </body>
 </html>
