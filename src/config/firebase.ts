@@ -2,20 +2,41 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import * as firebaseAuth from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // `getReactNativePersistence` ships in firebase's React-Native bundle but
 // isn't surfaced in the generic `firebase/auth` typings (TypeScript's
 // customConditions don't propagate through the barrel re-export). At
-// runtime the symbol is present when bundling for `react-native`, so we
-// pluck it off the runtime module via a typed accessor.
-const getReactNativePersistence = (firebaseAuth as any)
-  .getReactNativePersistence as (
-  storage: typeof AsyncStorage
-) => Parameters<typeof firebaseAuth.initializeAuth>[1] extends infer D
-  ? D extends { persistence?: infer P }
-    ? P
-    : never
-  : never;
+// runtime the symbol is present when bundling for `react-native` AND
+// absent on `web` (Firebase web uses IndexedDB natively — there is no
+// "react-native persistence" shim to install). Calling it on web throws
+// `TypeError: getReactNativePersistence is not a function`, which the
+// catch in the auth-init IIFE below swallows and falls back to
+// `getAuth(app)` — but the symptom is a noisy red-screen-y warning on
+// every web bundle and (worse) `initializeAuth` returning the wrong
+// auth instance, which silently disables the `rememberMe` gate on web.
+//
+// We platform-gate the shim: on web, `usePersistence` is `null` and
+// `initializeAuth` is skipped entirely in favour of the default
+// `getAuth(app)` call (which is IndexedDB-backed on web — exactly what
+// we want there). On iOS / Android the RN-shim path is preserved as
+// before.
+//
+// Pluck via a typed accessor rather than a top-level import so the
+// Metro bundle per-platform still pulls in the right
+// `getReactNativePersistence` symbol when one is present.
+const usePersistence: typeof AsyncStorage | null =
+  Platform.OS === 'web'
+    ? null
+    : ((firebaseAuth as any).getReactNativePersistence as (
+        storage: typeof AsyncStorage
+      ) => Parameters<typeof firebaseAuth.initializeAuth>[1] extends infer D
+        ? D extends { persistence?: infer P }
+          ? P
+          : never
+        : never) != null
+    ? AsyncStorage
+    : null;
 
 // ----------------------------------------------------------------------------
 // Required Firebase runtime config.
@@ -94,9 +115,23 @@ export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const { initializeAuth, getAuth } = firebaseAuth;
 
 export const auth = (() => {
+  // Web: Firebase Auth uses IndexedDB natively and there is no
+  // AsyncStorage-style persistence shim to install. `getAuth(app)`
+  // returns the singleton web auth instance with the correct default
+  // storage. Skip `initializeAuth` outright so we don't throw on the
+  // missing `getReactNativePersistence` symbol.
+  if (Platform.OS === 'web' || usePersistence === null) {
+    return getAuth(app);
+  }
+
+  // iOS / Android: install the AsyncStorage-backed React Native
+  // persistence shim so auth state survives cold starts and the
+  // `rememberMe` gate in AuthContext sees a real session on relaunch.
   try {
     return initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage),
+      persistence: (firebaseAuth as any).getReactNativePersistence(
+        usePersistence
+      ),
     });
   } catch (err) {
     // Auth may already be initialized on fast-refresh / re-import. Use

@@ -1,157 +1,123 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter, useNavigation } from 'expo-router';
-import { useState, useLayoutEffect } from 'react';
-import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
-import { Routes } from '@/constants/routes';
+import { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+  TouchableOpacity,
+  type ViewToken,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { Colors, Spacing, FontSize, BorderRadius, FontFamily } from '@/constants/theme';
+import { Routes } from '@/constants/routes';
 
-type OnboardingSlide = {
-  id: number;
-  title: string;
-  subtitle: string;
-  bgColor: string;
-  emoji: string;
-  badge?: string;
-};
+const { width } = Dimensions.get('window');
 
-const SLIDES: OnboardingSlide[] = [
+const SLIDES = [
   {
-    id: 1,
-    title: 'Belajar Iman\nYang Menyeronokkan',
-    subtitle: 'Main, belajar, dan mendalami iman Katolik dengan cara yang menyeronokkan dan interaktif',
-    bgColor: '#DBEAFE', // Light blue
-    emoji: '📖',
-    badge: '📚 Pelajaran',
+    id: '1',
+    icon: 'book' as const,
+    title: 'Selamat Datang',
+    desc: 'Terokai iman Katolik melalui kuiz interaktif yang menyeronokkan.',
   },
   {
-    id: 2,
-    title: 'Teka Gambar\n"Siapa Saya?"',
-    subtitle: 'Teka tokoh Alkitab, Para Kudus, Paus & objek liturgi melalui gambar visual',
-    bgColor: '#FCE7F3', // Light pink
-    emoji: '🖼️',
-    badge: '🧩 Teka',
+    id: '2',
+    icon: 'trophy' as const,
+    title: 'Uji Pengetahuan',
+    desc: 'Kumpul XP, token, dan naikkan tahap anda dalam perjalanan iman.',
   },
   {
-    id: 3,
-    title: 'Bersaing Dengan\nKomuniti',
-    subtitle: 'Bersaing dalam papan pendahulu dengan umat Kristian seluruh dunia. Naik ranking!',
-    bgColor: '#D1FAE5', // Light green
-    emoji: '🏆',
-    badge: '🎮 Seru!',
-  },
-  {
-    id: 4,
-    title: 'Kumpul Ganjaran\n& Pencapaian',
-    subtitle: 'Dapatkan token, XP, dan lencana digital untuk dikongsi dengan rakan',
-    bgColor: '#FEF3C7', // Light yellow
-    emoji: '🎁',
-    badge: '✨ Ganjaran',
+    id: '3',
+    icon: 'people' as const,
+    title: 'Sertai Komuniti',
+    desc: 'Beradu dengan rakan-rakan dan daki carta pendahulu.',
   },
 ];
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
-  const { user, markOnboarded } = useAuth();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const { markOnboarded } = useAuth();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
 
-  // Root layout uses <Slot /> instead of <Stack />, so this screen has no
-  // parent Stack to inherit header options from. Set them inline so the
-  // native-stack header doesn't appear over the onboarding artwork.
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
-
-  const handleNext = async () => {
-    if (currentSlide < SLIDES.length - 1) {
-      setCurrentSlide(currentSlide + 1);
-      return;
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems.length > 0 && viewableItems[0].index != null) {
+        setCurrentIndex(viewableItems[0].index);
+      }
     }
-    // Last slide: persist "onboarded" flag (AsyncStorage + in-memory state
-    // via AuthContext), then let AuthGate route based on whether we're
-    // signed in.
-    await markOnboarded();
-    if (user) {
-      router.replace(Routes.HOME);
+  ).current;
+
+  const handleNext = () => {
+    if (currentIndex < SLIDES.length - 1) {
+      flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
-      router.replace(Routes.LOGIN);
+      finish();
     }
   };
 
-  const handleSkip = async () => {
-    await markOnboarded();
-    if (user) {
-      router.replace(Routes.HOME);
-    } else {
-      router.replace(Routes.LOGIN);
-    }
-  };
+  const handleSkip = () => finish();
 
-  const slide = SLIDES[currentSlide];
-  const isLast = currentSlide === SLIDES.length - 1;
+  const finish = async () => {
+    await markOnboarded();
+    router.replace(Routes.HOME);
+  };
 
   return (
     <View style={styles.container}>
-      {/* Top Color Block Section */}
-      <View style={[styles.topSection, { backgroundColor: slide.bgColor }]}>
-        {/* Skip Button */}
-        {!isLast && (
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipText}>Langkau →</Text>
-          </TouchableOpacity>
-        )}
+      {/* Background orbs */}
+      <View style={styles.bgPattern} pointerEvents="none">
+        <View style={[styles.blurOrb, styles.blurGold]} />
+        <View style={[styles.blurOrb, styles.blurNavy]} />
+      </View>
 
-        {/* Badge */}
-        {slide.badge && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{slide.badge}</Text>
+      {/* Skip */}
+      <TouchableOpacity style={styles.skipBtn} onPress={handleSkip}>
+        <Text style={styles.skipText}>Langkau</Text>
+      </TouchableOpacity>
+
+      {/* Slides */}
+      <FlatList
+        ref={flatListRef}
+        data={SLIDES}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+        renderItem={({ item }) => (
+          <View style={styles.slide}>
+            <View style={styles.iconHalo} />
+            <View style={styles.iconCircle}>
+              <Ionicons name={item.icon} size={48} color={Colors.secondary} />
+            </View>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.desc}>{item.desc}</Text>
           </View>
         )}
+      />
 
-        {/* Emoji Hero */}
-        <View style={styles.emojiContainer}>
-          <Text style={styles.emoji}>{slide.emoji}</Text>
-        </View>
-
-        {/* Decorative circles */}
-        <View style={[styles.decorCircle, styles.circle1]} />
-        <View style={[styles.decorCircle, styles.circle2]} />
-        <View style={[styles.decorCircle, styles.circle3]} />
+      {/* Dots */}
+      <View style={styles.dotsRow}>
+        {SLIDES.map((_, i) => (
+          <View
+            key={i}
+            style={[styles.dot, i === currentIndex && styles.dotActive]}
+          />
+        ))}
       </View>
 
-      {/* Bottom White Content */}
-      <View style={styles.bottomSection}>
-        <Text style={styles.title}>{slide.title}</Text>
-        <Text style={styles.subtitle}>{slide.subtitle}</Text>
-
-        {/* Pagination dots */}
-        <View style={styles.pagination}>
-          {SLIDES.map((_, idx) => (
-            <View
-              key={idx}
-              style={[
-                styles.dot,
-                idx === currentSlide && styles.dotActive,
-              ]}
-            />
-          ))}
-        </View>
-
-        {/* Buttons */}
-        <View style={styles.buttons}>
-          <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
-            <Text style={styles.primaryButtonText}>
-              {isLast ? 'Mula Sekarang' : 'Seterusnya'}
-            </Text>
-          </TouchableOpacity>
-
-          {!isLast && (
-            <TouchableOpacity style={styles.secondaryButton} onPress={handleSkip}>
-              <Text style={styles.secondaryButtonText}>Saya Dah Ada Akaun</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+      {/* CTA */}
+      <TouchableOpacity style={styles.ctaBtn} onPress={handleNext}>
+        <Text style={styles.ctaText}>
+          {currentIndex === SLIDES.length - 1 ? 'Mula' : 'Seterusnya'}
+        </Text>
+        <Ionicons name="arrow-forward" size={20} color={Colors.navyDark} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -159,108 +125,90 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
-  },
-  topSection: {
-    flex: 1,
+    backgroundColor: Colors.navyDark,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
   },
-  skipButton: {
+  bgPattern: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  blurOrb: {
     position: 'absolute',
-    top: 50,
-    right: 20,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+  },
+  blurGold: {
+    top: 100,
+    right: -60,
+    backgroundColor: 'rgba(236,194,70,0.15)',
+  },
+  blurNavy: {
+    bottom: 100,
+    left: -80,
+    backgroundColor: 'rgba(26,58,92,0.4)',
+  },
+
+  // Skip
+  skipBtn: {
+    position: 'absolute',
+    top: 60,
+    right: Spacing.lg,
     zIndex: 10,
   },
   skipText: {
-    color: Colors.primary,
     fontSize: FontSize.sm,
-    fontWeight: '600',
+    fontFamily: FontFamily.body,
+    color: Colors.onSurfaceVariant,
   },
-  badge: {
+
+  // Slide
+  slide: {
+    width,
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+  },
+  iconHalo: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(236,194,70,0.15)',
     position: 'absolute',
-    top: 110,
-    left: 20,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
-    borderRadius: BorderRadius.round,
+    top: -10,
   },
-  badgeText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: 'bold',
-  },
-  emojiContainer: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: Colors.white,
+  iconCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(14,42,77,0.8)',
+    borderWidth: 2,
+    borderColor: Colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  emoji: {
-    fontSize: 100,
-  },
-  decorCircle: {
-    position: 'absolute',
-    borderRadius: 100,
-    backgroundColor: Colors.white,
-    opacity: 0.3,
-  },
-  circle1: {
-    width: 80,
-    height: 80,
-    top: 80,
-    right: -20,
-  },
-  circle2: {
-    width: 50,
-    height: 50,
-    bottom: 60,
-    left: 20,
-  },
-  circle3: {
-    width: 30,
-    height: 30,
-    top: 200,
-    right: 60,
-  },
-  bottomSection: {
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    marginTop: -32,
+    marginBottom: Spacing.xl,
+    marginTop: 40,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontSize: FontSize.xxl,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.creamSoft,
     textAlign: 'center',
-    marginBottom: Spacing.md,
-    lineHeight: 36,
+    marginBottom: Spacing.sm,
   },
-  subtitle: {
+  desc: {
     fontSize: FontSize.md,
-    color: Colors.light.textSecondary,
+    fontFamily: FontFamily.body,
+    color: Colors.onSurfaceVariant,
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: Spacing.lg,
+    lineHeight: 24,
+    paddingHorizontal: Spacing.lg,
   },
-  pagination: {
+
+  // Dots
+  dotsRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: 'center',
     gap: 8,
     marginBottom: Spacing.xl,
   },
@@ -268,38 +216,30 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.border,
+    backgroundColor: Colors.onSurfaceVariant,
+    opacity: 0.4,
   },
   dotActive: {
-    backgroundColor: Colors.accent,
-    width: 24,
+    width: 28,
+    backgroundColor: Colors.secondary,
+    opacity: 1,
   },
-  buttons: {
-    gap: Spacing.sm,
-  },
-  primaryButton: {
-    backgroundColor: Colors.accent,
-    paddingVertical: Spacing.md,
+
+  // CTA
+  ctaBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: Colors.secondary,
     borderRadius: BorderRadius.round,
-    alignItems: 'center',
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    marginBottom: 60,
   },
-  primaryButtonText: {
-    color: Colors.white,
+  ctaText: {
     fontSize: FontSize.md,
-    fontWeight: 'bold',
-  },
-  secondaryButton: {
-    paddingVertical: Spacing.sm,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: Colors.primary,
-    fontSize: FontSize.sm,
-    fontWeight: '600',
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+    color: Colors.navyDark,
   },
 });

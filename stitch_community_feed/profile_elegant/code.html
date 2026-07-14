@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profil KatolikGo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .halo-glow {
+            box-shadow: 0 0 20px rgba(236, 194, 70, 0.3);
+        }
+        .glass-card {
+            background: rgba(30, 32, 29, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.15);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-container": "#352800",
+                        "tertiary-fixed": "#ffdad9",
+                        "surface-tint": "#abc9f2",
+                        "surface": "#121411",
+                        "secondary-container": "#b18c09",
+                        "tertiary": "#ffb3b2",
+                        "error-container": "#93000a",
+                        "halo-glow-color": "rgba(201, 162, 39, 0.3)",
+                        "primary-fixed-dim": "#abc9f2",
+                        "on-secondary-fixed-variant": "#584400",
+                        "on-tertiary-fixed-variant": "#871e28",
+                        "on-tertiary-fixed": "#410008",
+                        "on-primary-fixed": "#001c37",
+                        "surface-container-high": "#292a27",
+                        "primary": "#abc9f2",
+                        "on-error": "#690005",
+                        "secondary": "#ecc246",
+                        "status-error": "#c62828",
+                        "primary-fixed": "#d2e4ff",
+                        "inverse-surface": "#e3e3de",
+                        "on-surface-variant": "#c3c6cf",
+                        "on-secondary-fixed": "#241a00",
+                        "tertiary-container": "#730e1c",
+                        "on-secondary": "#3d2e00",
+                        "on-primary-container": "#87a4cc",
+                        "on-primary-fixed-variant": "#2a486b",
+                        "on-background": "#e3e3de",
+                        "inverse-primary": "#436084",
+                        "secondary-fixed-dim": "#ecc246",
+                        "secondary-fixed": "#ffe08e",
+                        "on-tertiary-container": "#ff787c",
+                        "tertiary-fixed-dim": "#ffb3b2",
+                        "surface-container-low": "#1a1c19",
+                        "background": "#121411",
+                        "primary-container": "#1a3a5c",
+                        "surface-container": "#1e201d",
+                        "surface-container-highest": "#333532",
+                        "inverse-on-surface": "#2f312e",
+                        "navy-dark": "#0e2a4d",
+                        "surface-bright": "#383a36",
+                        "on-surface": "#e3e3de",
+                        "surface-variant": "#333532",
+                        "on-tertiary": "#670315",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0d0f0c",
+                        "on-primary": "#103253",
+                        "cream-soft": "#fdfaf0",
+                        "outline-variant": "#43474e",
+                        "outline": "#8d9199",
+                        "surface-dim": "#121411"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin-mobile": "20px",
+                        "base": "8px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "version-text": ["Inter"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-secondary/30">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young Malaysian Catholic man with a friendly expression, styled in a professional photographic manner. The lighting is warm and cinematic, emphasizing gold and deep navy tones. He is wearing a simple dark blue shirt, and the background is a soft-focus interior of a modern cathedral with stained glass light filtering through." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9_oisGTOYhTkk7Rx7F8K6YibxULrPhneK1jX2-E72mfe3PF4_TxsLlTBr5aH7ZzUlZYmSTnu_SYqrJzzGAbw4SXF3H4sGj5mXEaMJwd2u5LRoUoOa9lkrcHkR3IaI4XthzB59SCpfCeI1WdZabvLUCkwdHBY5Luiuyv3xIOk-nGvbQ7Rl4Ji_ZaAhNJfxkbk_TIwqwj18NRTyvDa1-eeOs2AU5zd_oZpqT7EHadaAKe6uASLyEs1y5HsP7H02CmMgDr2aCzTqRg62"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-secondary">KatolikGo</h1>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full">
+<span class="text-secondary text-[14px] font-bold">1,250</span>
+<span class="material-symbols-outlined text-secondary text-[18px]">monetization_on</span>
+</div>
+</header>
+<main class="pt-24 px-margin-mobile max-w-2xl mx-auto">
+<!-- Hero Profile Section -->
+<section class="flex flex-col items-center mb-xl">
+<div class="relative mb-md">
+<!-- Gold Halo Border -->
+<div class="absolute inset-[-6px] rounded-full border-2 border-secondary halo-glow opacity-80 animate-pulse"></div>
+<div class="w-32 h-32 rounded-full border-4 border-background overflow-hidden relative z-10">
+<img class="w-full h-full object-cover" data-alt="A high-quality, close-up portrait of a devout person looking forward with a calm and encouraging expression. The aesthetic is premium and modern, set against a deep navy blue background with subtle golden particle effects floating in the air. The lighting is dramatic, highlighting the contours of the face with a warm, devotional glow that suggests spiritual peace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMbGa6Bcvj6vpL8ORBu6kA1r2n2LnFH-1ZWu_NYENQ0g4gg0M0xegp42ILNQ7MF_EV6YWVQzGFSjmNERprR5MLc1Kt8VfciYhEhNiKzzjaLuH_If5wZ7DmBK9eQoadWYEagVVkPCnbxw8tLCJjafCvc_VluFlQr0DIraNkAyX_rKs_MM2RYN4xv5DGmzSR0CbcFV8aLMT0ZDmFDW1G8i92Pi8Wuci6NVZ4N_JYor5AV-7exO-tv19IfI-ENL1hQVpLZOfV3EaJv9ES"/>
+</div>
+<div class="absolute bottom-0 right-0 z-20 bg-secondary text-on-secondary-container w-8 h-8 rounded-full flex items-center justify-center border-2 border-background shadow-lg">
+<span class="material-symbols-outlined text-[18px] font-bold">verified</span>
+</div>
+</div>
+<div class="text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-xs">Gabriel Wong</h2>
+<p class="font-label-md text-label-md text-secondary uppercase tracking-widest">Akolit Setia</p>
+</div>
+</section>
+<!-- Stats Grid (Thin Lines & Gold Icons) -->
+<section class="grid grid-cols-3 border-y border-outline-variant/30 py-lg mb-xl">
+<div class="flex flex-col items-center border-r border-outline-variant/30">
+<span class="material-symbols-outlined text-secondary mb-1">bolt</span>
+<span class="font-headline-md text-headline-md text-on-surface">15.4k</span>
+<span class="font-version-text text-version-text text-on-surface-variant uppercase">Jumlah XP</span>
+</div>
+<div class="flex flex-col items-center border-r border-outline-variant/30">
+<span class="material-symbols-outlined text-secondary mb-1">military_tech</span>
+<span class="font-headline-md text-headline-md text-on-surface">#12</span>
+<span class="font-version-text text-version-text text-on-surface-variant uppercase">Peringkat</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary mb-1">quiz</span>
+<span class="font-headline-md text-headline-md text-on-surface">142</span>
+<span class="font-version-text text-version-text text-on-surface-variant uppercase">Kuiz Selesai</span>
+</div>
+</section>
+<!-- Monthly Progress & Goals -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-xl">
+<!-- Monthly Progress Ring -->
+<div class="glass-card p-lg rounded-xl flex flex-col items-center justify-center text-center">
+<div class="relative w-32 h-32 mb-md">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary progress-ring-circle" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-secondary leading-none">75%</span>
+<span class="text-[10px] uppercase font-bold text-on-surface-variant">Bulan Ini</span>
+</div>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Sasaran Rohani</h3>
+<p class="text-xs text-on-surface-variant">3 lagi kuiz untuk mencapai lencana mingguan.</p>
+</div>
+<!-- Achievement Preview -->
+<div class="glass-card p-lg rounded-xl flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<h3 class="font-label-md text-label-md text-on-surface">Pencapaian Terkini</h3>
+<span class="material-symbols-outlined text-secondary">star_half</span>
+</div>
+<div class="flex -space-x-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center border-2 border-background" title="Pencari Kebenaran">
+<span class="material-symbols-outlined text-on-secondary-container text-md">menu_book</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center border-2 border-background" title="Pendoa Setia">
+<span class="material-symbols-outlined text-primary text-md">church</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center border-2 border-background" title="Penjelajah Iman">
+<span class="material-symbols-outlined text-tertiary text-md">explore</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center border-2 border-background">
+<span class="text-[10px] font-bold text-on-surface-variant">+8</span>
+</div>
+</div>
+<button class="mt-4 w-full py-2 rounded-lg border border-secondary/20 text-secondary text-label-md font-bold hover:bg-secondary/10 transition-colors">Lihat Semua</button>
+</div>
+</div>
+<!-- Account Actions -->
+<div class="space-y-sm">
+<button class="w-full flex items-center justify-between p-md bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">settings</span>
+<span class="font-body-md text-on-surface">Tetapan Akaun</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-md bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">notifications</span>
+<span class="font-body-md text-on-surface">Notifikasi</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-md bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">help_outline</span>
+<span class="font-body-md text-on-surface">Bantuan &amp; Sokongan</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-center p-md text-status-error font-bold mt-lg">
+<span class="material-symbols-outlined mr-2">logout</span>
+                Log Keluar
+            </button>
+</div>
+<!-- Version Footer -->
+<footer class="mt-xl text-center">
+<p class="font-version-text text-version-text text-on-surface-variant/40">KatolikGo v2.4.1 (Build 1082)</p>
+<p class="font-version-text text-version-text text-on-surface-variant/30 mt-1">Keuskupan Agung Kuala Lumpur</p>
+</footer>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-md left-1/2 -translate-x-1/2 w-[90%] rounded-full z-50 backdrop-blur-xl border border-secondary/20 bg-surface-container-high/90 shadow-halo-glow flex justify-around items-center p-xs">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Quiz</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">Rank</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-navy-dark text-secondary rounded-full px-4 py-1.5 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the progress ring
+        window.addEventListener('DOMContentLoaded', () => {
+            const circle = document.querySelector('.progress-ring-circle');
+            if (circle) {
+                const radius = circle.r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                
+                // Initial target: 75%
+                const offset = circumference - (0.75 * circumference);
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = offset;
+                }, 500);
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Keputusan Kuiz</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#e3e3de",
+                    "outline-variant": "#43474e",
+                    "on-tertiary-container": "#ff787c",
+                    "navy-dark": "#0e2a4d",
+                    "on-primary-fixed": "#001c37",
+                    "primary": "#abc9f2",
+                    "tertiary": "#ffb3b2",
+                    "secondary-container": "#b18c09",
+                    "surface-container-lowest": "#0d0f0c",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "surface-bright": "#383a36",
+                    "surface-container-high": "#292a27",
+                    "halo-glow": "rgba(201, 162, 39, 0.3)",
+                    "on-primary-container": "#87a4cc",
+                    "inverse-primary": "#436084",
+                    "on-secondary-fixed-variant": "#584400",
+                    "surface-container-low": "#1a1c19",
+                    "tertiary-container": "#730e1c",
+                    "cream-soft": "#fdfaf0",
+                    "surface-container": "#1e201d",
+                    "on-error": "#690005",
+                    "on-background": "#e3e3de",
+                    "primary-container": "#1a3a5c",
+                    "on-primary": "#103253",
+                    "on-surface-variant": "#c3c6cf",
+                    "on-secondary": "#3d2e00",
+                    "tertiary-fixed": "#ffdad9",
+                    "on-tertiary": "#670315",
+                    "error-container": "#93000a",
+                    "on-secondary-fixed": "#241a00",
+                    "background": "#121411",
+                    "surface-container-highest": "#333532",
+                    "status-error": "#c62828",
+                    "outline": "#8d9199",
+                    "primary-fixed": "#d2e4ff",
+                    "inverse-surface": "#e3e3de",
+                    "secondary": "#ecc246",
+                    "inverse-on-surface": "#2f312e",
+                    "surface-variant": "#333532",
+                    "secondary-fixed": "#ffe08e",
+                    "surface-dim": "#121411",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#ecc246",
+                    "on-tertiary-fixed": "#410008",
+                    "error": "#ffb4ab",
+                    "on-secondary-container": "#352800",
+                    "surface-tint": "#abc9f2",
+                    "surface": "#121411",
+                    "primary-fixed-dim": "#abc9f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "margin-desktop": "40px",
+                    "xl": "32px",
+                    "base": "8px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "version-text": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .halo-glow-animation {
+            box-shadow: 0 0 20px rgba(236, 194, 70, 0.4);
+            animation: pulse-halo 2s infinite;
+        }
+        @keyframes pulse-halo {
+            0% { box-shadow: 0 0 20px rgba(236, 194, 70, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(236, 194, 70, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(236, 194, 70, 0.3); }
+        }
+        .glass-card {
+            background: rgba(26, 58, 92, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.15);
+        }
+        body {
+            background: radial-gradient(circle at top right, #1a3a5c 0%, #121411 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen text-on-surface font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-navy-dark/80 backdrop-blur-md border-b border-secondary/20 shadow-sm flex justify-between items-center px-margin-mobile py-base z-50">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-secondary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a young Malaysian adult with a friendly expression, set against a soft bokeh background of a modern architectural space. The lighting is warm and directional, highlighting facial features with a premium corporate aesthetic. The color palette incorporates deep navy and gold accents to match the brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOIzcw6-iMuguXYvmImMSrry_CT7yXZ_dI3uFstQNYi23Dz8YcjRwQfQtse6p-ZOez4l7X6N-QejZ4ZYAZ6nECuWT80FgM7exHglUEnJGsMi6dlH13NFht4IDL-ocH-ri0nwD-INWad3N2nOCpBMePNUH4D8xrFzYV-yW3NmEL7pMfwIp5HsB2a3R3FK0zGfxfV6RBl6kSYUASWJDZLa8ov_mB6hmtc8TjQY2zP-ew5wuxXZ6RC0zwuR6E5ogLrpHDCQvn52i8W2X6"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-secondary">KatolikGo</span>
+</div>
+<div class="bg-primary-container/50 px-4 py-1.5 rounded-full border border-secondary/30 flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-secondary font-bold font-label-md">1,240 XP</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-md mx-auto px-margin-mobile pt-xl pb-40">
+<!-- Success Animation & Heading -->
+<div class="flex flex-col items-center text-center mb-xl">
+<div class="relative mb-lg">
+<div class="w-24 h-24 rounded-full bg-secondary flex items-center justify-center halo-glow-animation">
+<span class="material-symbols-outlined text-navy-dark text-[56px] font-bold">check_circle</span>
+</div>
+<!-- Sparkle decorations -->
+<div class="absolute -top-2 -right-2">
+<span class="material-symbols-outlined text-secondary animate-pulse">spark</span>
+</div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-secondary mb-xs tracking-wide">Betul!</h1>
+<p class="text-on-surface-variant font-body-md">Jawapan anda tepat sekali.</p>
+</div>
+<!-- Question Card -->
+<div class="glass-card rounded-xl p-lg mb-gutter relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<p class="text-on-surface font-body-lg leading-relaxed italic">
+                "Siapakah yang membina bahtera yang besar untuk menyelamatkan keluarganya daripada banjir besar?"
+            </p>
+</div>
+<!-- Explanation Section -->
+<div class="space-y-md">
+<div class="flex items-center gap-sm text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">book_5</span>
+<h2 class="font-headline-md text-headline-md">Penerangan</h2>
+</div>
+<div class="glass-card rounded-xl p-lg border-l-0">
+<p class="text-on-surface font-body-md leading-relaxed mb-md">
+                    Nuh membina bahtera atas perintah Allah untuk menyelamatkan keluarganya dan sepasang daripada setiap jenis haiwan. Peristiwa ini melambangkan ketaatan yang tidak berbelah bahagi kepada panggilan Tuhan.
+                </p>
+<div class="flex items-center gap-xs text-secondary-fixed opacity-90 font-label-md">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+<span>Kejadian 6:13-22</span>
+</div>
+</div>
+</div>
+<!-- Image Content (Visual Representation) -->
+<div class="mt-xl rounded-xl overflow-hidden border border-secondary/20 shadow-lg">
+<img class="w-full aspect-video object-cover" data-alt="An awe-inspiring digital painting depicting Noah's Ark resting on a mountain peak under a vibrant rainbow. The style is devotional and atmospheric, with golden divine light breaking through heavy navy-blue storm clouds. The scene conveys a sense of peace, salvation, and a new beginning, utilizing a rich palette of deep blues, ochre gold, and earthy tones to reflect a sacred historical narrative." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCof_aehXyWI2euUMzdt2GG5RdniSq3xHyfCIMER2i094ZO53mHIFf2YpOOKQDOBVTXYxv8ZWOHySn699F9pyeyQBGoOYG1i3b9DG08bLiM2T8eTbQie3Z3OgV3ewGgVM0wT8jhCTTobCN9CG4ESfzW_tN_Au7cPFp1cthj7MUNjv46UwH5047PbksXRzVlrQ4AUGTVo7HmIX7D5qfNzM1T6y61PSZpPg7rrxKRam4vuzGnWt0TgdIijZBpiKWMU2WsfbD-sqp_aQ2f"/>
+</div>
+<!-- Next Button -->
+<div class="fixed bottom-[104px] left-0 w-full px-margin-mobile z-40 max-w-md mx-auto right-0">
+<button class="w-full bg-secondary text-navy-dark py-4 rounded-xl font-bold text-headline-md shadow-halo-glow active:scale-95 transition-all duration-200 flex justify-center items-center gap-sm">
+                Seterusnya
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-base pb-8 bg-navy-dark/90 backdrop-blur-xl border-t border-secondary/10 shadow-[0_-4px_20px_rgba(201,162,39,0.15)] z-50">
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:text-secondary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container text-secondary rounded-xl px-6 py-2 shadow-halo-glow active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">extension</span>
+<span class="font-label-md text-label-md">Quiz</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:text-secondary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">Leaderboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:text-secondary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for button
+        document.querySelector('button').addEventListener('click', function() {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // Add a soft entrance animation for the cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = `all 0.5s ease ${index * 0.15}s`;
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100);
+            });
+        });
+    </script>
+</body></html>

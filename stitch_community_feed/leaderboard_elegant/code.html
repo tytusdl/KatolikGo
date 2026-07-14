@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Papan Pendahulu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#ffdad6",
+                    "on-secondary-container": "#352800",
+                    "tertiary-fixed": "#ffdad9",
+                    "surface-tint": "#abc9f2",
+                    "surface": "#121411",
+                    "secondary-container": "#b18c09",
+                    "tertiary": "#ffb3b2",
+                    "error-container": "#93000a",
+                    "halo-glow": "rgba(201, 162, 39, 0.3)",
+                    "primary-fixed-dim": "#abc9f2",
+                    "on-secondary-fixed-variant": "#584400",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "on-tertiary-fixed": "#410008",
+                    "on-primary-fixed": "#001c37",
+                    "surface-container-high": "#292a27",
+                    "primary": "#abc9f2",
+                    "on-error": "#690005",
+                    "secondary": "#ecc246",
+                    "status-error": "#c62828",
+                    "primary-fixed": "#d2e4ff",
+                    "inverse-surface": "#e3e3de",
+                    "on-surface-variant": "#c3c6cf",
+                    "on-secondary-fixed": "#241a00",
+                    "tertiary-container": "#730e1c",
+                    "on-secondary": "#3d2e00",
+                    "on-primary-container": "#87a4cc",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "on-background": "#e3e3de",
+                    "inverse-primary": "#436084",
+                    "secondary-fixed-dim": "#ecc246",
+                    "secondary-fixed": "#ffe08e",
+                    "on-tertiary-container": "#ff787c",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "surface-container-low": "#1a1c19",
+                    "background": "#121411",
+                    "primary-container": "#1a3a5c",
+                    "surface-container": "#1e201d",
+                    "surface-container-highest": "#333532",
+                    "inverse-on-surface": "#2f312e",
+                    "navy-dark": "#0e2a4d",
+                    "surface-bright": "#383a36",
+                    "on-surface": "#e3e3de",
+                    "surface-variant": "#333532",
+                    "on-tertiary": "#670315",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#0d0f0c",
+                    "on-primary": "#103253",
+                    "cream-soft": "#fdfaf0",
+                    "outline-variant": "#43474e",
+                    "outline": "#8d9199",
+                    "surface-dim": "#121411"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "margin-mobile": "20px",
+                    "base": "8px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "xs": "4px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "version-text": ["Inter"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(30, 32, 29, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+        }
+        .podium-gradient-gold {
+            background: linear-gradient(180deg, #ecc246 0%, #b18c09 100%);
+        }
+        .podium-gradient-silver {
+            background: linear-gradient(180deg, #c3c6cf 0%, #8d9199 100%);
+        }
+        .podium-gradient-bronze {
+            background: linear-gradient(180deg, #a67c52 0%, #734f2a 100%);
+        }
+        .shadow-halo-glow {
+            box-shadow: 0 0 20px rgba(236, 194, 70, 0.3);
+        }
+        .podium-item {
+            transition: transform 0.3s ease;
+        }
+        .podium-item:hover {
+            transform: translateY(-5px);
+        }
+        body {
+            background: radial-gradient(circle at top, #1a3a5c 0%, #121411 100%);
+            min-height: 100vh;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface font-body-md overflow-x-hidden pb-32">
+<!-- Top App Bar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm w-full">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-secondary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A premium close-up portrait of a young Catholic man in Malaysia, wearing a subtle cross necklace, smiling gently against a soft-focus background of a modern church interior. The lighting is warm and divine, reflecting a devotional and encouraging atmosphere with high-end corporate photography style, using a palette of deep navy and golden accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzBnRQcKC8nG_ZZxDlf0Vpu28OPjaENSIeMwshZl_jTVwk1YxAeYj9npgQb1OQ-GdBiNdxOS48rEcw3MF2cqODc3gqq4tv8dn6oSG53GCeJdAX874KRU-_Cr6IWvuUSt_fQmjYzzSADVHdxTHL_cUZ_t_37vu7Rd4u1v9IldS2cFFvoXpMa1Gx7fNXK7TROf14gARn7rCIFnEV0sWda1aHJKVF-W_jQPU7L3SnHjm2Zhu9Yh-M96mUs2DaR7335LvrwyS1XCqtQS3u"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-secondary">KatolikGo</h1>
+</div>
+<div class="bg-surface-container-high px-4 py-1.5 rounded-full border border-secondary/30 flex items-center gap-2">
+<span class="text-secondary font-bold">1,250</span>
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">generating_tokens</span>
+</div>
+</header>
+<main class="pt-24 px-margin-mobile max-w-2xl mx-auto">
+<!-- Toggle Global vs Parish -->
+<div class="flex justify-center mb-xl">
+<div class="bg-surface-container-low p-1 rounded-full flex border border-outline-variant/30 w-full max-w-[320px]">
+<button class="flex-1 py-2 px-4 rounded-full font-label-md text-label-md bg-secondary text-on-secondary-container transition-all" id="global-toggle">
+                    Global
+                </button>
+<button class="flex-1 py-2 px-4 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all" id="parish-toggle">
+                    Paroki
+                </button>
+</div>
+</div>
+<!-- Podium Section -->
+<div class="flex items-end justify-center gap-xs mb-xl h-[340px] relative">
+<!-- Rank 2: Silver -->
+<div class="podium-item flex flex-col items-center w-1/3">
+<div class="relative mb-base">
+<div class="w-16 h-16 rounded-full border-2 border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a teenage girl from a diverse Malaysian background, looking determined and friendly. The portrait is set in a modern digital space with ethereal lighting effects, featuring a color palette of silver, navy, and soft cream. High-quality corporate aesthetic with a devotional and encouraging mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMRIXRKGKj5sjhfya7yqp4mfeReATlAIjIUvQndHZSM-PlWMIEQcOOAXhuAZaaKhrZzj_sfPLRAwctZ9ntYhoArqQhYIL2gVSBeu95LIY2bwtOVxrLmfzGzxSwdR6kHM0rj3w1uzMSUp5WT_AHIj4RVi9joQh7Dotm-WrqPP7__M0O5OuuD2_d8cqrVYsDcVQvk1JFbwEz0CUq69ecr1DnxBMGr7LhySKw6JsKlK9SYyKYHMQgjI67EjWFRTSBg30cTe-p64OCFy84"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-outline-variant text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px] font-bold">2</div>
+</div>
+<p class="font-label-md text-label-md mb-xs truncate w-full text-center">Sarah Wong</p>
+<div class="podium-gradient-silver w-full h-32 rounded-t-xl flex flex-col items-center pt-4 shadow-lg">
+<span class="font-bold text-navy-dark">18,420</span>
+<span class="text-[10px] uppercase font-bold text-navy-dark/60">XP</span>
+</div>
+</div>
+<!-- Rank 1: Gold (Elevated) -->
+<div class="podium-item flex flex-col items-center w-5/12 z-10">
+<div class="relative mb-base scale-110">
+<div class="w-20 h-20 rounded-full border-4 border-secondary overflow-hidden shadow-halo-glow">
+<img class="w-full h-full object-cover" data-alt="A premium, studio-lit portrait of a young man named Noah Martinez, showing an encouraging and visionary expression. He is styled in modern professional attire. The background features subtle theological hex-clipped patterns and divine golden light rays. The overall style is modern corporate with a spiritual touch, emphasizing premium quality and leadership." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr-PNNQ3hqG1Lfh6amcY9QxWNav8JTC1k7xJ7HVq2wHF7uhww5203xLFu8Ul--PHHpdaXCd0wIjawO18e5MKrgiotfsiV5Lhn9tiYfroYQNCerLkJhtyg0sabwaewH5faNI6E4NagpRpJ7NTh-BlMz5CFRKoFuwWj1SbzujEnCau4ymznDiMX19md6bcRjmNSl-pz5fxTm9g0rMm2HLS34RVIKiIErUize2BTUQ6M61BW-EvghAUIOqr6OmJICIelAFUK9HBWcpN9D"/>
+</div>
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 text-secondary">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">rewarded_ads</span>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-secondary text-on-secondary-container rounded-full w-8 h-8 flex items-center justify-center text-[14px] font-extrabold shadow-md">1</div>
+</div>
+<p class="font-headline-md text-headline-md text-secondary font-bold mb-xs truncate w-full text-center">Noah Martinez</p>
+<div class="podium-gradient-gold w-full h-44 rounded-t-xl flex flex-col items-center pt-6 shadow-halo-glow border-t border-cream-soft/30">
+<span class="font-extrabold text-on-secondary-container text-lg">24,500</span>
+<span class="text-[12px] uppercase font-black text-on-secondary-container/60 tracking-widest">XP</span>
+</div>
+</div>
+<!-- Rank 3: Bronze -->
+<div class="podium-item flex flex-col items-center w-1/3">
+<div class="relative mb-base">
+<div class="w-16 h-16 rounded-full border-2 border-[#a67c52] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A high-end profile picture of an elderly Malaysian man with a kind and wise expression, representing the 'Devotional' brand personality. The lighting is soft and golden, suggesting a sacred sanctuary environment. The style is modern corporate glassmorphism with navy and bronze tones, conveying stability and tradition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAKKodLb7RSvoM5KjwbE8zvU6l2m2j-vxmrfKqFNN7bcUQ650KHaVffU42Gu9ABHxv2g0dbzebSXzhd0W6Dc30G8CpJPuz-_iCUSEdURmrLkLsVRsnLVxRrARqZOog12CZc3AU1J2BdAdAPVaVn-Dhgm7if73LBgip9zqKl1baJUVcTAeT4AVJfu5SgRcxHWnFGq0AFiFoC2lNQD6_iZWJhfeAAnuRTudJ4-ICWq5kiZdX1eKBCM9ct3ae57MGTmCobrDThk-3gVpr"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-[#a67c52] text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px] font-bold">3</div>
+</div>
+<p class="font-label-md text-label-md mb-xs truncate w-full text-center">Uncle Joseph</p>
+<div class="podium-gradient-bronze w-full h-24 rounded-t-xl flex flex-col items-center pt-4 shadow-lg">
+<span class="font-bold text-cream-soft">15,800</span>
+<span class="text-[10px] uppercase font-bold text-cream-soft/60">XP</span>
+</div>
+</div>
+</div>
+<!-- Leaderboard List -->
+<div class="space-y-sm mb-lg">
+<!-- Individual Row Template -->
+<div class="glass-card p-4 rounded-xl flex items-center gap-md group active:scale-[0.98] transition-all">
+<span class="w-6 font-bold text-on-surface-variant group-hover:text-secondary transition-colors">4</span>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young Catholic woman with a vibrant smile, set against a dark navy background with subtle stained-glass light patterns. The image has a premium, modern corporate feel with professional lighting and high resolution. The colors focus on deep blues and soft cream tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwwOtGPd5Ao60yx02PsPy6sg_Dmr-gO1N1ooT6Dzz_8JIVgugF3MAB0DiTAK_F_QwEgydSq2NorBO8Zuiq2O89dgzHiBdgOl6cWcYgbiBnAT_1SVnWQ2hkngstBcYkTBfPcOFLi91ChB4UeqG-yQ4iKNOkg6oVwfc_oOk_XH3yh_1rX6-Q-ghxAjBt91hXqE-sQ62k4wV2SO8zTOfSnItffOiTeYxvcFaLJukhdWITznW6CbLAKkSBu3aL1u6xnDryhB0GhHtrZNz8"/>
+</div>
+<div class="flex-1">
+<p class="font-headline-md text-sm font-semibold">Maria Tan</p>
+<p class="text-xs text-on-surface-variant">St. Ignatius Parish</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-secondary">12,400</p>
+<p class="text-[10px] text-on-surface-variant/60 font-bold tracking-tighter uppercase">XP</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-xl flex items-center gap-md group active:scale-[0.98] transition-all">
+<span class="w-6 font-bold text-on-surface-variant">5</span>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="A high-quality portrait of a young man, looking focused and respectful. The design features glassmorphism accents and a theological theme with a halo glow. Palette consists of dark navy and gold. Modern corporate style, Malaysian ethnicity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2JC0L_sbUOj3XEUMifSFzB_fcFOYAOIKngjz085EhrY_28HfQOcJFIQMsMhk80fe7Cd2_2oe-_9xrF7KQfrhjTxSCGSekXE1R0KG_m67hT5EzVejEf2mlPc-16WRGSz1Mjjc1hl2zuXLHV9p6DurwIYSzRW_isuD8rRqgD4joWSW9SrCeEiNWv_bGjEU-f6wMAE6mwV1Zxrm4l9xE2ApWxE3rp3jO81v3QibiYwK3XXFstE7tLW8gqKnmd5b3VYrFh-Gg1PN1Z6RP"/>
+</div>
+<div class="flex-1">
+<p class="font-headline-md text-sm font-semibold">Gabriel Lim</p>
+<p class="text-xs text-on-surface-variant">Cathedral St. John</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-secondary">11,950</p>
+<p class="text-[10px] text-on-surface-variant/60 font-bold tracking-tighter uppercase">XP</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-xl flex items-center gap-md group active:scale-[0.98] transition-all border-secondary/40 bg-secondary/5">
+<span class="w-6 font-bold text-secondary italic">67</span>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border-2 border-secondary shadow-halo-glow">
+<img class="w-full h-full object-cover" data-alt="A friendly portrait of a Malaysian Catholic user, representing the 'You' state in a leaderboard. Warm lighting, modern church background blurred, focus on a kind face with a cross necklace. Style is encouraging and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFuwvaZmQrDfwjIFYU7lkdpPPWxK5yKOTCTkvypKpC9GHIdh2yUts5AZRwRDFdXfrh8Bmh8KaHbgxaQiuxVRGBPW9CWH-RZWAvj-zITQGEUigECCvq60854uDNjwBC4NzaG0xzcvQI0qZrHPqsxX8tg20AhsDjDVQrof55FIkTwUMQMeVwWecK7mCLoaiI6jkZA80VNgjjtO3RDLTwW-8CiptBTW4cl7us6EMFOsAAgyJSOC3UGF22BzHn-PToH1odjOxx1frcfl3e"/>
+</div>
+<div class="flex-1">
+<p class="font-headline-md text-sm font-bold text-secondary">Anda (Zulhelmi)</p>
+<p class="text-xs text-on-surface-variant italic">Kuala Lumpur</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-secondary">8,420</p>
+<p class="text-[10px] text-on-surface-variant/60 font-bold tracking-tighter uppercase">XP</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-xl flex items-center gap-md group active:scale-[0.98] transition-all">
+<span class="w-6 font-bold text-on-surface-variant">6</span>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a middle-aged woman, smiling gently, devotional aesthetic. Stained glass lighting, dark navy palette, gold highlights. High end photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQNnFnPTY_et0zlfw_eKlHLAxucceA7rqlID6NNzFpzUUrIeOgyOUsYCCtPpjaBqAWFyPeG3z0yb8JdvJVEvDQcaMm3INHsxhnxgkBEwnWA2L4IdtGJf0ecx0ygpkDvTYrjWPuWp5o6KMYRrvARTLgk2N4804jTI5htJ8rxPC--5luv3YxNAMktZjE57tgG8HE-6jgHiXKCe4kyOtCro3WetDA4C4eskpvwusNCPQTzgaqmknpQqbbmOfkGMx_DHEbRuYYsSSCT2vS"/>
+</div>
+<div class="flex-1">
+<p class="font-headline-md text-sm font-semibold">Teresa Fernandez</p>
+<p class="text-xs text-on-surface-variant">St. Peter's Melaka</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-secondary">10,200</p>
+<p class="text-[10px] text-on-surface-variant/60 font-bold tracking-tighter uppercase">XP</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Shared Component) -->
+<nav class="fixed bottom-md left-1/2 -translate-x-1/2 w-[90%] rounded-full z-50 bg-surface-container-high/90 dark:bg-surface-container-high/90 backdrop-blur-xl border border-secondary/20 shadow-halo-glow flex justify-around items-center p-xs">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-[10px]">Utama</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-[10px]">Kuiz</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-navy-dark text-secondary rounded-full px-4 py-1.5 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-label-md text-[10px]">Rank</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-[10px]">Profil</span>
+</a>
+</nav>
+<script>
+        // Toggle Logic for Global vs Parish
+        const globalBtn = document.getElementById('global-toggle');
+        const parishBtn = document.getElementById('parish-toggle');
+
+        globalBtn.addEventListener('click', () => {
+            globalBtn.classList.add('bg-secondary', 'text-on-secondary-container');
+            globalBtn.classList.remove('text-on-surface-variant');
+            parishBtn.classList.remove('bg-secondary', 'text-on-secondary-container');
+            parishBtn.classList.add('text-on-surface-variant');
+        });
+
+        parishBtn.addEventListener('click', () => {
+            parishBtn.classList.add('bg-secondary', 'text-on-secondary-container');
+            parishBtn.classList.remove('text-on-surface-variant');
+            globalBtn.classList.remove('bg-secondary', 'text-on-secondary-container');
+            globalBtn.classList.add('text-on-surface-variant');
+        });
+
+        // Add subtle interaction effect to list rows
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.borderColor = 'rgba(236, 194, 70, 0.5)';
+                card.style.boxShadow = '0 0 15px rgba(236, 194, 70, 0.15)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.borderColor = 'rgba(236, 194, 70, 0.2)';
+                card.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body></html>

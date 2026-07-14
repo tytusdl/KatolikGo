@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Log Masuk</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#241a00",
+                    "surface-container-lowest": "#0d0f0c",
+                    "surface-container": "#1e201d",
+                    "status-error": "#c62828",
+                    "on-primary-fixed": "#001c37",
+                    "tertiary-fixed": "#ffdad9",
+                    "tertiary-container": "#730e1c",
+                    "on-error": "#690005",
+                    "navy-dark": "#0e2a4d",
+                    "secondary-fixed": "#ffe08e",
+                    "outline": "#8d9199",
+                    "on-secondary-container": "#352800",
+                    "on-secondary": "#3d2e00",
+                    "on-tertiary": "#670315",
+                    "tertiary": "#ffb3b2",
+                    "secondary-fixed-dim": "#ecc246",
+                    "secondary-container": "#b18c09",
+                    "surface-container-low": "#1a1c19",
+                    "primary": "#abc9f2",
+                    "primary-fixed": "#d2e4ff",
+                    "cream-soft": "#fdfaf0",
+                    "on-tertiary-fixed": "#410008",
+                    "surface-bright": "#383a36",
+                    "surface-container-high": "#292a27",
+                    "surface": "#121411",
+                    "primary-container": "#1a3a5c",
+                    "error-container": "#93000a",
+                    "on-primary-container": "#87a4cc",
+                    "surface-container-highest": "#333532",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "surface-tint": "#abc9f2",
+                    "on-secondary-fixed-variant": "#584400",
+                    "inverse-on-surface": "#2f312e",
+                    "surface-dim": "#121411",
+                    "on-tertiary-container": "#ff787c",
+                    "background": "#121411",
+                    "on-surface": "#e3e3de",
+                    "outline-variant": "#43474e",
+                    "on-background": "#e3e3de",
+                    "error": "#ffb4ab",
+                    "surface-variant": "#333532",
+                    "primary-fixed-dim": "#abc9f2",
+                    "on-primary": "#103253",
+                    "on-error-container": "#ffdad6",
+                    "inverse-primary": "#436084",
+                    "secondary": "#ecc246",
+                    "inverse-surface": "#e3e3de",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "on-surface-variant": "#c3c6cf",
+                    "halo-glow": "rgba(201, 162, 39, 0.3)"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "xl": "32px",
+                    "sm": "12px",
+                    "margin-desktop": "40px",
+                    "margin-mobile": "20px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "lg": "24px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "version-text": ["Inter"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #121411;
+            color: #e3e3de;
+            overflow-x: hidden;
+        }
+
+        .halo-glow-effect {
+            box-shadow: 0 0 40px rgba(236, 194, 70, 0.15);
+        }
+
+        .glass-panel {
+            background: rgba(26, 58, 92, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+        }
+
+        .bg-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(236, 194, 70, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        .cross-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10V50M15 25H45' stroke='%23ecc246' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+
+        .btn-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-hover-effect:active {
+            transform: scale(0.96);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md min-h-screen flex flex-col items-center justify-center relative bg-pattern">
+<!-- Background Elements -->
+<div class="cross-bg"></div>
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-primary-container/20 to-transparent pointer-events-none"></div>
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute -bottom-24 -left-24 w-96 h-96 bg-primary-container/30 rounded-full blur-[100px] pointer-events-none"></div>
+<main class="w-full max-w-md px-margin-mobile py-xl z-10">
+<!-- Logo & Branding -->
+<div class="flex flex-col items-center mb-xl text-center">
+<div class="w-20 h-20 mb-md relative">
+<div class="absolute inset-0 bg-secondary/20 rounded-full animate-pulse blur-md"></div>
+<div class="relative w-full h-full glass-panel rounded-full flex items-center justify-center border-secondary/40">
+<span class="material-symbols-outlined text-[42px] text-secondary" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+</div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-secondary tracking-tight mb-xs">Log Masuk</h1>
+<p class="text-on-surface-variant font-body-md max-w-[280px]">Selamat kembali ke perjalanan iman anda.</p>
+</div>
+<!-- Login Form -->
+<div class="glass-panel rounded-xl p-lg halo-glow-effect">
+<form class="space-y-md" onsubmit="return false;">
+<!-- Input Group: Email -->
+<div class="space-y-xs">
+<label class="block text-label-md font-label-md text-secondary ml-1">Email atau Nama Pengguna</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-secondary transition-colors">person</span>
+<input class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg py-3 pl-12 pr-4 text-on-surface placeholder:text-outline focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/50 transition-all" placeholder="Masukkan email anda" type="text"/>
+</div>
+</div>
+<!-- Input Group: Password -->
+<div class="space-y-xs">
+<div class="flex justify-between items-center px-1">
+<label class="text-label-md font-label-md text-secondary">Kata Laluan</label>
+<a class="text-version-text font-version-text text-secondary/80 hover:text-secondary transition-colors" href="#">Lupa Kata Laluan?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-secondary transition-colors">lock</span>
+<input class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg py-3 pl-12 pr-12 text-on-surface placeholder:text-outline focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/50 transition-all" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- CTA Button -->
+<button class="w-full bg-secondary text-on-secondary-fixed font-headline-md text-headline-md py-3.5 rounded-lg shadow-lg shadow-secondary/20 btn-hover-effect hover:brightness-110 mt-lg flex items-center justify-center gap-2" type="submit">
+<span>Log Masuk</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</form>
+<!-- Divider -->
+<div class="relative my-xl flex items-center">
+<div class="flex-grow border-t border-outline-variant/20"></div>
+<span class="flex-shrink mx-4 text-version-text font-version-text text-on-surface-variant">Atau log masuk dengan</span>
+<div class="flex-grow border-t border-outline-variant/20"></div>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-2 bg-surface-container-highest/50 border border-outline-variant/30 py-3 rounded-lg btn-hover-effect hover:bg-surface-container-highest">
+<div class="w-5 h-5 flex items-center justify-center">
+<img alt="Google" class="w-full h-full object-contain filter grayscale brightness-150" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlxtnR7J8NxiZY8C_efPFtbnvD7nt1nNJwKkFy6EcoJh5C1hAXX3SJGJ8ee1COTpJJzjkkIL1K2jWwRnYP3vBqUvS12sCIO-aCnaVQNn4sjX8SAx9RDXqB_CYRDzbCA0QF0EX2vfLkYOCR1KPEJTj-rkE1Zx3M4lfNYG5Ns39JbcQmyKXCZ6SoW55Bb3EeeZ2A2zOI2d7EiFWpBjQHnGtltRxdiChByClM67UblXY1H6pT__peE8aKawTes05irnqKhhR31I89Dj-H"/>
+</div>
+<span class="text-label-md font-label-md">Google</span>
+</button>
+<button class="flex items-center justify-center gap-2 bg-surface-container-highest/50 border border-outline-variant/30 py-3 rounded-lg btn-hover-effect hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">apps</span>
+<span class="text-label-md font-label-md">Apple</span>
+</button>
+</div>
+</div>
+<!-- Footer Links -->
+<div class="mt-xl text-center space-y-lg">
+<p class="text-on-surface-variant">
+                Belum ada akaun? 
+                <a class="text-secondary font-label-md underline underline-offset-4 decoration-secondary/30 hover:decoration-secondary transition-all" href="#">Daftar Akaun Baru</a>
+</p>
+<div class="pt-xl opacity-30 hover:opacity-100 transition-opacity">
+<a class="inline-flex items-center gap-1.5 text-version-text font-version-text text-on-surface-variant hover:text-secondary" href="#">
+<span class="material-symbols-outlined text-[14px]">lock_person</span>
+                    🔐 Admin Access
+                </a>
+</div>
+</div>
+</main>
+<!-- Subtle Floating Particles for atmosphere -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden" id="particle-container"></div>
+<script>
+        // Simple ambient particle effect
+        const container = document.getElementById('particle-container');
+        const particleCount = 15;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'absolute bg-secondary/20 rounded-full blur-[2px]';
+            
+            const size = Math.random() * 4 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            const duration = Math.random() * 15 + 15;
+            const delay = Math.random() * 10;
+            
+            particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+            
+            container.appendChild(particle);
+        }
+
+        // Add keyframes for floating
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+                25% { opacity: 0.4; }
+                50% { transform: translateY(-100px) translateX(20px); opacity: 0.6; }
+                75% { opacity: 0.4; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Visual feedback for button interactions
+        const buttons = document.querySelectorAll('.btn-hover-effect');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Potential ripple effect or navigation logic
+            });
+        });
+    </script>
+</body></html>

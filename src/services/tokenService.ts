@@ -2,6 +2,7 @@ import { doc, setDoc, collection, runTransaction, getDoc } from 'firebase/firest
 import { db } from '@/config/firebase';
 import type { UserData } from '@/types';
 import { TOTAL_LEVELS, PASSING_SCORE } from '@/types';
+import { TOKEN_REWARDS } from '@/constants/xp.constants';
 
 /**
  * Error code thrown by spendToken when a guest (Firebase anonymous) user
@@ -100,7 +101,7 @@ export async function unlockLevelWithToken(
     return { success: false, newLevel: userData.currentLevel };
   }
 
-  if (userData.tokens < 10) {
+  if (userData.tokens < TOKEN_REWARDS.LEVEL_UNLOCK_COST) {
     return { success: false, newLevel: userData.currentLevel };
   }
 
@@ -120,7 +121,7 @@ export async function unlockLevelWithToken(
   await setDoc(userRef, {
     levelProgress: newLevelProgress,
     currentLevel: targetLevel + 1,
-    tokens: userData.tokens - 10,
+    tokens: userData.tokens - TOKEN_REWARDS.LEVEL_UNLOCK_COST,
     updatedAt: Date.now(),
   }, { merge: true });
 

@@ -1,204 +1,86 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, Share } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams, Link, router } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Colors, Spacing, FontSize, BorderRadius, FontFamily } from '@/constants/theme';
 import { Routes } from '@/constants/routes';
-import { useAuth } from '@/contexts/AuthContext';
 
-export default function QuizResultScreen() {
-  const { level, score, tokens, unlocked, livesExhausted } = useLocalSearchParams<{
+export default function ResultScreen() {
+  const params = useLocalSearchParams<{
     level: string;
     score: string;
+    correct: string;
+    total: string;
+    xp: string;
     tokens: string;
-    unlocked: string;
-    livesExhausted?: string;
+    passed: string;
   }>();
-  const { userData } = useAuth();
-  const insets = useSafeAreaInsets();
-  const isGuest = userData?.isGuest === true;
-  const livesFlippedToZero = livesExhausted === 'true';
+  const router = useRouter();
 
-  const scoreNum = parseInt(score || '0', 10);
-  const tokensNum = parseInt(tokens || '0', 10);
-  const unlockedBool = unlocked === 'true';
-  const levelNum = parseInt(level || '1', 10);
-
-  const isPerfect = scoreNum === 100;
-  const isPassed = scoreNum >= 80;
-
-  let achievementTitle = 'Teruskan Usaha!';
-  let achievementSubtitle = 'Cuba lagi untuk mencapai skor sempurna';
-  let achievementEmoji = '💪';
-
-  if (isPerfect) {
-    achievementTitle = 'Skor Sempurna!';
-    achievementSubtitle = 'Prestasi cemerlang anda menetapkan standard keunggulan untuk semua orang';
-    achievementEmoji = '🏆';
-  } else if (isPassed) {
-    achievementTitle = 'Tahniah!';
-    achievementSubtitle = 'Anda telah lulus tahap ini dengan jayanya';
-    achievementEmoji = '🎉';
-  }
-
-  const shareAchievement = async () => {
-    try {
-      await Share.share({
-        message: `Saya telah ${isPerfect ? 'memperolehi skor sempurna' : 'lulus'} di Tahap ${levelNum} KatolikGo dengan skor ${scoreNum}%! ${tokensNum > 0 ? `+${tokensNum} token` : ''} #KatolikGo`,
-      });
-    } catch {
-      // user cancelled share sheet; nothing to do
-    }
-  };
+  const scoreNum = Number(params.score) || 0;
+  const correctNum = Number(params.correct) || 0;
+  const totalNum = Number(params.total) || 0;
+  const xpNum = Number(params.xp) || 0;
+  const tokensNum = Number(params.tokens) || 0;
+  const passed = params.passed === '1';
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Top Visual Section */}
-      <View style={styles.topSection}>
-        {/* Decorative sparkles */}
-        <Text style={[styles.sparkle, styles.sparkleLeft]}>✨</Text>
-        <Text style={[styles.sparkle, styles.sparkleRight]}>⭐</Text>
-
-        {/* Achievement icon */}
-        <View style={[styles.iconCircle, isPerfect && styles.iconCircleGold]}>
-          <Text style={styles.iconEmoji}>{achievementEmoji}</Text>
+    <View style={styles.container}>
+      {/* Score Circle */}
+      <View style={styles.scoreSection}>
+        <View style={[styles.scoreRing, passed ? styles.scoreRingPass : styles.scoreRingFail]}>
+          <Text style={styles.scoreText}>{scoreNum}%</Text>
         </View>
-
-        {/* Confetti for perfect score */}
-        {isPerfect && (
-          <>
-            <Text style={[styles.confetti, { top: '20%', left: '10%' }]}>🎊</Text>
-            <Text style={[styles.confetti, { top: '30%', right: '15%' }]}>🎉</Text>
-            <Text style={[styles.confetti, { bottom: '10%', left: '20%' }]}>⭐</Text>
-            <Text style={[styles.confetti, { bottom: '20%', right: '10%' }]}>✨</Text>
-          </>
-        )}
+        <Text style={[styles.resultLabel, passed ? styles.passText : styles.failText]}>
+          {passed ? 'Tahniah!' : 'Cuba Lagi'}
+        </Text>
       </View>
 
-      {/* Content Card */}
-      <View style={styles.contentCard}>
-        <Text style={styles.achievementTitle}>{achievementTitle}</Text>
-        <Text style={styles.achievementSubtitle}>{achievementSubtitle}</Text>
-
-        {/* Score Display */}
-        <View style={styles.scoreCard}>
-          <Text style={styles.scoreLabel}>Skor Anda</Text>
-          <Text style={[styles.scoreValue, isPerfect && styles.scoreValueGold]}>
-            {scoreNum}%
-          </Text>
-
-          {/* Reward Indicator */}
-          {tokensNum > 0 && (
-            <View style={styles.rewardBadge}>
-              <View style={styles.coinStack}>
-                <Image
-                  source={require('../../../assets/token.png')}
-                  style={styles.coinEmoji}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.coinPill}>
-                <Text style={styles.coinPillText}>+{tokensNum}</Text>
-              </View>
-            </View>
-          )}
+      {/* Stats Bento */}
+      <View style={styles.bento}>
+        <View style={styles.bentoCard}>
+          <Ionicons name="close-circle" size={24} color={Colors.error} />
+          <Text style={styles.bentoVal}>{totalNum - correctNum}</Text>
+          <Text style={styles.bentoLabel}>Salah</Text>
         </View>
-
-        {/* Level Badge */}
-        <View style={styles.levelBadge}>
-          <Text style={styles.levelBadgeLabel}>TAHAP</Text>
-          <Text style={styles.levelBadgeValue}>{levelNum}</Text>
-        </View>
-
-        {/* Unlocked notification */}
-        {unlockedBool && (
-          <View style={styles.unlockedBanner}>
-            <Text style={styles.unlockedEmoji}>🔓</Text>
-            <Text style={styles.unlockedText}>Tahap {levelNum + 1} dibuka!</Text>
-          </View>
-        )}
-
-        {/* Guest nudge: only shown when the player is a guest (XP/tokens
-            were not awarded) so they understand why the reward pill is
-            missing and get a clear path forward. */}
-        {isGuest && (
-          <View style={styles.guestNudge}>
-            <Text style={styles.guestNudgeText}>
-              Skor ini tidak disimpan kerana anda log masuk sebagai Tetamu.
-            </Text>
-            <View style={styles.guestNudgeActions}>
-              <Link href="/(auth)/register" asChild>
-                <TouchableOpacity style={styles.guestNudgePrimary}>
-                  <Text style={styles.guestNudgePrimaryText}>Daftar</Text>
-                </TouchableOpacity>
-              </Link>
-              <Link href="/(auth)/login" asChild>
-                <TouchableOpacity style={styles.guestNudgeSecondary}>
-                  <Text style={styles.guestNudgeSecondaryText}>Log Masuk</Text>
-                </TouchableOpacity>
-              </Link>
-            </View>
-          </View>
-        )}
-
-        {/* Lives-exhausted nudge: shown when the quiz ended because
-            lives hit 0 mid-session. Explains why they can't continue
-            (no more "Tahap Seterusnya" button) and routes them to the
-            refill modal. Rendered above the action buttons. */}
-        {livesFlippedToZero && (
-          <View style={styles.livesNudge}>
-            <View style={styles.livesNudgeHeader}>
-              <Ionicons name="heart-dislike" size={18} color={Colors.error} />
-              <Text style={styles.livesNudgeTitle}>Nyawa Anda Sudah Habis</Text>
-            </View>
-            <Text style={styles.livesNudgeText}>
-              Kuiz ini ditamatkan awal kerana nyawa anda habis. Isi semula untuk terus bermain.
-            </Text>
-            <TouchableOpacity
-              style={styles.livesNudgeButton}
-              onPress={() => router.push(Routes.QUIZ_LIVES_EMPTY)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.livesNudgeButtonText}>Isi Semula Nyawa</Text>
-              <Ionicons name="arrow-forward" size={14} color="#fff" style={{ marginLeft: 6 }} />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Buttons */}
-        <View style={styles.actions}>
-          {/* Hide "Tahap Seterusnya" when lives are exhausted — the
-              player physically can't start the next quiz. Show only
-              "Kembali ke Kuiz" so they can browse without an implicit
-              promise they can keep playing. */}
-          {unlockedBool && !livesFlippedToZero ? (
-            <Link href="/(tabs)/quiz" asChild>
-              <TouchableOpacity style={styles.primaryButton}>
-                <Text style={styles.primaryButtonText}>
-                  {`Tahap ${levelNum + 1} →`}
-                </Text>
-              </TouchableOpacity>
-            </Link>
-          ) : null}
-          {isPassed && !unlockedBool && !livesFlippedToZero ? (
-            <Link href="/(tabs)/quiz" asChild>
-              <TouchableOpacity style={styles.primaryButton}>
-                <Text style={styles.primaryButtonText}>Tahap Seterusnya →</Text>
-              </TouchableOpacity>
-            </Link>
-          ) : null}
-
-          <TouchableOpacity style={styles.secondaryButton} onPress={shareAchievement}>
-            <Text style={styles.secondaryButtonText}>Kongsi dengan Rakan</Text>
-          </TouchableOpacity>
-
-          <Link href="/(tabs)/quiz" asChild>
-            <TouchableOpacity style={styles.tertiaryButton}>
-              <Text style={styles.tertiaryButtonText}>Kembali ke Kuiz</Text>
-            </TouchableOpacity>
-          </Link>
+        <View style={styles.bentoCard}>
+          <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+          <Text style={styles.bentoVal}>{correctNum}</Text>
+          <Text style={styles.bentoLabel}>Betul</Text>
         </View>
       </View>
+
+      {/* Rewards */}
+      <View style={styles.rewardsCard}>
+        <View style={styles.rewardItem}>
+          <Ionicons name="star" size={22} color={Colors.secondary} />
+          <Text style={styles.rewardVal}>+{xpNum} XP</Text>
+        </View>
+        <View style={styles.rewardDivider} />
+        <View style={styles.rewardItem}>
+          <Ionicons name="ribbon" size={22} color={Colors.secondary} />
+          <Text style={styles.rewardVal}>+{tokensNum} Token</Text>
+        </View>
+      </View>
+
+      {/* Actions */}
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={styles.ctaBtn}
+          onPress={() => router.replace(Routes.PETA)}
+        >
+          <Text style={styles.ctaText}>Kembali ke Peta</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.secondaryBtn}
+          onPress={() => router.replace(Routes.HOME)}
+        >
+          <Text style={styles.secondaryText}>Halaman Utama</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Verse */}
+      <Text style={styles.verse}>{'\u201C'}Mampu melakukan segala sesuatu melalui Dia yang menguatkan aku.{'\u201D'}</Text>
+      <Text style={styles.verseRef}>— Filipi 4:13</Text>
     </View>
   );
 }
@@ -206,305 +88,156 @@ export default function QuizResultScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8EC', // warm cream background
-  },
-  topSection: {
-    height: 280,
-    justifyContent: 'center',
+    backgroundColor: Colors.background,
     alignItems: 'center',
-    backgroundColor: '#FFF8EC',
-    position: 'relative',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: 80,
   },
-  sparkle: {
-    position: 'absolute',
-    fontSize: 24,
-  },
-  sparkleLeft: {
-    top: 80,
-    left: 30,
-    fontSize: 28,
-  },
-  sparkleRight: {
-    top: 100,
-    right: 40,
-    fontSize: 22,
-  },
-  iconCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: '#FFE8D5',
-    justifyContent: 'center',
+
+  scoreSection: {
     alignItems: 'center',
-    borderWidth: 6,
-    borderColor: Colors.accent,
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  iconCircleGold: {
-    backgroundColor: '#FFE8D5',
-    borderColor: '#FFD700',
-    shadowColor: '#FFD700',
-  },
-  iconEmoji: {
-    fontSize: 80,
-  },
-  confetti: {
-    position: 'absolute',
-    fontSize: 24,
-  },
-  contentCard: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.lg,
-    marginTop: -32,
-    alignItems: 'center',
-  },
-  achievementTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.primary,
-    marginBottom: Spacing.sm,
-    textAlign: 'center',
-  },
-  achievementSubtitle: {
-    fontSize: FontSize.md,
-    color: Colors.light.textSecondary,
-    textAlign: 'center',
     marginBottom: Spacing.xl,
-    lineHeight: 22,
-    paddingHorizontal: Spacing.md,
   },
-  scoreCard: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.lg,
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.xl,
+  scoreRing: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 6,
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
+  },
+  scoreRingPass: {
+    borderColor: Colors.secondary,
+    shadowColor: 'rgba(236,194,70,0.4)',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  scoreRingFail: {
+    borderColor: Colors.error,
+  },
+  scoreText: {
+    fontSize: 36,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.creamSoft,
+  },
+  resultLabel: {
+    fontSize: FontSize.xl,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+  },
+  passText: { color: Colors.secondary },
+  failText: { color: Colors.error },
+
+  // Bento
+  bento: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: Spacing.lg,
     width: '100%',
   },
-  scoreLabel: {
-    fontSize: FontSize.sm,
-    color: Colors.white,
-    opacity: 0.8,
-    marginBottom: 4,
-    letterSpacing: 1,
+  bentoCard: {
+    flex: 1,
+    backgroundColor: 'rgba(14,42,77,0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(236,194,70,0.15)',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    alignItems: 'center',
+    gap: 4,
   },
-  scoreValue: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    color: Colors.white,
-    lineHeight: 64,
+  bentoVal: {
+    fontSize: FontSize.xxl,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.creamSoft,
   },
-  scoreValueGold: {
-    color: Colors.accent,
+  bentoLabel: {
+    fontSize: FontSize.xs,
+    fontFamily: FontFamily.body,
+    color: Colors.onSurfaceVariant,
   },
-  rewardBadge: {
+
+  // Rewards
+  rewardsCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(14,42,77,0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(236,194,70,0.3)',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.xl,
+    width: '100%',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  rewardItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: Spacing.sm,
     gap: 8,
   },
-  coinStack: {
-    width: 28,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
+  rewardVal: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.secondary,
   },
-  coinEmoji: {
-    width: 24,
-    height: 24,
-  },
-  coinPill: {
-    backgroundColor: Colors.accent,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  coinPillText: {
-    fontSize: FontSize.sm,
-    fontWeight: 'bold',
-    color: Colors.white,
-  },
-  levelBadge: {
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-  levelBadgeLabel: {
-    fontSize: 10,
-    color: Colors.light.textSecondary,
-    fontWeight: '600',
-    letterSpacing: 1.5,
-    marginBottom: 2,
-  },
-  levelBadgeValue: {
-    fontSize: FontSize.xl,
-    fontWeight: 'bold',
-    color: Colors.accent,
-  },
-  unlockedBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#D1FAE5',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.round,
-    marginBottom: Spacing.lg,
-    gap: 6,
-  },
-  unlockedEmoji: {
-    fontSize: 16,
-  },
-  unlockedText: {
-    fontSize: FontSize.sm,
-    fontWeight: 'bold',
-    color: Colors.success,
+  rewardDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: 'rgba(236,194,70,0.2)',
   },
 
-  // Guest result-screen nudge
-  guestNudge: {
-    width: '100%',
-    backgroundColor: '#FFF8EC',
-    borderColor: Colors.accent,
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
-    alignItems: 'center',
-  },
-  guestNudgeText: {
-    fontSize: FontSize.sm,
-    color: Colors.primary,
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
-    fontWeight: '500',
-  },
-  guestNudgeActions: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    width: '100%',
-  },
-  guestNudgePrimary: {
-    flex: 1,
-    backgroundColor: Colors.accent,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-  },
-  guestNudgePrimaryText: {
-    color: Colors.white,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-  },
-  guestNudgeSecondary: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    paddingVertical: 10,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: Colors.accent,
-  },
-  guestNudgeSecondaryText: {
-    color: Colors.accent,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-  },
-
-  // Lives-exhausted nudge (mirrors guestNudge shape but for the
-  // lives system). Red-tinted to differentiate from the
-  // amber-accent guest nudge so the player doesn't confuse the two.
-  livesNudge: {
-    width: '100%',
-    backgroundColor: '#FEE2E2',
-    borderColor: Colors.error,
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
-    alignItems: 'center',
-  },
-  livesNudgeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
-  },
-  livesNudgeTitle: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: Colors.error,
-    marginLeft: 4,
-  },
-  livesNudgeText: {
-    fontSize: FontSize.sm,
-    color: Colors.primary,
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
-    lineHeight: 19,
-  },
-  livesNudgeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.error,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: 10,
-    borderRadius: BorderRadius.md,
-  },
-  livesNudgeButtonText: {
-    color: '#fff',
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-  },
+  // Actions
   actions: {
     width: '100%',
-    gap: Spacing.sm,
+    gap: 10,
+    marginBottom: Spacing.xl,
   },
-  primaryButton: {
-    backgroundColor: Colors.accent,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.round,
+  ctaBtn: {
+    backgroundColor: Colors.secondary,
+    borderRadius: BorderRadius.sm,
+    paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  primaryButtonText: {
-    color: Colors.white,
+  ctaText: {
     fontSize: FontSize.md,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+    color: Colors.navyDark,
   },
-  secondaryButton: {
-    backgroundColor: Colors.white,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.round,
+  secondaryBtn: {
+    borderWidth: 1,
+    borderColor: 'rgba(236,194,70,0.2)',
+    borderRadius: BorderRadius.sm,
+    paddingVertical: 14,
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: Colors.light.border,
   },
-  secondaryButtonText: {
-    color: Colors.primary,
+  secondaryText: {
     fontSize: FontSize.md,
+    fontFamily: FontFamily.body,
     fontWeight: '600',
+    color: Colors.onSurfaceVariant,
   },
-  tertiaryButton: {
-    paddingVertical: Spacing.sm,
-    alignItems: 'center',
-  },
-  tertiaryButtonText: {
-    color: Colors.light.textSecondary,
+
+  // Verse
+  verse: {
     fontSize: FontSize.sm,
-    fontWeight: '500',
+    fontFamily: FontFamily.body,
+    fontStyle: 'italic',
+    color: Colors.onSurfaceVariant,
+    textAlign: 'center',
+    opacity: 0.6,
+    marginBottom: 4,
+  },
+  verseRef: {
+    fontSize: FontSize.xs,
+    fontFamily: FontFamily.body,
+    fontWeight: '600',
+    color: Colors.secondary,
+    opacity: 0.6,
   },
 });

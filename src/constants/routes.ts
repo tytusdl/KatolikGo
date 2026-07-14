@@ -20,7 +20,20 @@ export const Routes = {
   HOME: '/(tabs)/index',
   PROFILE: '/(tabs)/profile',
   LEADERBOARD: '/(tabs)/leaderboard',
-  QUIZ_PICKER: '/(tabs)/quiz',
+  /**
+   * `Peta` (path) — the new roadmap/path level picker that replaced the
+   * legacy `QUIZ_PICKER` (white-card list). Tab entry maps to the same
+   * `(tabs)` slot so this is just a route renaming — see
+   * `src/app/(tabs)/_layout.tsx` + the spec at
+   * `docs/superpowers/specs/2026-07-10--peta-path-screen.md`.
+   */
+  PETA: '/(tabs)/peta',
+  /**
+   * Legacy alias — kept so any stale import resolves rather than 404'ing
+   * during the rollout window. Map to the same path as `PETA` for now;
+   * remove after the next app release.
+   */
+  QUIZ_PICKER: '/(tabs)/peta',
 
   // Auth screens (under the (auth) layout group).
   LOGIN: '/(auth)/login',
@@ -45,7 +58,8 @@ export const Pathnames = {
   HOME: '/',
   PROFILE: '/profile',
   LEADERBOARD: '/leaderboard',
-  QUIZ_PICKER: '/quiz',
+  PETA: '/peta',
+  QUIZ_PICKER: '/peta',
   LOGIN: '/login',
   REGISTER: '/register',
   ONBOARDING: '/onboarding',

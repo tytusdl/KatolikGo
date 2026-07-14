@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Kuiz Hari Ini</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#241a00",
+                    "on-secondary": "#3d2e00",
+                    "surface-container": "#1e201d",
+                    "secondary-fixed": "#ffe08e",
+                    "secondary-fixed-dim": "#ecc246",
+                    "primary": "#abc9f2",
+                    "on-tertiary": "#670315",
+                    "on-surface-variant": "#c3c6cf",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "surface-variant": "#333532",
+                    "surface-container-high": "#292a27",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "tertiary-container": "#730e1c",
+                    "outline": "#8d9199",
+                    "on-background": "#e3e3de",
+                    "surface-dim": "#121411",
+                    "inverse-surface": "#e3e3de",
+                    "primary-fixed": "#d2e4ff",
+                    "secondary": "#ecc246",
+                    "inverse-primary": "#436084",
+                    "halo-glow": "rgba(236, 194, 70, 0.3)",
+                    "surface-container-lowest": "#0d0f0c",
+                    "primary-fixed-dim": "#abc9f2",
+                    "on-secondary-fixed-variant": "#584400",
+                    "background": "#121411",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "error": "#ffb4ab",
+                    "cream-soft": "#fdfaf0",
+                    "surface-bright": "#383a36",
+                    "on-secondary-container": "#352800",
+                    "on-primary": "#103253",
+                    "secondary-container": "#b18c09",
+                    "surface-container-highest": "#333532",
+                    "navy-dark": "#0e2a4d",
+                    "tertiary-fixed": "#ffdad9",
+                    "error-container": "#93000a",
+                    "tertiary": "#ffb3b2",
+                    "on-tertiary-fixed": "#410008",
+                    "primary-container": "#1a3a5c",
+                    "on-primary-fixed": "#001c37",
+                    "surface-container-low": "#1a1c19",
+                    "on-tertiary-container": "#ff787c",
+                    "inverse-on-surface": "#2f312e",
+                    "status-error": "#c62828",
+                    "on-surface": "#e3e3de",
+                    "outline-variant": "#43474e",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "surface": "#121411",
+                    "on-primary-container": "#87a4cc",
+                    "surface-tint": "#abc9f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "12px",
+                    "margin-desktop": "40px",
+                    "xs": "4px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "base": "8px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "version-text": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .gold-glow {
+            box-shadow: 0 0 40px rgba(236, 194, 70, 0.25);
+        }
+
+        .halo-animation {
+            animation: pulse-halo 4s infinite ease-in-out;
+        }
+
+        @keyframes pulse-halo {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+        }
+
+        .cross-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10v20M15 15h10' stroke='%23ecc246' stroke-width='0.5' fill='none' opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        .glass-card {
+            background: rgba(26, 58, 92, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-secondary selection:text-navy-dark">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full h-16 flex justify-between items-center px-margin-mobile z-50 bg-background/80 backdrop-blur-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile text-secondary tracking-tight">KatolikGo</h1>
+</div>
+<div class="bg-primary-container/40 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-outline-variant/30">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-label-md font-label-md text-secondary">1,250 XP</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="min-h-screen pt-20 pb-32 flex flex-col items-center justify-center px-margin-mobile relative cross-pattern">
+<!-- Decorative Glows -->
+<div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 bg-secondary/10 blur-[100px] rounded-full"></div>
+<!-- Countdown Section -->
+<div class="relative mb-8 group">
+<div class="absolute inset-0 bg-secondary/20 rounded-full blur-3xl halo-animation"></div>
+<div class="w-64 h-64 md:w-80 md:h-80 rounded-full border-4 border-secondary/30 flex items-center justify-center relative z-10 glass-card gold-glow">
+<!-- Inner progress ring -->
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-secondary" cx="50%" cy="50%" fill="transparent" r="48%" stroke="currentColor" stroke-dasharray="800" stroke-dashoffset="200" stroke-width="4"></circle>
+</svg>
+<div class="text-center">
+<span class="text-label-md font-label-md text-secondary/60 uppercase tracking-widest block mb-2">Tamat Dalam</span>
+<div class="text-[36px] md:text-[48px] font-headline-lg text-secondary tracking-tighter leading-none font-bold">
+                        14:25:03
+                    </div>
+</div>
+</div>
+</div>
+<!-- Content Section -->
+<div class="text-center max-w-md w-full">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-secondary mb-2">Kuiz Hari Ini</h2>
+<div class="inline-flex items-center gap-2 bg-secondary/10 px-4 py-1 rounded-full border border-secondary/20 mb-6">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<p class="text-label-md font-label-md text-secondary">Topik: Mukjizat Yesus</p>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-8 px-4 leading-relaxed">
+                Uji pengetahuan anda dan kumpul <span class="text-secondary font-bold">100 XP</span> serta <span class="text-secondary font-bold">20 Token bonus</span> untuk penyelesaian hari ini.
+            </p>
+<!-- CTA Button -->
+<button class="w-full py-5 bg-secondary text-navy-dark rounded-xl font-headline-md text-headline-md flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(236,194,70,0.3)] hover:scale-[1.02] active:scale-95 transition-all group overflow-hidden relative">
+<div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+<span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span class="relative z-10">Mula Sekarang</span>
+</button>
+</div>
+<!-- Footer Note -->
+<div class="mt-8 flex items-center gap-2 text-on-surface-variant/80">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-label-md font-label-md">5 Nyawa tersedia</span>
+</div>
+<!-- Background Image for context -->
+<div class="absolute bottom-32 right-[-10%] w-64 h-64 opacity-20 pointer-events-none">
+<img class="w-full h-full object-contain" data-alt="A sacred, glowing golden chalice and the Eucharist floating in a dark, ethereal space filled with soft divine light and golden particles. The style is cinematic and devotional, emphasizing high-end religious digital art with a deep navy and gold color palette that matches the premium corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwz-Bb7M2OBe1xr6joZGPDJiAYgMbYaSCX2s_OHc7RdZmVtUm9NhfbJHpPJWJ5COqa0Dadt9Zj0f1bXTVjEZCAry8E0fwZohgWWIFoIWHbMQNj4M2S0JqWE77FIH089dRKNYwWOOcWwJumZPFUQPqOcQapxPhHf8f-s_8HTccSin-sCG5E8msQ6nbTsmcSdjo6CTubbIjFX-QB_utWw82DMxpw_pov3cxDLzfQEMYLE0He4ko2PDdte_l5cYeM4eW2Z0iE1hLCM3vL"/>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-2 pb-8 bg-surface-container/90 backdrop-blur-lg border-t border-outline-variant/20 shadow-[0_-4px_20px_rgba(236,194,70,0.1)]">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-secondary rounded-full px-4 py-1.5 transition-all duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-md font-label-md">Home</span>
+</a>
+<!-- Quiz -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="text-label-md font-label-md">Quiz</span>
+</a>
+<!-- Rank -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-label-md font-label-md">Rank</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-md font-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the countdown
+        let seconds = 51903; // ~14:25:03
+        const countdownEl = document.querySelector('.font-headline-lg');
+
+        function updateTimer() {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            
+            countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            if (seconds > 0) seconds--;
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
+</body></html>

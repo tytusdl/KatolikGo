@@ -1,0 +1,249 @@
+<!DOCTYPE html><html class="dark" lang="ms" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>KatolikGo - Skrin Menjawab Kuiz</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .halo-glow {
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
+        }
+        .cross-pattern {
+            background-color: #0e2a4d;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 11h2v18h-2zM11 19h18v2h-18z' fill='%23ecc246' fill-opacity='0.03'/%3E%3C/svg%3E");
+        }
+        .glass-card {
+            background: rgba(30, 58, 92, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+        }
+    </style>
+<!-- Tailwind Config Injection -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#730e1c",
+                    "primary-fixed": "#d2e4ff",
+                    "surface-variant": "#333532",
+                    "navy-dark": "#0e2a4d",
+                    "on-surface-variant": "#c3c6cf",
+                    "surface-bright": "#383a36",
+                    "surface-tint": "#abc9f2",
+                    "on-primary-fixed": "#001c37",
+                    "surface-container-high": "#292a27",
+                    "error": "#ffb4ab",
+                    "surface": "#121411",
+                    "on-secondary-fixed-variant": "#584400",
+                    "cream-soft": "#fdfaf0",
+                    "on-primary-container": "#87a4cc",
+                    "on-secondary": "#3d2e00",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#ecc246",
+                    "tertiary-fixed": "#ffdad9",
+                    "inverse-on-surface": "#2f312e",
+                    "surface-container": "#1e201d",
+                    "secondary-fixed": "#ffe08e",
+                    "inverse-surface": "#e3e3de",
+                    "inverse-primary": "#436084",
+                    "primary-fixed-dim": "#abc9f2",
+                    "background": "#121411",
+                    "surface-container-low": "#1a1c19",
+                    "on-error": "#690005",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "primary": "#abc9f2",
+                    "secondary-container": "#b18c09",
+                    "secondary": "#ecc246",
+                    "status-error": "#c62828",
+                    "on-background": "#e3e3de",
+                    "halo-glow": "rgba(201, 162, 39, 0.3)",
+                    "outline-variant": "#43474e",
+                    "on-tertiary-fixed": "#410008",
+                    "on-primary": "#103253",
+                    "on-tertiary-container": "#ff787c",
+                    "surface-container-lowest": "#0d0f0c",
+                    "outline": "#8d9199",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "on-secondary-container": "#352800",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#333532",
+                    "on-secondary-fixed": "#241a00",
+                    "on-surface": "#e3e3de",
+                    "primary-container": "#1a3a5c",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "on-tertiary": "#670315",
+                    "tertiary": "#ffb3b2",
+                    "surface-dim": "#121411"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "base": "8px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "xl": "32px",
+                    "margin-desktop": "40px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "version-text": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-navy-dark cross-pattern text-on-surface min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-secondary selection:text-navy-dark">
+<!-- Top App Bar / Progress Header -->
+<header class="w-full top-0 sticky bg-navy-dark/80 backdrop-blur-md border-b border-secondary/20 flex justify-between items-center px-margin-mobile py-base z-50 shadow-sm">
+<div class="flex items-center gap-sm">
+<button class="text-secondary hover:opacity-80 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<div class="flex flex-col">
+<span class="font-label-md text-[10px] text-secondary tracking-widest uppercase">Peringkat 12</span>
+<div class="flex items-center gap-xs">
+<div class="w-32 h-2 bg-primary-container rounded-full overflow-hidden">
+<div class="w-[40%] h-full bg-secondary shadow-halo-glow transition-all duration-700 ease-out"></div>
+</div>
+<span class="font-label-md text-secondary text-xs">4/10</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-xs px-sm py-1 bg-surface-container-low rounded-full border border-secondary/10">
+<span class="material-symbols-outlined text-status-error fill-icon text-sm" data-icon="favorite">favorite</span>
+<span class="material-symbols-outlined text-status-error fill-icon text-sm" data-icon="favorite">favorite</span>
+<span class="material-symbols-outlined text-status-error fill-icon text-sm" data-icon="favorite">favorite</span>
+<span class="material-symbols-outlined text-on-surface-variant/30 text-sm" data-icon="favorite">favorite</span>
+<span class="material-symbols-outlined text-on-surface-variant/30 text-sm" data-icon="favorite">favorite</span>
+<span class="ml-1 font-label-md text-secondary text-xs">3</span>
+</div>
+</header>
+<main class="flex-1 w-full max-w-2xl mx-auto px-margin-mobile pt-xl pb-32 flex flex-col items-center">
+<!-- Illustration/Icon Area -->
+<!-- Question Area -->
+<div class="glass-card w-full rounded-3xl text-center shadow-xl relative overflow-hidden p-md mb-md">
+<div class="absolute inset-0 opacity-10">
+</div>
+<div class="relative z-10">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-cream-soft mb-xs">Siapakah yang membina Bahtera sebelum banjir besar?</h1>
+<p class="text-secondary/60 text-xs tracking-wider font-label-md">PL / KEJADIAN 6:14</p>
+</div>
+</div><div class="w-full mb-lg">
+<div class="flex justify-between items-center mb-xs px-1">
+<span class="text-secondary font-label-md text-xs uppercase tracking-widest">Masa</span>
+<span class="text-secondary font-bold text-xs">15s</span>
+</div>
+<div class="w-full h-2 bg-primary-container rounded-full overflow-hidden border border-secondary/20">
+<div class="w-3/4 h-full bg-secondary shadow-halo-glow animate-pulse"></div>
+</div>
+</div>
+<!-- Multiple Choice Options -->
+<div class="w-full grid grid-cols-1 gap-sm">
+<!-- Option A -->
+<button class="group flex items-center w-full rounded-2xl border border-secondary/10 bg-surface-container-low hover:border-secondary/40 transition-all duration-300 active:scale-[0.98] py-sm px-md">
+<div class="w-10 h-10 rounded-xl bg-navy-dark border border-secondary/20 flex items-center justify-center font-bold text-secondary mr-md group-hover:bg-secondary group-hover:text-navy-dark transition-colors">A</div>
+<span class="font-body-md text-on-surface">Musa</span>
+</button>
+<!-- Option B (Selected) -->
+<button class="group flex items-center w-full rounded-2xl border-2 border-secondary bg-navy-dark halo-glow transition-all duration-300 active:scale-[0.98] relative overflow-hidden py-sm px-md"><div class="absolute right-4 top-1/2 -translate-y-1/2"><span class="material-symbols-outlined text-secondary text-2xl" data-icon="check_circle">check_circle</span></div><div class="w-10 h-10 rounded-xl bg-secondary border border-secondary/20 flex items-center justify-center font-bold text-navy-dark mr-md">B</div><span class="font-body-md text-secondary font-semibold">Nuh</span></button>
+<!-- Option C -->
+<button class="group flex items-center w-full rounded-2xl border-2 border-status-error bg-tertiary-container transition-all duration-300 active:scale-[0.98] relative overflow-hidden py-sm px-md"><div class="absolute right-4 top-1/2 -translate-y-1/2"><span class="material-symbols-outlined text-cream-soft text-2xl" data-icon="cancel">cancel</span></div><div class="w-10 h-10 rounded-xl bg-status-error border border-white/10 flex items-center justify-center font-bold text-cream-soft mr-md">C</div><span class="font-body-md text-cream-soft font-semibold">Abraham</span></button>
+<!-- Option D -->
+<button class="group flex items-center w-full rounded-2xl border border-secondary/10 bg-surface-container-low hover:border-secondary/40 transition-all duration-300 active:scale-[0.98] py-sm px-md">
+<div class="w-10 h-10 rounded-xl bg-navy-dark border border-secondary/20 flex items-center justify-center font-bold text-secondary mr-md group-hover:bg-secondary group-hover:text-navy-dark transition-colors">D</div>
+<span class="font-body-md text-on-surface">Daud</span>
+</button>
+</div><div class="w-full mt-md animate-pulse duration-700">
+<div class="glass-card rounded-2xl p-md border-secondary/30 relative overflow-hidden">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
+<span class="text-secondary font-label-md text-xs uppercase tracking-widest">Penerangan</span>
+</div>
+<p class="text-cream-soft text-sm leading-relaxed">
+Menurut Kitab Kejadian 6:14, Allah memerintahkan Nuh untuk membina sebuah bahtera daripada kayu gofir untuk menyelamatkan keluarganya dan pasangan setiap jenis haiwan daripada banjir besar.
+</p>
+</div>
+</div>
+</main>
+<!-- Footer Action Area -->
+<footer class="fixed bottom-0 left-0 w-full bg-navy-dark/90 backdrop-blur-xl border-t border-secondary/10 z-50 py-sm px-margin-mobile"><div class="max-w-2xl mx-auto flex flex-col gap-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="text-secondary/60 font-label-md text-[10px] uppercase tracking-widest">Bantuan</span>
+<div class="flex gap-sm">
+<button class="flex items-center justify-center gap-xs px-sm py-base rounded-xl border border-secondary/30 bg-surface-container-low text-secondary font-label-md active:scale-95 transition-transform hover:bg-secondary/10">
+<span class="material-symbols-outlined text-sm" data-icon="exposure_neg_1">exposure_neg_1</span>
+            50/50
+        </button>
+<button class="flex items-center justify-center gap-xs px-sm py-base rounded-xl border border-secondary/30 bg-surface-container-low text-secondary font-label-md active:scale-95 transition-transform hover:bg-secondary/10">
+<span class="material-symbols-outlined text-sm" data-icon="lightbulb">lightbulb</span>
+            Petunjuk
+        </button>
+</div>
+</div>
+</div>
+<button class="w-full text-cream-soft font-headline-md text-headline-md py-sm rounded-2xl shadow-halo-glow hover:opacity-90 active:scale-95 transition-all duration-200 border-b-4 border-black/20 bg-secondary text-navy-dark">Seterusnya</button>
+</div></footer>
+<!-- Background Ambience -->
+<div class="fixed inset-0 pointer-events-none z-[-1] opacity-30">
+<div class="absolute top-1/4 -left-20 w-64 h-64 bg-secondary/10 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-1/4 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px]"></div>
+</div>
+<script>
+        // Simple Interaction logic for demo
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Haptic feedback simulation
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+
+        // Add a parallax effect to the cross pattern
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            document.body.style.backgroundPositionY = -(scrolled * 0.1) + 'px';
+        });
+    </script>
+
+
+</body></html>

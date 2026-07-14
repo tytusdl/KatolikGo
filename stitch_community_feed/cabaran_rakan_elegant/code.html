@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .halo-glow-sm {
+            box-shadow: 0 0 15px rgba(201, 162, 39, 0.25);
+        }
+        .glass-card {
+            background: rgba(30, 32, 29, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.1);
+        }
+        .serpentine-bg {
+            background: radial-gradient(circle at 50% 0%, rgba(171, 201, 242, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, rgba(201, 162, 39, 0.05) 0%, transparent 50%);
+        }
+        /* Custom Checkbox */
+        .custom-checkbox:checked {
+            background-color: #ecc246;
+            border-color: #ecc246;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#241a00",
+                        "on-tertiary-fixed": "#410008",
+                        "surface-variant": "#333532",
+                        "primary-fixed-dim": "#abc9f2",
+                        "on-background": "#e3e3de",
+                        "on-primary-fixed-variant": "#2a486b",
+                        "primary-fixed": "#d2e4ff",
+                        "tertiary-fixed": "#ffdad9",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#e3e3de",
+                        "background": "#121411",
+                        "primary": "#abc9f2",
+                        "surface-tint": "#abc9f2",
+                        "surface-container-highest": "#333532",
+                        "on-primary-container": "#87a4cc",
+                        "on-tertiary": "#670315",
+                        "on-secondary": "#3d2e00",
+                        "navy-dark": "#0e2a4d",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#ecc246",
+                        "surface-container-high": "#292a27",
+                        "on-secondary-container": "#352800",
+                        "surface-dim": "#121411",
+                        "on-tertiary-container": "#ff787c",
+                        "inverse-primary": "#436084",
+                        "on-surface": "#e3e3de",
+                        "on-surface-variant": "#c3c6cf",
+                        "tertiary-container": "#730e1c",
+                        "outline-variant": "#43474e",
+                        "cream-soft": "#fdfaf0",
+                        "on-primary-fixed": "#001c37",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#2f312e",
+                        "secondary": "#ecc246",
+                        "surface-container": "#1e201d",
+                        "on-primary": "#103253",
+                        "halo-glow": "rgba(201, 162, 39, 0.3)",
+                        "secondary-container": "#b18c09",
+                        "surface": "#121411",
+                        "tertiary": "#ffb3b2",
+                        "primary-container": "#1a3a5c",
+                        "tertiary-fixed-dim": "#ffb3b2",
+                        "surface-bright": "#383a36",
+                        "status-error": "#c62828",
+                        "on-secondary-fixed-variant": "#584400",
+                        "outline": "#8d9199",
+                        "on-tertiary-fixed-variant": "#871e28",
+                        "surface-container-low": "#1a1c19",
+                        "surface-container-lowest": "#0d0f0c",
+                        "secondary-fixed": "#ffe08e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "gutter": "16px",
+                        "sm": "12px",
+                        "xs": "4px",
+                        "margin-desktop": "40px",
+                        "md": "16px",
+                        "margin-mobile": "20px",
+                        "xl": "32px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "version-text": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md serpentine-bg min-h-screen pb-40">
+<!-- Top AppBar -->
+<header class="w-full top-0 sticky z-50 bg-background/80 backdrop-blur-md flex items-center justify-between px-margin-mobile md:px-margin-desktop py-base">
+<div class="flex items-center gap-md">
+<button class="active:scale-95 duration-200 text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-secondary tracking-tight">KatolikGo</h1>
+</div>
+<button class="active:scale-95 duration-200 text-primary">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</header>
+<main class="px-margin-mobile md:px-margin-desktop mt-lg max-w-3xl mx-auto">
+<!-- Title & Search -->
+<div class="mb-xl text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-cream-soft mb-sm">Cabar Rakan</h2>
+<p class="text-on-surface-variant font-body-md">Pilih rakan dan subjek untuk mulakan cabaran rohani.</p>
+</div>
+<div class="relative group mb-lg">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-secondary transition-colors">search</span>
+<input class="w-full bg-surface-container border-2 border-transparent focus:border-secondary focus:ring-0 rounded-xl py-sm pl-12 pr-md text-on-surface placeholder:text-on-surface-variant/50 transition-all outline-none" placeholder="Cari rakan..." type="text"/>
+</div>
+<!-- Friend List -->
+<div class="space-y-md">
+<!-- Friend Row 1 -->
+<div class="glass-card rounded-xl p-md flex flex-col md:flex-row md:items-center gap-md transition-all hover:border-secondary/30">
+<div class="flex items-center gap-md flex-1">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary/50 halo-glow-sm">
+<img class="w-full h-full object-cover" data-alt="A portrait of a smiling young Malaysian man with a kind expression, soft natural lighting, set against a blurred background of a modern parish hall. The image has a warm, premium feel with rich colors and clean composition consistent with a high-end educational app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAG90Yl9FOXRWZun12rLgvvfNNY56TawF1MMOv1LQjOy1O80dQt9Pgb2DmMknKXI5nK1A1CeJfmJNOavS_hJDuPGLhwBkFMIPgiOOgYOOBhyXMizjNJx8zVEst_MLLdH2OSnwXfcKjuwai25823CDNC1gJJjbzTSGpokJMRKyZD20fPu9nSJku8O5ZIws5Ma7prhKOgPynuQrV-twW_5G4ez7wwUlj76o5khvRhGIUqNf1LLS3EGsr2eV9LRKy_dItEoVTBEaaYIvT"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-navy-dark rounded-full"></div>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-cream-soft">Dominic Tan</h3>
+<p class="text-label-md text-secondary/80 flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            Dalam Talian
+                        </p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative flex-1 md:w-48">
+<select class="w-full bg-primary-container text-cream-soft border-none rounded-lg py-xs px-sm font-label-md appearance-none cursor-pointer focus:ring-1 focus:ring-secondary">
+<option>Alkitab</option>
+<option>Liturgi</option>
+<option>Santo-Santa</option>
+<option>Sejarah</option>
+</select>
+<span class="material-symbols-outlined absolute right-xs top-1/2 -translate-y-1/2 pointer-events-none text-secondary">arrow_drop_down</span>
+</div>
+<label class="relative flex items-center cursor-pointer">
+<input class="custom-checkbox w-6 h-6 rounded border-2 border-secondary/50 bg-transparent text-secondary focus:ring-0 transition-colors" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Friend Row 2 -->
+<div class="glass-card rounded-xl p-md flex flex-col md:flex-row md:items-center gap-md transition-all hover:border-secondary/30">
+<div class="flex items-center gap-md flex-1">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary/50 halo-glow-sm">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a serene Malaysian woman with glasses, smiling gently. The lighting is ethereal and soft, mimicking stained glass reflections. Professional photography style with a focus on a friendly, welcoming community member for a religious social platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFXQFLMjW9LxDTD5gk0d_ye431Kw1fFf91ZHDh5a0BO91ulliE8Kl_iyFHMy-G3ZNmLe2Ec1xWBL57RHjD3Xi0GUuQXhs_p8wYIRx0Ie_WDstkoWjEmQih6eYNeufZf3nHhFyLam6M9SbW3Mpa-mSx6Jy0JGn3IjcAxfbUq2-FKcWKTH7lWAZyw9K2LsNXhOv5XKqScsPAHk4aSLj4uu1uKi53m7NqW88l-XDXLHBYCHXMI72AOK2swBj7bl8Vp-zVzFUamNN-o8lr"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-navy-dark rounded-full"></div>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-cream-soft">Maria Anak Joseph</h3>
+<p class="text-label-md text-secondary/80 flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            Dalam Talian
+                        </p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative flex-1 md:w-48">
+<select class="w-full bg-primary-container text-cream-soft border-none rounded-lg py-xs px-sm font-label-md appearance-none cursor-pointer focus:ring-1 focus:ring-secondary">
+<option>Santo-Santa</option>
+<option>Alkitab</option>
+<option>Liturgi</option>
+<option>Sejarah</option>
+</select>
+<span class="material-symbols-outlined absolute right-xs top-1/2 -translate-y-1/2 pointer-events-none text-secondary">arrow_drop_down</span>
+</div>
+<label class="relative flex items-center cursor-pointer">
+<input class="custom-checkbox w-6 h-6 rounded border-2 border-secondary/50 bg-transparent text-secondary focus:ring-0 transition-colors" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Friend Row 3 -->
+<div class="glass-card rounded-xl p-md flex flex-col md:flex-row md:items-center gap-md transition-all hover:border-secondary/30">
+<div class="flex items-center gap-md flex-1 opacity-70">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden border-2 border-outline/50">
+<img class="w-full h-full object-cover grayscale" data-alt="Friendly face of an elderly man with silver hair and a warm smile, wearing a traditional Malaysian shirt. Soft, warm indoor lighting, high-quality digital portrait style. The aesthetic is respectful, traditional, and premium, suggesting wisdom and community leadership." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn_TLIyPkxo7dOosuuB5nTFVKLHX25jkcTXx8Q3MtMNPcMPGRcGQmcrNSgGEqg0ZxW5dD_ORoJfWHYBFUqaMFRifPdiQ3Tjaxrmj_VaaLPEtp7agAMins-LmyE6m-MNYKoYBL5CfGiGI0ur4niLtYEMB9bi6c-QBmh65q5sqjLnFfnnLx2Hu_y1lKXbeJNb_plNUWMChaHJEXOMvjPya8oeidYiZgRj2z4IzIkJSaHWC-DoMybvyUour2fnVfa31_UrDXP5gnLqVuW"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-surface-variant border-2 border-navy-dark rounded-full"></div>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-cream-soft">Uncle Francis</h3>
+<p class="text-label-md text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+                            Log keluar 2j lalu
+                        </p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative flex-1 md:w-48">
+<select class="w-full bg-primary-container text-cream-soft border-none rounded-lg py-xs px-sm font-label-md appearance-none cursor-pointer focus:ring-1 focus:ring-secondary">
+<option>Sejarah</option>
+<option>Alkitab</option>
+<option>Liturgi</option>
+<option>Santo-Santa</option>
+</select>
+<span class="material-symbols-outlined absolute right-xs top-1/2 -translate-y-1/2 pointer-events-none text-secondary">arrow_drop_down</span>
+</div>
+<label class="relative flex items-center cursor-pointer">
+<input class="custom-checkbox w-6 h-6 rounded border-2 border-secondary/50 bg-transparent text-secondary focus:ring-0 transition-colors" type="checkbox"/>
+</label>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<div class="mt-xl flex justify-center">
+<button class="w-full max-w-md bg-secondary text-on-secondary-fixed font-headline-md text-headline-md py-md px-xl rounded-xl shadow-[0_0_30px_rgba(201,162,39,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-base">
+<span class="material-symbols-outlined">send</span>
+                Hantar Jemputan
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation Bar (as described in JSON) -->
+<nav class="fixed bottom-lg left-0 right-0 z-50 flex justify-around items-center px-gutter py-sm mx-auto max-w-md bg-surface-container/90 dark:bg-surface-container/90 fixed bottom-base left-1/2 -translate-x-1/2 w-[calc(100%-40px)] rounded-xl border border-secondary/20 backdrop-blur-lg shadow-[0_0_20px_rgba(201,162,39,0.2)]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 px-sm py-xs hover:text-secondary transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<!-- Levels -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 px-sm py-xs hover:text-secondary transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Levels</span>
+</a>
+<!-- Arena (Active based on context of 'Challenge') -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-secondary rounded-xl px-sm py-xs active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="swords" style="font-variation-settings: 'FILL' 1;">swords</span>
+<span class="font-label-md text-label-md">Arena</span>
+</a>
+<!-- Ranking -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 px-sm py-xs hover:text-secondary transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-md text-label-md">Ranking</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 px-sm py-xs hover:text-secondary transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple Interaction for selection count
+        const checkboxes = document.querySelectorAll('.custom-checkbox');
+        const mainBtn = document.querySelector('button.bg-secondary');
+        const originalText = mainBtn.innerHTML;
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const checkedCount = document.querySelectorAll('.custom-checkbox:checked').length;
+                if (checkedCount > 0) {
+                    mainBtn.innerHTML = `<span class="material-symbols-outlined">send</span> Hantar Jemputan (${checkedCount})`;
+                } else {
+                    mainBtn.innerHTML = originalText;
+                }
+            });
+        });
+    </script>
+</body></html>

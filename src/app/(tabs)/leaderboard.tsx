@@ -1,10 +1,25 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { subscribeToGlobalLeaderboard } from '@/services/leaderboardService';
 import type { LeaderboardEntry } from '@/types';
-import { Colors, Spacing, FontSize, BorderRadius } from '@/constants/theme';
+import { Colors, Spacing, FontSize, BorderRadius, FontFamily } from '@/constants/theme';
+
+const GLASS = {
+  backgroundColor: 'rgba(14,42,77,0.6)',
+  borderWidth: 1,
+  borderColor: 'rgba(236,194,70,0.15)',
+  borderRadius: BorderRadius.lg,
+};
 
 type TimeFilter = 'today' | 'weekly' | 'monthly';
 
@@ -16,167 +31,114 @@ export default function LeaderboardScreen() {
   const [filter, setFilter] = useState<TimeFilter>('monthly');
 
   useEffect(() => {
-    const unsubscribe = subscribeToGlobalLeaderboard((data) => {
+    const unsub = subscribeToGlobalLeaderboard((data) => {
       setEntries(data);
       setLoading(false);
     });
-
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
   const topThree = entries.slice(0, 3);
-  const restEntries = entries.slice(3);
-
-  // Mock trend data (in real app, this comes from history)
-  const getTrend = (userId: string): { value: number; direction: 'up' | 'down' } | null => {
-    const hash = userId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    const value = (hash % 25) + 1;
-    return { value, direction: hash % 2 === 0 ? 'up' : 'down' };
-  };
+  const rest = entries.slice(3);
 
   if (loading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={Colors.white} />
-      </View>
-    );
-  }
-
-  if (entries.length === 0) {
-    return (
-      <View style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerTitle}>Papan Pendahulu</Text>
-            <TouchableOpacity style={styles.menuBtn}>
-              <Text style={styles.menuBtnText}>⋯</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.headerSubtitle}>{filter === 'today' ? 'Hari Ini' : filter === 'weekly' ? 'Mingguan' : 'Bulanan'} 2026</Text>
-        </View>
-        
-        <View style={styles.emptyContainer}>
-          <View style={styles.emptyIcon}>
-            <Text style={styles.emptyEmoji}>🏆</Text>
-          </View>
-          <Text style={styles.emptyTitle}>Belum Ada Peserta</Text>
-          <Text style={styles.emptySubtitle}>
-            Jadilah yang pertama! Jawab kuiz dan kumpul XP untuk berada di carta!
-          </Text>
-        </View>
+        <ActivityIndicator size="large" color={Colors.secondary} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Papan Pendahulu</Text>
-          <TouchableOpacity style={styles.menuBtn}>
-            <Text style={styles.menuBtnText}>⋯</Text>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <Text style={styles.headerTitle}>Papan Pendahulu</Text>
+      </View>
+
+      {/* Filter Pills */}
+      <View style={styles.filterRow}>
+        {(['today', 'weekly', 'monthly'] as const).map((f) => (
+          <TouchableOpacity
+            key={f}
+            style={[styles.filterPill, filter === f && styles.filterPillActive]}
+            onPress={() => setFilter(f)}
+          >
+            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
+              {f === 'today' ? 'Hari Ini' : f === 'weekly' ? 'Mingguan' : 'Bulanan'}
+            </Text>
           </TouchableOpacity>
-        </View>
-        <Text style={styles.headerSubtitle}>
-          {filter === 'today' ? 'Hari Ini' : filter === 'weekly' ? 'Mingguan' : 'Bulanan'} 2026
-        </Text>
+        ))}
       </View>
 
-      {/* Time Filter Pills */}
-      <View style={styles.filterContainer}>
-        <FilterButton label="Hari Ini" active={filter === 'today'} onPress={() => setFilter('today')} />
-        <FilterButton label="Mingguan" active={filter === 'weekly'} onPress={() => setFilter('weekly')} />
-        <FilterButton label="Bulanan" active={filter === 'monthly'} onPress={() => setFilter('monthly')} />
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Top 3 Podium */}
-        {topThree.length > 0 && (
-          <View style={styles.podiumSection}>
-            <View style={styles.podiumContainer}>
-              <PodiumCard 
-                entry={topThree[1]} 
-                rank={2} 
-                color="#9CA3AF" 
-                height={100} 
-              />
-              <PodiumCard 
-                entry={topThree[0]} 
-                rank={1} 
-                color={Colors.accent} 
-                height={130} 
-              />
-              <PodiumCard 
-                entry={topThree[2]} 
-                rank={3} 
-                color="#B45309" 
-                height={80} 
-              />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Podium */}
+        {topThree.length >= 3 && (
+          <View style={styles.podium}>
+            {/* 2nd */}
+            <View style={styles.podiumItem}>
+              <View style={styles.podiumAvatar}>
+                <Text style={styles.podiumInitial}>{topThree[1].displayName.charAt(0)}</Text>
+              </View>
+              <Text style={styles.podiumName} numberOfLines={1}>{topThree[1].displayName}</Text>
+              <View style={[styles.podiumBar, { height: 80, backgroundColor: '#C3C6CF' }]}>
+                <Text style={styles.podiumRank}>2</Text>
+              </View>
+            </View>
+            {/* 1st */}
+            <View style={styles.podiumItem}>
+              <Ionicons name="trophy" size={24} color={Colors.secondary} />
+              <View style={[styles.podiumAvatar, styles.podiumAvatarGold]}>
+                <Text style={styles.podiumInitialGold}>{topThree[0].displayName.charAt(0)}</Text>
+              </View>
+              <Text style={styles.podiumNameGold} numberOfLines={1}>{topThree[0].displayName}</Text>
+              <View style={[styles.podiumBar, { height: 110, backgroundColor: Colors.secondary }]}>
+                <Text style={styles.podiumRankGold}>1</Text>
+              </View>
+            </View>
+            {/* 3rd */}
+            <View style={styles.podiumItem}>
+              <View style={styles.podiumAvatar}>
+                <Text style={styles.podiumInitial}>{topThree[2].displayName.charAt(0)}</Text>
+              </View>
+              <Text style={styles.podiumName} numberOfLines={1}>{topThree[2].displayName}</Text>
+              <View style={[styles.podiumBar, { height: 60, backgroundColor: '#A67C52' }]}>
+                <Text style={styles.podiumRank}>3</Text>
+              </View>
             </View>
           </View>
         )}
 
-        {/* Rest of Leaderboard - White Card */}
-        <View style={styles.listContainer}>
-          {restEntries.map((item, index) => {
-            const isCurrentUser = item.userId === userData?.uid;
-            const actualRank = index + 4;
-            const trend = getTrend(item.userId);
-
+        {/* Rank List */}
+        <View style={styles.listSection}>
+          {rest.map((entry, idx) => {
+            const rank = idx + 4;
+            const isMe = entry.userId === userData?.uid;
             return (
-              <View 
-                key={item.userId} 
-                style={[styles.entryCard, isCurrentUser && styles.currentUserEntry]}
+              <View
+                key={entry.userId}
+                style={[styles.rankRow, isMe && styles.rankRowMe]}
               >
-                <View style={styles.rankContainer}>
-                  <Text style={[styles.rank, isCurrentUser && styles.currentUserText]}>
-                    #{actualRank}
-                  </Text>
+                <Text style={[styles.rankNum, isMe && styles.rankNumMe]}>#{rank}</Text>
+                <View style={styles.rankAvatar}>
+                  <Text style={styles.rankAvatarText}>{entry.displayName.charAt(0)}</Text>
                 </View>
-
-                <View style={styles.avatarSmall}>
-                  <Text style={styles.avatarSmallInitial}>
-                    {item.displayName.charAt(0).toUpperCase()}
+                <View style={styles.rankInfo}>
+                  <Text style={[styles.rankName, isMe && styles.rankNameMe]} numberOfLines={1}>
+                    {entry.displayName}{isMe ? ' (Anda)' : ''}
                   </Text>
+                  <Text style={styles.rankXP}>{entry.totalXP.toLocaleString()} XP</Text>
                 </View>
-
-                <View style={styles.userInfo}>
-                  <Text style={[styles.displayName, isCurrentUser && styles.currentUserText]} numberOfLines={1}>
-                    {item.displayName}
-                    {isCurrentUser && ' (Anda)'}
-                  </Text>
-                  <Text style={[styles.parish, isCurrentUser && styles.currentUserText]} numberOfLines={1}>
-                    {item.parishName || `${item.totalXP.toLocaleString()} coins`}
-                  </Text>
-                </View>
-
-                {/* Trend Badge */}
-                {trend && (
-                  <View style={[
-                    styles.trendBadge,
-                    trend.direction === 'up' ? styles.trendUp : styles.trendDown,
-                    isCurrentUser && styles.trendBadgeCurrent
-                  ]}>
-                    <Text style={styles.trendValue}>{trend.value}</Text>
-                    <Text style={[
-                      styles.trendArrow,
-                      trend.direction === 'up' ? styles.trendArrowUp : styles.trendArrowDown
-                    ]}>
-                      {trend.direction === 'up' ? '▲' : '▼'}
-                    </Text>
-                  </View>
-                )}
               </View>
             );
           })}
-
-          {restEntries.length === 0 && (
-            <View style={styles.emptyList}>
-              <Text style={styles.emptyListText}>Tiada peserta lain lagi</Text>
-            </View>
-          )}
         </View>
+
+        {entries.length === 0 && (
+          <View style={styles.emptyState}>
+            <Ionicons name="trophy-outline" size={48} color={Colors.onSurfaceVariant} />
+            <Text style={styles.emptyText}>Belum Ada Peserta</Text>
+          </View>
+        )}
 
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -184,349 +146,207 @@ export default function LeaderboardScreen() {
   );
 }
 
-function FilterButton({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return (
-    <View style={styles.filterButtonWrap}>
-      <Text 
-        onPress={onPress}
-        style={[styles.filterButton, active && styles.filterButtonActive]}
-      >
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-function PodiumCard({ 
-  entry, 
-  rank, 
-  color, 
-  height,
-}: { 
-  entry?: LeaderboardEntry; 
-  rank: number; 
-  color: string;
-  height: number;
-}) {
-  if (!entry) {
-    return (
-      <View style={styles.podiumItem}>
-        <View style={[styles.podiumCircle, { borderColor: color, backgroundColor: Colors.light.surfaceAlt }]}>
-          <Text style={[styles.podiumInitial, { color: Colors.light.textSecondary }]}>?</Text>
-        </View>
-        <Text style={styles.podiumName}>Kosong</Text>
-        <View style={[styles.podiumBase, { height, backgroundColor: color, opacity: 0.5 }]}>
-          <Text style={styles.podiumBaseRank}>{rank}</Text>
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.podiumItem}>
-      {/* Crown untuk 1st place */}
-      {rank === 1 && <Text style={styles.crownEmoji}>👑</Text>}
-      
-      <View style={[styles.podiumCircle, { borderColor: color }]}>
-        <Text style={styles.podiumInitial}>
-          {entry.displayName.charAt(0).toUpperCase()}
-        </Text>
-      </View>
-      
-      <Text style={styles.podiumName} numberOfLines={1}>
-        {entry.displayName}
-      </Text>
-      
-      <Text style={styles.podiumScore}>{entry.totalXP.toLocaleString()}</Text>
-      
-      <View style={[styles.podiumBase, { height, backgroundColor: color }]}>
-        <Text style={styles.podiumBaseRank}>{rank}</Text>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.primary,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF8EC', // Warm cream
-  },
-  
-  // Header
+  container: { flex: 1, backgroundColor: Colors.background },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background },
+
   header: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    paddingBottom: Spacing.sm,
+    backgroundColor: 'rgba(18,20,17,0.8)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(236,194,70,0.1)',
   },
   headerTitle: {
     fontSize: FontSize.xxl,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.secondary,
   },
-  headerSubtitle: {
-    fontSize: FontSize.sm,
-    color: Colors.light.textSecondary,
-    marginTop: 2,
-  },
-  menuBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  menuBtnText: {
-    fontSize: 20,
-    color: Colors.primary,
-  },
-  
+
   // Filter
-  filterContainer: {
+  filterRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.white,
-    marginHorizontal: Spacing.lg,
-    padding: 4,
-    borderRadius: BorderRadius.round,
-    marginBottom: Spacing.lg,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  filterButtonWrap: {
-    flex: 1,
-  },
-  filterButton: {
-    textAlign: 'center',
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
-    fontSize: FontSize.sm,
-    fontWeight: '500',
-    color: Colors.light.textSecondary,
+    gap: 8,
+  },
+  filterPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: BorderRadius.round,
-    overflow: 'hidden',
+    backgroundColor: 'rgba(14,42,77,0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(236,194,70,0.1)',
   },
-  filterButtonActive: {
-    backgroundColor: Colors.primary,
-    color: Colors.white,
+  filterPillActive: {
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.secondary,
+  },
+  filterText: {
+    fontSize: FontSize.sm,
+    fontFamily: FontFamily.body,
     fontWeight: '600',
+    color: Colors.onSurfaceVariant,
   },
-  
-  // Empty State
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xxl,
+  filterTextActive: {
+    color: Colors.navyDark,
   },
-  emptyIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: Colors.light.surfaceAlt,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
+
+  scrollContent: {
+    paddingHorizontal: Spacing.lg,
   },
-  emptyEmoji: {
-    fontSize: 48,
-  },
-  emptyTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: 'bold',
-    color: Colors.primary,
-    marginBottom: Spacing.sm,
-  },
-  emptySubtitle: {
-    fontSize: FontSize.md,
-    color: Colors.light.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  
+
   // Podium
-  podiumSection: {
-    paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.lg,
-  },
-  podiumContainer: {
+  podium: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-end',
+    marginBottom: Spacing.xl,
+    paddingTop: Spacing.md,
   },
   podiumItem: {
     alignItems: 'center',
     flex: 1,
-    maxWidth: 110,
     marginHorizontal: 4,
   },
-  crownEmoji: {
-    fontSize: 28,
-    marginBottom: -10,
+  podiumAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(14,42,77,0.8)',
+    borderWidth: 2,
+    borderColor: 'rgba(236,194,70,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
   },
-  podiumCircle: {
+  podiumAvatarGold: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.white,
-    borderWidth: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: Colors.secondary,
+    backgroundColor: 'rgba(236,194,70,0.2)',
   },
   podiumInitial: {
-    fontSize: FontSize.xl,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontSize: FontSize.md,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.onSurfaceVariant,
+  },
+  podiumInitialGold: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.secondary,
   },
   podiumName: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.xs,
+    fontFamily: FontFamily.body,
     fontWeight: '600',
-    color: Colors.primary,
-    marginTop: Spacing.sm,
+    color: Colors.onSurfaceVariant,
+    marginBottom: 6,
     textAlign: 'center',
   },
-  podiumScore: {
-    fontSize: FontSize.xs,
-    color: Colors.light.textSecondary,
-    fontWeight: '500',
-    marginTop: 2,
+  podiumNameGold: {
+    fontSize: FontSize.sm,
+    fontFamily: FontFamily.display,
+    fontWeight: '700',
+    color: Colors.secondary,
+    marginBottom: 6,
+    textAlign: 'center',
   },
-  podiumBase: {
+  podiumBar: {
     width: '100%',
-    marginTop: Spacing.sm,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    maxWidth: 80,
+    borderTopLeftRadius: BorderRadius.sm,
+    borderTopRightRadius: BorderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 8,
   },
-  podiumBaseRank: {
-    fontSize: FontSize.xl,
-    fontWeight: 'bold',
+  podiumRank: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
     color: Colors.white,
   },
-  
-  // List
-  listContainer: {
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.lg,
+  podiumRankGold: {
+    fontSize: FontSize.xl,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.navyDark,
   },
-  entryCard: {
+
+  // Rank List
+  listSection: {
+    gap: 8,
+  },
+  rankRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    ...GLASS,
     padding: Spacing.md,
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.sm,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  currentUserEntry: {
-    backgroundColor: Colors.primaryLight,
+  rankRowMe: {
+    borderColor: Colors.secondary,
     borderWidth: 2,
-    borderColor: Colors.accent,
   },
-  rankContainer: {
-    width: 40,
-    marginRight: Spacing.sm,
-  },
-  rank: {
+  rankNum: {
+    width: 36,
     fontSize: FontSize.sm,
-    fontWeight: 'bold',
-    color: Colors.light.textSecondary,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.onSurfaceVariant,
   },
-  avatarSmall: {
+  rankNumMe: {
+    color: Colors.secondary,
+  },
+  rankAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: 'rgba(14,42,77,0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(236,194,70,0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
   },
-  avatarSmallInitial: {
-    fontSize: FontSize.md,
-    fontWeight: 'bold',
-    color: Colors.white,
+  rankAvatarText: {
+    fontSize: FontSize.sm,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.secondary,
   },
-  userInfo: {
+  rankInfo: {
     flex: 1,
   },
-  displayName: {
+  rankName: {
     fontSize: FontSize.md,
-    fontWeight: '600',
-    color: Colors.primary,
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+    color: Colors.creamSoft,
   },
-  parish: {
+  rankNameMe: {
+    color: Colors.secondary,
+  },
+  rankXP: {
     fontSize: FontSize.xs,
-    color: Colors.light.textSecondary,
+    fontFamily: FontFamily.body,
+    color: Colors.onSurfaceVariant,
     marginTop: 2,
   },
-  trendBadge: {
-    flexDirection: 'row',
+
+  // Empty
+  emptyState: {
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.round,
-    gap: 4,
+    paddingVertical: Spacing.xxl,
+    gap: 12,
   },
-  trendUp: {
-    backgroundColor: '#D1FAE5',
-  },
-  trendDown: {
-    backgroundColor: '#FED7AA',
-  },
-  trendBadgeCurrent: {
-    backgroundColor: Colors.accent,
-  },
-  trendValue: {
-    fontSize: FontSize.xs,
-    fontWeight: 'bold',
-    color: Colors.primary,
-  },
-  currentUserText: {
-    color: Colors.white,
-  },
-  trendArrow: {
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  trendArrowUp: {
-    color: Colors.success,
-  },
-  trendArrowDown: {
-    color: Colors.error,
-  },
-  emptyList: {
-    padding: Spacing.xl,
-    alignItems: 'center',
-  },
-  emptyListText: {
-    fontSize: FontSize.md,
-    color: Colors.light.textSecondary,
+  emptyText: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+    color: Colors.onSurfaceVariant,
   },
 });

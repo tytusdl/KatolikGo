@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
 
 /**
  * Local-notification service. Used to nudge the player when
@@ -32,6 +31,63 @@ import * as Notifications from 'expo-notifications';
  */
 
 /**
+ * Lazy module reference. We deliberately avoid a top-level
+ * `import * as Notifications from 'expo-notifications'`:
+ *
+ *   - The package's `index.js` (any 0.27+ version) declares
+ *     `./build/DevicePushTokenAutoRegistration.fx.js` as a side
+ *     effect, which Metro eagerly evaluates. That side-effect
+ *     module subscribes a push-token listener at module load,
+ *     which in turn calls `warnOfExpoGoPushUsage`.
+ *   - In `expo-notifications >= 0.31` (Expo SDK 55+) that guard
+ *     THROWS on Android Expo Go with "removed from Expo Go with
+ *     the release of SDK 53 — use a development build". The
+ *     throw fires from a module-top-level side-effect, BEFORE
+ *     any of our code runs — so a bare static import would
+ *     red-screen the entire app at launch.
+ *   - The SDK 54 line (`~0.29.14`) only `console.warn`s, but a
+ *     future `npm install` on a different machine could pull
+ *     a newer minor and re-introduce the throw.
+ *
+ * The fix: load the module on first use via dynamic `import()`,
+ * catch any module-load failure, and treat the whole service as
+ * a no-op when the runtime can't provide notifications (Expo
+ * Go Android, broken native module, missing peer deps, etc.).
+ * The lives refill itself still happens server-side — the local
+ * nudge is best-effort telemetry per the file header docstring,
+ * so silently skipping the noti when the runtime disallows it
+ * is the correct behaviour.
+ *
+ * Cached after first successful load so we don't re-trigger the
+ * module evaluation (and any side-effect warnings) on every call.
+ */
+type NotificationsModule = typeof import('expo-notifications');
+let cachedModule: NotificationsModule | null = null;
+let loadFailed = false;
+
+async function getNotifications(): Promise<NotificationsModule | null> {
+  if (cachedModule) return cachedModule;
+  if (loadFailed) return null;
+  try {
+    cachedModule = await import('expo-notifications');
+    return cachedModule;
+  } catch (err) {
+    // Module load threw — most commonly the Expo Go Android
+    // push-token guard, but also catches a missing native
+    // module or a broken install. Latch the failure so we
+    // don't spam the console; treat as "no notifications
+    // available" for the rest of the session.
+    loadFailed = true;
+    console.warn(
+      '[notificationService] expo-notifications module failed to load — ' +
+        'local notifications disabled for this session.',
+      err
+    );
+    return null;
+  }
+}
+
+/**
  * Configure how notifications behave when the app is in the
  * foreground. By default `expo-notifications` suppresses
  * foreground notifs ("silence" them) — we want them visible
@@ -44,7 +100,7 @@ import * as Notifications from 'expo-notifications';
  * no-op (per `expo-notifications` docs).
  */
 let configured = false;
-function ensureConfigured() {
+async function ensureConfigured(Notifications: NotificationsModule): Promise<void> {
   if (configured) return;
   configured = true;
   Notifications.setNotificationHandler({
@@ -66,17 +122,19 @@ function ensureConfigured() {
     // importance level `DEFAULT` shows in the tray and
     // briefly in the heads-up, but doesn't make sound unless
     // we set `sound` explicitly (we don't — see handler above).
-    Notifications.setNotificationChannelAsync('lives-refill', {
-      name: 'Refill Nyawa',
-      description: 'Pemberitahuan bila nyawa anda diisi semula ke penuh.',
-      importance: Notifications.AndroidImportance.DEFAULT,
-      vibrationPattern: [0, 200, 100, 200],
-    }).catch(() => {
+    try {
+      await Notifications.setNotificationChannelAsync('lives-refill', {
+        name: 'Refill Nyawa',
+        description: 'Pemberitahuan bila nyawa anda diisi semula ke penuh.',
+        importance: Notifications.AndroidImportance.DEFAULT,
+        vibrationPattern: [0, 200, 100, 200],
+      });
+    } catch {
       // Non-fatal — channel setup failure on Android won't
       // crash the app, the noti just won't appear. Surface
       // nothing to the user; the lives refill itself still
       // happens server-side.
-    });
+    }
   }
 }
 
@@ -112,12 +170,25 @@ let permissionStatusCache: NotificationPermissionStatus | null = null;
  * `.granted` — a silent break in newer SDKs would have meant
  * `granted === undefined` → `false` → no notifications ever
  * fire, with no diagnostic log.
+ *
+ * Returns `false` if the notifications module itself failed to
+ * load (Expo Go Android push-disabled, missing native module,
+ * etc.) — see `getNotifications` for the failure modes.
  */
 export async function requestNotificationPermission(): Promise<boolean> {
-  ensureConfigured();
   if (permissionStatusCache === 'granted') return true;
   if (permissionStatusCache === 'denied') return false;
+  const Notifications = await getNotifications();
+  if (!Notifications) {
+    // Module unavailable — treat as "no permission possible"
+    // and DO NOT cache, so a later retry could still succeed
+    // if the underlying issue was transient (e.g. a race with
+    // an expo-dev-client bridge init).
+    return false;
+  }
   try {
+    await ensureConfigured(Notifications);
+
     // The full `NotificationPermissionsStatus` extends
     // `PermissionResponse` (status + expires + granted +
     // canAskAgain) plus per-platform sub-objects. We want
@@ -202,7 +273,9 @@ export function getNotificationPermissionStatus(): NotificationPermissionStatus 
  * `true` if the noti was scheduled, `false` otherwise.
  */
 export async function notifyLivesFull(): Promise<boolean> {
-  ensureConfigured();
+  const Notifications = await getNotifications();
+  if (!Notifications) return false;
+  await ensureConfigured(Notifications);
   const granted = await requestNotificationPermission();
   if (!granted) return false;
   try {

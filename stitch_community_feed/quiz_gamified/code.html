@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Perjalanan Iman</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-container": "#352800",
+                        "tertiary-fixed": "#ffdad9",
+                        "surface-tint": "#abc9f2",
+                        "surface": "#121411",
+                        "secondary-container": "#b18c09",
+                        "tertiary": "#ffb3b2",
+                        "error-container": "#93000a",
+                        "halo-glow": "rgba(201, 162, 39, 0.3)",
+                        "primary-fixed-dim": "#abc9f2",
+                        "on-secondary-fixed-variant": "#584400",
+                        "on-tertiary-fixed-variant": "#871e28",
+                        "on-tertiary-fixed": "#410008",
+                        "on-primary-fixed": "#001c37",
+                        "surface-container-high": "#292a27",
+                        "primary": "#abc9f2",
+                        "on-error": "#690005",
+                        "secondary": "#ecc246",
+                        "status-error": "#c62828",
+                        "primary-fixed": "#d2e4ff",
+                        "inverse-surface": "#e3e3de",
+                        "on-surface-variant": "#c3c6cf",
+                        "on-secondary-fixed": "#241a00",
+                        "tertiary-container": "#730e1c",
+                        "on-secondary": "#3d2e00",
+                        "on-primary-container": "#87a4cc",
+                        "on-primary-fixed-variant": "#2a486b",
+                        "on-background": "#e3e3de",
+                        "inverse-primary": "#436084",
+                        "secondary-fixed-dim": "#ecc246",
+                        "secondary-fixed": "#ffe08e",
+                        "on-tertiary-container": "#ff787c",
+                        "tertiary-fixed-dim": "#ffb3b2",
+                        "surface-container-low": "#1a1c19",
+                        "background": "#121411",
+                        "primary-container": "#1a3a5c",
+                        "surface-container": "#1e201d",
+                        "surface-container-highest": "#333532",
+                        "inverse-on-surface": "#2f312e",
+                        "navy-dark": "#0e2a4d",
+                        "surface-bright": "#383a36",
+                        "on-surface": "#e3e3de",
+                        "surface-variant": "#333532",
+                        "on-tertiary": "#670315",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0d0f0c",
+                        "on-primary": "#103253",
+                        "cream-soft": "#fdfaf0",
+                        "outline-variant": "#43474e",
+                        "outline": "#8d9199",
+                        "surface-dim": "#121411"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin-mobile": "20px",
+                        "base": "8px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "version-text": ["Inter"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "boxShadow": {
+                        "halo-glow": "0 0 20px rgba(236, 194, 70, 0.4)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 32, 29, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+        }
+        .path-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ecc246;
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: twinkle 2s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+        .node-pulse {
+            animation: halo-pulse 2s infinite;
+        }
+        @keyframes halo-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(236, 194, 70, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(236, 194, 70, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(236, 194, 70, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm w-full">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-secondary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A premium close-up portrait of a young Malaysian man with a friendly expression, styled in a modern corporate photography aesthetic with soft warm lighting against a dark navy background. The image has a high-end, professional feel with subtle theological motifs suggested in the background bokeh." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6qG-jYXocbqUXw8YIjZyOA9gZfHqwT3OIfV6l1YUWid7n2tiAvfIkBpCl0wI5DTUxhea5P9dg91kkftwLrEzVaziIkOmS6LxAnAaLcAxZORkVx8xS4w3IkeEm41nKmnGidJvFWk_qbm91Ba4HNRt1OgTkUFCAs6_iJ2OqNQnfccOv4yScRdakHfnhP6O8bTNr1OK2T3XJilO7rs237Txkm9cdJPiWzQath53Wl5XJJsxhxKTj1Ds9x_2KEnPPxg9qQniHCj2TFNl0"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-secondary">KatolikGo</span>
+</div>
+<div class="bg-surface-container-high px-md py-xs rounded-full flex items-center gap-xs">
+<span class="text-secondary font-bold">1,250</span>
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="relative pt-24 px-margin-mobile flex flex-col items-center max-w-lg mx-auto">
+<!-- Header Section -->
+<div class="w-full mb-xl text-center">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-xs">Peta Perjalanan Iman</h1>
+<p class="text-on-surface-variant font-label-md">Terokai khazanah Gereja Katolik melalui cabaran interaktif.</p>
+</div>
+<!-- The Treasure Map Path Container -->
+<div class="relative w-full min-h-[1200px] mt-lg overflow-visible">
+<!-- Background Animated Shader -->
+
+<!-- SVG Path (The Winding Journey) -->
+<svg class="path-svg" fill="none" viewbox="0 0 400 1200" xmlns="http://www.w3.org/2000/svg">
+<path d="M200 50 C350 150 50 250 200 400 C350 550 50 650 200 800 C350 950 50 1050 200 1150" opacity="0.4" stroke="#ecc246" stroke-dasharray="12 12" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+<!-- Sparkles along the path -->
+<div class="sparkle" style="top: 100px; left: 280px;"></div>
+<div class="sparkle" style="top: 300px; left: 80px;"></div>
+<div class="sparkle" style="top: 550px; left: 320px;"></div>
+<div class="sparkle" style="top: 780px; left: 60px;"></div>
+<div class="sparkle" style="top: 1050px; left: 200px;"></div>
+<!-- Level Nodes -->
+<!-- Level 1: Completed -->
+<div class="absolute top-[20px] left-1/2 -translate-x-1/2 flex flex-col items-center">
+<button class="w-20 h-20 bg-secondary rounded-full flex items-center justify-center border-4 border-navy-dark shadow-halo-glow transition-transform active:scale-90 z-10">
+<span class="material-symbols-outlined text-navy-dark text-[40px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<div class="glass-card mt-sm px-md py-xs rounded-xl text-center whitespace-nowrap">
+<p class="text-secondary font-bold text-label-md">Pintu Gerbang Iman</p>
+</div>
+</div>
+<!-- Level 2: Active -->
+<div class="absolute top-[350px] left-[70%] -translate-x-1/2 flex flex-col items-center">
+<button class="w-24 h-24 bg-navy-dark rounded-full flex items-center justify-center border-4 border-secondary node-pulse shadow-halo-glow transition-transform active:scale-90 z-10">
+<span class="material-symbols-outlined text-secondary text-[48px]" style="font-variation-settings: 'FILL' 1;">chess</span>
+</button>
+<div class="glass-card mt-sm px-md py-xs rounded-xl text-center whitespace-nowrap border-secondary">
+<p class="text-secondary font-extrabold text-label-md">Misteri Sakramen</p>
+<span class="text-[10px] text-cream-soft uppercase tracking-widest">Sekarang</span>
+</div>
+</div>
+<!-- Level 3: Locked -->
+<div class="absolute top-[750px] left-[20%] -translate-x-1/2 flex flex-col items-center opacity-60">
+<button class="w-20 h-20 bg-surface-container-highest rounded-full flex items-center justify-center border-4 border-outline transition-transform active:scale-90 z-10 cursor-not-allowed">
+<span class="material-symbols-outlined text-on-surface-variant text-[40px]">lock</span>
+</button>
+<div class="glass-card mt-sm px-md py-xs rounded-xl text-center whitespace-nowrap">
+<p class="text-on-surface-variant font-bold text-label-md">Warisan Para Rasul</p>
+</div>
+</div>
+<!-- Level 4: Locked -->
+<div class="absolute top-[1100px] left-1/2 -translate-x-1/2 flex flex-col items-center opacity-60">
+<button class="w-20 h-20 bg-surface-container-highest rounded-full flex items-center justify-center border-4 border-outline transition-transform active:scale-90 z-10 cursor-not-allowed">
+<span class="material-symbols-outlined text-on-surface-variant text-[40px]">history_edu</span>
+</button>
+<div class="glass-card mt-sm px-md py-xs rounded-xl text-center whitespace-nowrap">
+<p class="text-on-surface-variant font-bold text-label-md">Cahaya Kitab Suci</p>
+</div>
+</div>
+</div>
+<!-- Floating Action Card (Active Quiz Preview) -->
+<div class="fixed bottom-32 left-margin-mobile right-margin-mobile z-40">
+<div class="glass-card rounded-2xl p-md flex items-center gap-md border-secondary/40 shadow-halo-glow animate-bounce-subtle">
+<div class="w-16 h-16 rounded-xl bg-secondary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary text-[32px]">menu_book</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-secondary">Teruskan: Misteri Sakramen</h3>
+<div class="w-full bg-surface-container-highest h-2 rounded-full mt-xs overflow-hidden">
+<div class="bg-secondary h-full w-2/3"></div>
+</div>
+<p class="text-[12px] text-on-surface-variant mt-1">65% selesai • 5 Soalan lagi</p>
+</div>
+<button class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-navy-dark active:scale-90 transition-transform">
+<span class="material-symbols-outlined font-bold">play_arrow</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-md left-1/2 -translate-x-1/2 w-[90%] rounded-full z-50 bg-surface-container-high/90 backdrop-blur-xl border border-secondary/20 shadow-halo-glow flex justify-around items-center p-xs">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-navy-dark text-secondary rounded-full px-4 py-1.5 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="font-label-md text-label-md">Quiz</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">Rank</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the active node
+        const activeNode = document.querySelector('.node-pulse');
+        if(activeNode) {
+            activeNode.addEventListener('mouseenter', () => {
+                activeNode.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            activeNode.addEventListener('mouseleave', () => {
+                activeNode.style.transform = 'scale(1) rotate(0deg)';
+            });
+        }
+
+        // Parallax effect on path sparkles based on scroll
+        window.addEventListener('scroll', () => {
+            const sparkles = document.querySelectorAll('.sparkle');
+            const scrolled = window.pageYOffset;
+            sparkles.forEach((s, index) => {
+                const speed = 0.05 + (index * 0.02);
+                s.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+    </script>
+<style>
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-subtle {
+            animation: bounce-subtle 3s infinite ease-in-out;
+        }
+    </style>
+</body></html>

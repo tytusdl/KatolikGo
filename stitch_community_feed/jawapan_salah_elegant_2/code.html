@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Keputusan Kuiz</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#e3e3de",
+                    "outline-variant": "#43474e",
+                    "on-tertiary-container": "#ff787c",
+                    "navy-dark": "#0e2a4d",
+                    "on-primary-fixed": "#001c37",
+                    "primary": "#abc9f2",
+                    "tertiary": "#ffb3b2",
+                    "secondary-container": "#b18c09",
+                    "surface-container-lowest": "#0d0f0c",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "surface-bright": "#383a36",
+                    "surface-container-high": "#292a27",
+                    "halo-glow": "rgba(201, 162, 39, 0.3)",
+                    "on-primary-container": "#87a4cc",
+                    "inverse-primary": "#436084",
+                    "on-secondary-fixed-variant": "#584400",
+                    "surface-container-low": "#1a1c19",
+                    "tertiary-container": "#730e1c",
+                    "cream-soft": "#fdfaf0",
+                    "surface-container": "#1e201d",
+                    "on-error": "#690005",
+                    "on-background": "#e3e3de",
+                    "primary-container": "#1a3a5c",
+                    "on-primary": "#103253",
+                    "on-surface-variant": "#c3c6cf",
+                    "on-secondary": "#3d2e00",
+                    "tertiary-fixed": "#ffdad9",
+                    "on-tertiary": "#670315",
+                    "error-container": "#93000a",
+                    "on-secondary-fixed": "#241a00",
+                    "background": "#121411",
+                    "surface-container-highest": "#333532",
+                    "status-error": "#c62828",
+                    "outline": "#8d9199",
+                    "primary-fixed": "#d2e4ff",
+                    "inverse-surface": "#e3e3de",
+                    "secondary": "#ecc246",
+                    "inverse-on-surface": "#2f312e",
+                    "surface-variant": "#333532",
+                    "secondary-fixed": "#ffe08e",
+                    "surface-dim": "#121411",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#ecc246",
+                    "on-tertiary-fixed": "#410008",
+                    "error": "#ffb4ab",
+                    "on-secondary-container": "#352800",
+                    "surface-tint": "#abc9f2",
+                    "surface": "#121411",
+                    "primary-fixed-dim": "#abc9f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "margin-desktop": "40px",
+                    "xl": "32px",
+                    "base": "8px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "version-text": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .halo-glow-effect {
+            box-shadow: 0 0 20px rgba(236, 194, 70, 0.2);
+        }
+        .glass-card {
+            background: rgba(26, 58, 92, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.15);
+        }
+        .wrong-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-navy-dark text-on-surface font-body-md selection:bg-secondary/30 min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<nav class="w-full top-0 sticky bg-navy-dark/80 backdrop-blur-md border-b border-secondary/20 shadow-sm flex justify-between items-center px-margin-mobile py-base z-50">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-secondary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A premium, professional studio headshot of a young Malaysian adult with a friendly expression. The background is a soft-focus interior of a modern library with warm lighting. The aesthetic is clean and high-end, using a professional color palette of deep blues and soft golds, matching a devotional digital application theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAApDZr_83tBpjaMys7mQGXgZq6EbqgqzFv5nit6UoiHj161AmAUFbinMXlNF1kRvkf9DxZ4oVPLfJkS60pDdP0ZZwXoDRuiAwmI09fHNzt31GXYjRCbc41zDkgZ190SjEwf1g-dJOinqgYiA1qCzyI0oDeM-acjyApf38WSMABqpDpp-TOPKGdKnGzN_osfJfspXjFfxXLqrqUYcNGHRebIy03UZSDxL9_d7tnAiymm7VPYjB4tdWqPKq5vXy08Rh0fq1Bj1V15R--"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-secondary">KatolikGo</span>
+</div>
+<div class="bg-primary-container px-sm py-xs rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-md text-label-md text-on-primary-container">1,240 XP</span>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center px-margin-mobile pt-xl pb-32 max-w-lg mx-auto w-full">
+<!-- Hearts Indicator -->
+<div class="flex gap-md mb-lg">
+<span class="material-symbols-outlined text-status-error text-[32px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="material-symbols-outlined text-status-error text-[32px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="material-symbols-outlined text-outline-variant text-[32px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</div>
+<!-- Wrong Status -->
+<div class="flex flex-col items-center mb-xl wrong-shake">
+<div class="w-20 h-20 rounded-full bg-status-error/10 border-4 border-status-error flex items-center justify-center mb-md halo-glow-effect">
+<span class="material-symbols-outlined text-status-error text-[48px] font-bold">close</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-tertiary-container mb-xs">Salah!</h1>
+<p class="font-body-md text-body-md text-on-surface-variant opacity-80">Hampir tepat, cuba lagi.</p>
+</div>
+<!-- Question Card -->
+<div class="glass-card w-full rounded-xl p-lg mb-lg shadow-xl">
+<p class="font-label-md text-label-md text-secondary/60 uppercase tracking-widest mb-sm">Soalan</p>
+<h2 class="font-headline-md text-headline-md text-cream-soft mb-lg leading-relaxed">
+                Siapakah yang mengkhianati Yesus dengan tiga puluh keping perak?
+            </h2>
+<div class="bg-secondary/10 border-l-4 border-secondary p-md rounded-r-lg mb-xl">
+<p class="font-label-md text-label-md text-secondary mb-xs uppercase">Jawapan Sebenar</p>
+<p class="font-headline-md text-headline-md text-secondary font-bold">Yudas Iskariot</p>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">menu_book</span>
+<h3 class="font-label-md text-label-md text-cream-soft">Penerangan</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Menurut Injil Matius 26:14-16, Yudas Iskariot pergi kepada ketua-ketua imam dan bertanya apa yang akan mereka berikan jika dia menyerahkan Yesus.
+                </p>
+</div>
+</div>
+<!-- Next Button -->
+<button class="w-full bg-secondary hover:bg-secondary-container text-on-secondary font-bold py-md rounded-xl shadow-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-sm">
+<span class="font-headline-md text-headline-md">Seterusnya</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-base pb-8 bg-navy-dark/90 backdrop-blur-xl border-t border-secondary/10 shadow-[0_-4px_20px_rgba(201,162,39,0.15)] z-50">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:text-secondary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<!-- Quiz (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-secondary rounded-xl px-4 py-1.5 shadow-halo-glow transition-all duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">extension</span>
+<span class="font-label-md text-label-md">Quiz</span>
+</a>
+<!-- Leaderboard -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">leaderboard</span>
+<span class="font-label-md text-label-md">Leaderboard</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<!-- Visual Accents -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-20">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-secondary blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-primary blur-[100px] rounded-full"></div>
+</div>
+</body></html>

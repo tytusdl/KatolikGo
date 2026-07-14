@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Perjalanan Iman</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-error-container": "#ffdad6",
+                "on-secondary-container": "#352800",
+                "tertiary-fixed": "#ffdad9",
+                "surface-tint": "#abc9f2",
+                "surface": "#121411",
+                "secondary-container": "#b18c09",
+                "tertiary": "#ffb3b2",
+                "error-container": "#93000a",
+                "halo-glow": "rgba(201, 162, 39, 0.3)",
+                "primary-fixed-dim": "#abc9f2",
+                "on-secondary-fixed-variant": "#584400",
+                "on-tertiary-fixed-variant": "#871e28",
+                "on-tertiary-fixed": "#410008",
+                "on-primary-fixed": "#001c37",
+                "surface-container-high": "#292a27",
+                "primary": "#abc9f2",
+                "on-error": "#690005",
+                "secondary": "#ecc246",
+                "status-error": "#c62828",
+                "primary-fixed": "#d2e4ff",
+                "inverse-surface": "#e3e3de",
+                "on-surface-variant": "#c3c6cf",
+                "on-secondary-fixed": "#241a00",
+                "tertiary-container": "#730e1c",
+                "on-secondary": "#3d2e00",
+                "on-primary-container": "#87a4cc",
+                "on-primary-fixed-variant": "#2a486b",
+                "on-background": "#e3e3de",
+                "inverse-primary": "#436084",
+                "secondary-fixed-dim": "#ecc246",
+                "secondary-fixed": "#ffe08e",
+                "on-tertiary-container": "#ff787c",
+                "tertiary-fixed-dim": "#ffb3b2",
+                "surface-container-low": "#1a1c19",
+                "background": "#121411",
+                "primary-container": "#1a3a5c",
+                "surface-container": "#1e201d",
+                "surface-container-highest": "#333532",
+                "inverse-on-surface": "#2f312e",
+                "navy-dark": "#0e2a4d",
+                "surface-bright": "#383a36",
+                "on-surface": "#e3e3de",
+                "surface-variant": "#333532",
+                "on-tertiary": "#670315",
+                "error": "#ffb4ab",
+                "surface-container-lowest": "#0d0f0c",
+                "on-primary": "#103253",
+                "cream-soft": "#fdfaf0",
+                "outline-variant": "#43474e",
+                "outline": "#8d9199",
+                "surface-dim": "#121411"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "margin-desktop": "40px",
+                "md": "16px",
+                "xl": "32px",
+                "margin-mobile": "20px",
+                "base": "8px",
+                "lg": "24px",
+                "gutter": "16px",
+                "xs": "4px",
+                "sm": "12px"
+              },
+              "boxShadow": {
+                "halo-glow": "0 0 20px rgba(236, 194, 70, 0.4)",
+                "3d-press": "0 4px 0 0 rgba(0, 0, 0, 0.3)",
+                "3d-gold": "0 6px 0 0 #b18c09",
+                "3d-navy": "0 6px 0 0 #071a30"
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .perspective-1000 { perspective: 1000px; }
+        .serpentine-path {
+            background-image: radial-gradient(circle, rgba(236, 194, 70, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .glass-card {
+            background: rgba(30, 32, 29, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary selection:text-navy-dark overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm w-full">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-secondary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A friendly and encouraging 3D animated mascot of a young monk with a warm smile, wearing traditional brown robes with a gold cross. The character is rendered in a high-quality 3D style similar to Pixar, set against a soft bokeh background of a peaceful garden. The lighting is warm and divine, emphasizing the character's welcoming and pious personality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfMaBLrbGjswJMZ_P2bCs0VK-eZw8kEzApLWU8yo0kBL1wRcP2NnzYhsy9LqG3xNAnRGqcAvRY7Kod0WGo4-Nt0jBlKJRwMaqaIz2TzorHOdUU4YHG6skScmDLMf3qb_40GAJNfnp7jg-90RauuWhpWuvFAYooehoRHAfoQjrvs03Q14LPucman0Z3ISqD04TBu6-HRKv-ZwSXqZNRujGQ9Bj-S9J_JkiAEAFBmJdiNoizRZ8piaCkSZS3qa5KAxdvqxffBCu5WuBv"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-secondary">KatolikGo</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs bg-navy-dark px-3 py-1.5 rounded-full border border-secondary/20">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md text-secondary">7 Hari</span>
+</div>
+<div class="flex items-center gap-xs bg-surface-container-high px-3 py-1.5 rounded-full shadow-3d-press">
+<span class="font-label-md text-label-md text-on-secondary-fixed">1,250 🪙</span>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 min-h-screen relative overflow-hidden">
+<!-- Background Animation -->
+
+<!-- Stats & XP Section -->
+<section class="px-margin-mobile mb-xl">
+<div class="glass-card p-lg rounded-xl shadow-halo-glow relative overflow-hidden">
+<div class="flex justify-between items-end mb-sm">
+<div>
+<p class="text-on-surface-variant font-label-md text-label-md mb-1">Peringkat Novis</p>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Teruskan Usaha!</h2>
+</div>
+<div class="text-right">
+<span class="text-secondary font-bold text-headline-md font-headline-md">450</span>
+<span class="text-on-surface-variant text-label-md font-label-md">/ 1000 XP</span>
+</div>
+</div>
+<div class="w-full h-4 bg-surface-container rounded-full overflow-hidden border border-outline-variant/30">
+<div class="h-full bg-gradient-to-r from-secondary to-secondary-container w-[45%] rounded-full relative">
+<div class="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[slide_2s_linear_infinite]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Path Journey Section -->
+<section class="relative px-margin-mobile serpentine-path min-h-[600px] flex flex-col items-center gap-xl py-xl">
+<!-- Level 4: Locked -->
+<div class="relative translate-x-12">
+<div class="w-20 h-20 rounded-full bg-surface-container-highest border-4 border-outline flex items-center justify-center opacity-60">
+<span class="material-symbols-outlined text-outline text-3xl">lock</span>
+</div>
+<p class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-on-surface-variant font-label-md text-label-md">Sakramen</p>
+</div>
+<!-- SVG Path Line (Visual Only) -->
+<svg class="absolute top-20 w-48 h-[400px] pointer-events-none opacity-20" viewbox="0 0 100 400">
+<path class="text-secondary" d="M 75 0 Q 0 100 75 200 Q 150 300 75 400" fill="none" stroke="currentColor" stroke-dasharray="8 8" stroke-width="4"></path>
+</svg>
+<!-- Level 3: Current -->
+<div class="relative -translate-x-12">
+<div class="absolute -top-12 -right-8 animate-bounce">
+<div class="bg-secondary text-navy-dark px-3 py-1 rounded-lg font-bold text-xs shadow-3d-gold relative after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-t-secondary">Mula Sini!</div>
+</div>
+<button class="group w-24 h-24 rounded-full bg-navy-dark border-4 border-secondary shadow-halo-glow flex items-center justify-center transition-transform active:scale-90 active:shadow-3d-press hover:scale-105">
+<span class="material-symbols-outlined text-secondary text-5xl group-hover:animate-pulse" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<p class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-secondary font-bold text-label-md">Liturgi Sabda</p>
+</div>
+<!-- Level 2: Completed -->
+<div class="relative translate-x-8">
+<div class="w-20 h-20 rounded-full bg-secondary border-4 border-secondary shadow-3d-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-navy-dark text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-on-surface font-label-md text-label-md">Doa Harian</p>
+</div>
+<!-- Level 1: Completed -->
+<div class="relative -translate-x-4">
+<div class="w-20 h-20 rounded-full bg-secondary border-4 border-secondary shadow-3d-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-navy-dark text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-on-surface font-label-md text-label-md">Asas Iman</p>
+</div>
+</section>
+<!-- Category Bento -->
+<section class="px-margin-mobile mt-16 grid grid-cols-2 gap-gutter">
+<div class="glass-card p-md rounded-xl col-span-2 flex items-center justify-between shadow-halo-glow">
+<div class="flex items-center gap-md">
+<div class="p-3 bg-tertiary-container rounded-lg">
+<span class="material-symbols-outlined text-on-tertiary-container">church</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md">Cabaran Mingguan</h3>
+<p class="text-on-surface-variant text-label-md">Lawati 3 Gereja</p>
+</div>
+</div>
+<div class="bg-secondary/10 px-2 py-1 rounded border border-secondary/20">
+<span class="text-secondary font-bold text-xs">2/3</span>
+</div>
+</div>
+<div class="bg-primary-container p-md rounded-xl border border-primary/20 shadow-3d-press flex flex-col justify-between h-32">
+<span class="material-symbols-outlined text-primary text-3xl">auto_stories</span>
+<span class="font-bold text-on-primary-container">Alkitab</span>
+</div>
+<div class="bg-secondary-container p-md rounded-xl border border-secondary/20 shadow-3d-press flex flex-col justify-between h-32">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl">history_edu</span>
+<span class="font-bold text-on-secondary-container">Tokoh Saint</span>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-md left-1/2 -translate-x-1/2 w-[90%] rounded-full z-50 bg-surface-container-high/90 backdrop-blur-xl border border-secondary/20 shadow-halo-glow flex justify-around items-center p-xs">
+<a class="flex flex-col items-center justify-center bg-navy-dark text-secondary rounded-full px-4 py-1.5 transition-all duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Quiz</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">Rank</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<!-- FAB for Prayer -->
+<button class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-tertiary-container text-on-tertiary-container shadow-halo-glow border-2 border-on-tertiary-container flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl">volunteer_activism</span>
+</button>
+<script>
+        // Simple scroll reveal or micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.style.transform = 'scale(0.95)';
+            });
+            btn.addEventListener('touchend', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+
+        // Background parallax effect
+        window.addEventListener('scroll', () => {
+            const scroll = window.pageYOffset;
+            const path = document.querySelector('.serpentine-path');
+            if(path) {
+                path.style.backgroundPositionY = -(scroll * 0.2) + 'px';
+            }
+        });
+
+        // XP bar animation mock
+        const xpFill = document.querySelector('.bg-gradient-to-r');
+        if(xpFill) {
+            setTimeout(() => {
+                xpFill.classList.add('transition-all', 'duration-1000', 'ease-out');
+            }, 500);
+        }
+    </script>
+<style>
+        @keyframes slide {
+            from { background-position: 0 0; }
+            to { background-position: 40px 0; }
+        }
+    </style>
+</body></html>

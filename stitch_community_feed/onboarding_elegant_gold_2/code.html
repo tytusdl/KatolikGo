@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ms"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KatolikGo - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#c3c6cf",
+                    "tertiary-fixed-dim": "#ffb3b2",
+                    "background": "#121411",
+                    "navy-dark": "#0e2a4d",
+                    "secondary": "#ecc246",
+                    "on-tertiary-container": "#ff787c",
+                    "on-secondary": "#3d2e00",
+                    "on-background": "#e3e3de",
+                    "secondary-container": "#b18c09",
+                    "on-primary-fixed-variant": "#2a486b",
+                    "primary": "#abc9f2",
+                    "inverse-primary": "#436084",
+                    "surface-container-low": "#1a1c19",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed": "#ffe08e",
+                    "primary-fixed-dim": "#abc9f2",
+                    "primary-fixed": "#d2e4ff",
+                    "on-primary-container": "#87a4cc",
+                    "cream-soft": "#fdfaf0",
+                    "on-tertiary-fixed": "#410008",
+                    "on-error": "#690005",
+                    "on-primary": "#103253",
+                    "surface-container": "#1e201d",
+                    "surface-bright": "#383a36",
+                    "surface-variant": "#333532",
+                    "tertiary-container": "#730e1c",
+                    "on-secondary-fixed-variant": "#584400",
+                    "outline-variant": "#43474e",
+                    "on-primary-fixed": "#001c37",
+                    "status-error": "#c62828",
+                    "on-tertiary": "#670315",
+                    "secondary-fixed-dim": "#ecc246",
+                    "surface": "#121411",
+                    "surface-container-highest": "#333532",
+                    "error": "#ffb4ab",
+                    "surface-dim": "#121411",
+                    "on-secondary-fixed": "#241a00",
+                    "surface-tint": "#abc9f2",
+                    "surface-container-lowest": "#0d0f0c",
+                    "on-tertiary-fixed-variant": "#871e28",
+                    "tertiary": "#ffb3b2",
+                    "on-secondary-container": "#352800",
+                    "halo-glow": "rgba(201, 162, 39, 0.3)",
+                    "primary-container": "#1a3a5c",
+                    "inverse-surface": "#e3e3de",
+                    "on-surface": "#e3e3de",
+                    "tertiary-fixed": "#ffdad9",
+                    "surface-container-high": "#292a27",
+                    "inverse-on-surface": "#2f312e",
+                    "error-container": "#93000a",
+                    "outline": "#8d9199"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "margin-desktop": "40px",
+                    "margin-mobile": "20px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "base": "8px",
+                    "xl": "32px",
+                    "sm": "12px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "version-text": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "version-text": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e2a4d; /* Navy Dark Fallback */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .mesh-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(236, 194, 70, 0.05) 0%, transparent 50%),
+                linear-gradient(rgba(14, 42, 77, 1) 0%, rgba(18, 20, 17, 1) 100%);
+        }
+
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(236, 194, 70, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(236, 194, 70, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
+        }
+
+        .halo-glow-effect {
+            box-shadow: 0 0 60px 10px rgba(236, 194, 70, 0.2);
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .animate-float {
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 194, 70, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-background selection:bg-secondary selection:text-navy-dark">
+<div class="mesh-background"></div>
+<div class="grid-pattern"></div>
+<main class="relative min-h-screen flex flex-col items-center justify-between px-margin-mobile py-xl md:px-margin-desktop">
+<!-- Header Decor -->
+<div class="w-full flex justify-center mt-base">
+<div class="flex items-center gap-2 opacity-80">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">chess</span>
+<span class="font-headline-md text-headline-md tracking-tighter text-secondary">KatolikGo</span>
+</div>
+</div>
+<!-- Central Content -->
+<div class="flex-1 flex flex-col items-center justify-center max-w-md w-full text-center">
+<!-- Animated Bible Image Container -->
+<div class="relative mb-xl animate-float">
+<div class="absolute inset-0 bg-secondary rounded-full opacity-10 blur-3xl halo-glow-effect"></div>
+<div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-2 border-secondary/30 p-4 flex items-center justify-center overflow-hidden bg-navy-dark/40 backdrop-blur-md">
+<img class="w-full h-full object-cover rounded-full" data-alt="A cinematic, high-detail illustration of a leather-bound Holy Bible with a prominent golden Latin cross embossed on its cover. The book is glowing from within, emitting rays of ethereal gold light that illuminate the surrounding dark navy space. The style is premium and devotional, featuring soft focus edges and a sacred atmosphere with tiny floating dust particles reflecting the divine light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACdHF4MDx0_Rh2Zryb0A0CfefSN99s6OpipYb-usp5D-mqsbDyF03lhS6nKg_GYE-Wm5xRqVKHW4i_yGMPP1g_N7ddHQZtNRKk-rNAATQKxZ3HA6V8GTh0BVTtFiRpo_nNvqc7ocxQSj2v7YhVpVojxV3DCvy17wtvqMDZ7m1R_UVY-8c8K84ttgCws60VDBLKIQkJMPufGvkJunObUfPwuu9S3SxhZ3nCt2y16Lt9-Wt7cJCEndm57X0YbrSUzhZ8IqPaRhT9wKaR"/>
+</div>
+<!-- Floating Symbols -->
+<div class="absolute -top-4 -right-4 w-12 h-12 glass-card rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-xl">auto_awesome</span>
+</div>
+</div>
+<!-- Typography -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-cream-soft mb-md tracking-tight">
+                Selamat Datang
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-xl px-2">
+                Kukuhkan iman Katolik anda melalui aplikasi kuis interaktif yang direka khas untuk komuniti di Malaysia.
+            </p>
+</div>
+<!-- Footer Section -->
+<div class="w-full max-w-md flex flex-col items-center gap-xl pb-lg">
+<!-- Progress Indicators -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-2 rounded-full bg-secondary shadow-halo-glow"></div>
+<div class="w-2 h-2 rounded-full bg-on-surface-variant/30"></div>
+<div class="w-2 h-2 rounded-full bg-on-surface-variant/30"></div>
+</div>
+<!-- Primary Action -->
+<button class="group relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-secondary to-secondary-container p-[2px] transition-all duration-300 active:scale-95 shadow-[0_8px_30px_rgb(236,194,70,0.2)]" onclick="handleNavigation()">
+<div class="relative flex items-center justify-center gap-2 bg-navy-dark px-xl py-4 rounded-[10px] group-hover:bg-transparent transition-colors duration-300">
+<span class="font-label-md text-label-md text-secondary group-hover:text-on-secondary transition-colors uppercase tracking-widest">Seterusnya</span>
+<span class="material-symbols-outlined text-secondary group-hover:text-on-secondary transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+</div>
+</button>
+<!-- Skip option -->
+<button class="font-label-md text-label-md text-on-surface-variant/60 hover:text-secondary transition-colors">
+                Langkau
+            </button>
+</div>
+</main>
+<script>
+        function handleNavigation() {
+            // Implementation for button press effect
+            const btn = document.querySelector('button');
+            btn.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+                console.log('Navigating to next onboarding step...');
+            }, 100);
+        }
+
+        // Ambient micro-interaction: Subtle parallax on mouse move
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            
+            const bible = document.querySelector('.animate-float');
+            if (bible) {
+                bible.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
+
+            const grid = document.querySelector('.grid-pattern');
+            if (grid) {
+                grid.style.transform = `translate(${-moveX * 0.5}px, ${-moveY * 0.5}px)`;
+            }
+        });
+    </script>
+</body></html>
