@@ -1,6 +1,10 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import * as firebaseAuth from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  initializeFirestore,
+  type Firestore,
+} from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
@@ -115,18 +119,18 @@ export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const { initializeAuth, getAuth } = firebaseAuth;
 
 export const auth = (() => {
-  // Web: Firebase Auth uses IndexedDB natively and there is no
-  // AsyncStorage-style persistence shim to install. `getAuth(app)`
-  // returns the singleton web auth instance with the correct default
-  // storage. Skip `initializeAuth` outright so we don't throw on the
-  // missing `getReactNativePersistence` symbol.
+  // Firebase v11 requires `initializeAuth(app)` before `getAuth(app)` can
+  // be used. `getAuth()` no longer auto-initializes — calling it without
+  // prior `initializeAuth()` throws "Component auth has not been registered
+  // yet".
+  //
+  // Web: Firebase Auth uses IndexedDB natively; no persistence shim.
   if (Platform.OS === 'web' || usePersistence === null) {
-    return getAuth(app);
+    return initializeAuth(app);
   }
 
   // iOS / Android: install the AsyncStorage-backed React Native
-  // persistence shim so auth state survives cold starts and the
-  // `rememberMe` gate in AuthContext sees a real session on relaunch.
+  // persistence shim so auth state survives cold starts.
   try {
     return initializeAuth(app, {
       persistence: (firebaseAuth as any).getReactNativePersistence(
@@ -134,20 +138,40 @@ export const auth = (() => {
       ),
     });
   } catch (err) {
-    // Auth may already be initialized on fast-refresh / re-import. Use
-    // console.warn (not console.error) so we don't trigger red-screen
-    // overlays in dev — the fallback below returns the existing
-    // instance, so the app continues to function. Production telemetry
-    // can monitor this warn frequency to spot misconfigured
-    // environments.
-    console.warn(
-      '[Firebase] initializeAuth failed — falling back to getAuth(). ' +
-        'This usually means Auth was already initialized (e.g. fast ' +
-        'refresh / hot reload).',
-      err
-    );
-    return getAuth(app);
+    const code = (err as { code?: string })?.code;
+    if (code === 'auth/already-initialized') {
+      console.warn(
+        '[Firebase] Auth already initialized — returning existing instance.',
+        err
+      );
+      return getAuth(app);
+    }
+    throw err;
   }
 })();
 
-export const db = getFirestore(app);
+// `experimentalForceLongPolling: true` sidesteps the firebase 11.10.0
+// WebChannel transport regression that drops the persistent Listen /
+// Write streams on iOS simulators (produces `WebChannelConnection RPC
+// 'Listen' stream 0x... transport errored. Name: undefined Message:
+// undefined` warnings every few seconds and breaks `onSnapshot`).
+// Long-polling uses a one-shot HTTP RPC per change instead of the
+// gRPC-Web long-lived stream, which is more resilient on flaky
+// simulators and corporate proxies. Trade-off: slightly more network
+// chatter on cold subscribers, but real-user devices don't hit this.
+// See agent memory note "Firebase 11.10.0 WebChannel transport
+// regression (2026-07-14)".
+const firestoreInit: Firestore = (() => {
+  try {
+    return initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+    });
+  } catch {
+    // `initializeFirestore` throws if Firestore was already
+    // initialized on a hot-reload — fall back to the default getter
+    // which returns the same singleton.
+    return getFirestore(app);
+  }
+})();
+
+export const db = firestoreInit;

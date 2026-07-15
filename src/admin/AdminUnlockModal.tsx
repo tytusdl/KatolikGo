@@ -57,14 +57,14 @@ export default function AdminUnlockModal({ visible, onClose }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.card}>
-          <Ionicons name="lock-closed" size={32} color={Colors.secondary} />
+          <Ionicons name="lock-closed" size={32} color={Colors.accent} />
           <Text style={styles.title}>Admin Access</Text>
           <Text style={styles.desc}>Masukkan kata laluan pentadbir.</Text>
 
           <TextInput
             style={styles.input}
             placeholder="Kata laluan"
-            placeholderTextColor={Colors.onSurfaceVariant}
+            placeholderTextColor={Colors.textMuted}
             value={passphrase}
             onChangeText={setPassphrase}
             secureTextEntry
@@ -81,7 +81,7 @@ export default function AdminUnlockModal({ visible, onClose }: Props) {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color={Colors.navyDark} size="small" />
+                <ActivityIndicator color={Colors.white} size="small" />
               ) : (
                 <Text style={styles.submitText}>Aktifkan</Text>
               )}
@@ -102,8 +102,10 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
   },
   card: {
-    backgroundColor: Colors.surfaceContainerHigh,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
     padding: Spacing.xl,
     alignItems: 'center',
     gap: 12,
@@ -114,25 +116,25 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.text,
   },
   desc: {
     fontSize: FontSize.sm,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
     textAlign: 'center',
   },
   input: {
     width: '100%',
-    backgroundColor: Colors.surfaceContainerLow,
+    backgroundColor: Colors.background,
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
-    borderColor: Colors.outlineVariant,
+    borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.creamSoft,
+    color: Colors.text,
     marginTop: 8,
   },
   actions: {
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
   cancelBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.outlineVariant,
+    borderColor: Colors.border,
     borderRadius: BorderRadius.sm,
     paddingVertical: 12,
     alignItems: 'center',
@@ -152,11 +154,11 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
   },
   submitBtn: {
     flex: 1,
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.text,
     borderRadius: BorderRadius.sm,
     paddingVertical: 12,
     alignItems: 'center',
@@ -165,6 +167,6 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.navyDark,
+    color: Colors.white,
   },
 });

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/theme';
+import { Colors, FontFamily, FontSize } from '@/constants/theme';
 
 export default function NotFound() {
   const router = useRouter();
@@ -13,7 +13,8 @@ export default function NotFound() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>…</Text>
+      <ActivityIndicator size="large" color={Colors.accent} />
+      <Text style={styles.text}>Memuatkan…</Text>
     </View>
   );
 }
@@ -24,9 +25,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.background,
+    gap: 12,
   },
   text: {
-    fontSize: 32,
-    color: Colors.onSurfaceVariant,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    fontFamily: FontFamily.body,
+    color: Colors.textMuted,
   },
 });

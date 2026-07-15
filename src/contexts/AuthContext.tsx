@@ -59,6 +59,35 @@ function readUserFromSnapshot(
   return { uid, ...(snap.data() as Omit<UserData, 'uid'>) };
 }
 
+/**
+ * Returns true if a Firestore error looks like a transient offline /
+ * network blip. The two codes we care about:
+ *   - `unavailable` — Firestore client isn't connected (cold start
+ *     before the websocket is up, or device went offline mid-session)
+ *   - `internal` — sometimes thrown for socket-level network failures
+ *     on iOS before the SDK maps them to `unavailable`
+ *
+ * For these we want to KEEP the splash up and retry, not route the
+ * user to /login. Permanent errors (`permission-denied`, `not-found`
+ * on a write, `unauthenticated`) still bail — those are real bugs
+ * or rules rejections that retrying won't fix.
+ */
+function isOfflineError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const code = (err as { code?: string }).code;
+  return code === 'unavailable' || code === 'internal' || code === 'deadline-exceeded';
+}
+
+/**
+ * Wait for `ms` milliseconds — wrapped so callers can `await` without
+ * pulling in a Promise lib. The timeout is unref'd via the cleanup
+ * callback in `subscribeToUserDoc` so a sign-out during the wait
+ * doesn't leave a dangling timer.
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -114,6 +143,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserDataLoading(true);
       const userDocRef = doc(firebaseDb, 'users', firebaseUser.uid);
 
+      /**
+       * Bounded retry for transient offline errors. If the very first
+       * `ensureUserDocument` call fails because the Firestore client
+       * isn't connected yet (cold start, no network), retry up to 3
+       * times with a short backoff. Each retry waits INSIDE this
+       * function so the splash stays up and the `onSnapshot` listener
+       * stays alive — when the client reconnects, the next `getDoc`
+       * inside `ensureUserDocument` will succeed and we'll set the
+       * state from the resolved value. This is the only sane thing to
+       * do for a freshly-installed app that hasn't seen the network
+       * yet at the moment `onAuthStateChanged` fires.
+       */
+      const ensureUserDocWithRetry = async (
+        attempt = 0
+      ): Promise<UserData | null> => {
+        if (!userRef.current) return null;
+        try {
+          return await ensureUserDocument(firebaseUser);
+        } catch (err) {
+          if (isOfflineError(err) && attempt < 3) {
+            // 800ms → 1600ms → 2400ms backoff. Each step is well
+            // under the 8s splash safety net in `_layout.tsx` so the
+            // user gets one full attempt cycle before AuthGate
+            // gives up and routes them to /login.
+            await delay(800 + attempt * 800);
+            return ensureUserDocWithRetry(attempt + 1);
+          }
+          throw err;
+        }
+      };
+
       const unsubscribe = onSnapshot(
         userDocRef,
         async (snap) => {
@@ -123,10 +183,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (!nextUserData) {
             try {
-              const created = await ensureUserDocument(firebaseUser);
-              if (!userRef.current) return;
+              const created = await ensureUserDocWithRetry();
+              // The retry helper returns null when the user has
+              // signed out mid-retry — bail in that case and let
+              // the next subscription lifecycle handle the clean
+              // teardown.
+              if (!userRef.current || !created) return;
               nextUserData = created;
             } catch (err) {
+              // For transient offline errors, stay in the loading
+              // state — the splash is still visible and the 8s safety
+              // net will route to /login if we genuinely can't
+              // recover. Don't null out `userData` because the user
+              // IS signed in (Firebase has a valid auth session);
+              // dropping them to /login with a stale auth state just
+              // because the data path blipped would be worse UX.
+              if (isOfflineError(err)) {
+                console.warn(
+                  '[Auth] ensureUserDocument offline — keeping splash up; will retry on next snapshot'
+                );
+                return;
+              }
               console.warn('[Auth] ensureUserDocument failed', err);
               setUserData(null);
               setUserDataLoading(false);

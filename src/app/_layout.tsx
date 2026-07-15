@@ -52,7 +52,7 @@ function AuthGate() {
       <Slot />
       {waiting && (
         <View style={styles.splash} pointerEvents="none">
-          <StatusBar barStyle="light-content" backgroundColor={Colors.navyDark} />
+          <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
           <Image
             source={require('../../assets/logo.png')}
             style={styles.splashLogo}
@@ -74,7 +74,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
         <AuthGate />
       </AuthProvider>
     </SafeAreaProvider>
@@ -84,7 +84,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   splash: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: Colors.navyDark,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 9999,
@@ -98,12 +98,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.secondary,
+    color: Colors.text,
     marginBottom: 8,
   },
   splashSub: {
     fontSize: 14,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
   },
 });

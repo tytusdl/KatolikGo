@@ -10,6 +10,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +35,7 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = useCallback(async () => {
+    Keyboard.dismiss();
     if (!name.trim() || !username.trim() || !email.trim() || !password.trim()) {
       Alert.alert('Ralat', 'Sila isi semua medan.');
       return;
@@ -67,30 +69,15 @@ export default function RegisterScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Background orbs */}
-        <View style={styles.bgPattern} pointerEvents="none">
-          <View style={[styles.blurOrb, styles.blurGold]} />
-          <View style={[styles.blurOrb, styles.blurNavy]} />
-        </View>
-
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logoHalo} />
-          <View style={styles.logoCircle}>
-            <Ionicons name="book" size={36} color={Colors.secondary} />
-          </View>
-        </View>
-
         <Text style={styles.title}>Daftar Akaun Baru</Text>
         <Text style={styles.subtitle}>Sertai komuniti KatolikGo</Text>
 
-        {/* Form Card */}
-        <View style={styles.formCard}>
+        <View style={styles.form}>
           <Text style={styles.label}>Nama Penuh</Text>
           <TextInput
             style={styles.input}
             placeholder="Nama anda"
-            placeholderTextColor={Colors.onSurfaceVariant}
+            placeholderTextColor={Colors.textMuted}
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
@@ -100,18 +87,18 @@ export default function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder={`${USERNAME_MIN}-${USERNAME_MAX} aksara`}
-            placeholderTextColor={Colors.onSurfaceVariant}
+            placeholderTextColor={Colors.textMuted}
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
             autoCorrect={false}
           />
 
-          <Text style={styles.label}>Emel</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
             placeholder="contoh@email.com"
-            placeholderTextColor={Colors.onSurfaceVariant}
+            placeholderTextColor={Colors.textMuted}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -121,15 +108,19 @@ export default function RegisterScreen() {
           <Text style={styles.label}>Kata Laluan</Text>
           <View style={styles.passwordRow}>
             <TextInput
-              style={styles.passwordInput}
+              style={styles.inputFlex}
               placeholder="Minimum 6 aksara"
-              placeholderTextColor={Colors.onSurfaceVariant}
+              placeholderTextColor={Colors.textMuted}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color={Colors.onSurfaceVariant} />
+              <Ionicons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={Colors.textMuted}
+              />
             </TouchableOpacity>
           </View>
 
@@ -137,199 +128,137 @@ export default function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="Ulang kata laluan"
-            placeholderTextColor={Colors.onSurfaceVariant}
+            placeholderTextColor={Colors.textMuted}
             value={confirm}
             onChangeText={setConfirm}
             secureTextEntry={!showPassword}
           />
 
-          {/* CTA */}
           <TouchableOpacity
             style={[styles.ctaBtn, loading && styles.ctaBtnDisabled]}
             onPress={handleRegister}
             disabled={loading}
+            activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color={Colors.navyDark} />
+              <ActivityIndicator color={Colors.white} />
             ) : (
-              <Text style={styles.ctaText}>Daftar</Text>
+              <>
+                <Text style={styles.ctaText}>Daftar</Text>
+                <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+              </>
             )}
           </TouchableOpacity>
         </View>
 
-        {/* Login Link */}
         <View style={styles.loginRow}>
           <Text style={styles.loginLabel}>Sudah ada akaun? </Text>
           <TouchableOpacity onPress={() => router.push(Routes.LOGIN)}>
             <Text style={styles.loginLink}>Log Masuk</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Footer */}
-        <Text style={styles.footer}>✝ Tuhan memberkati hari anda</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
+  flex: { flex: 1, backgroundColor: Colors.background },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: Colors.navyDark,
+    backgroundColor: Colors.background,
     paddingHorizontal: Spacing.lg,
-    paddingTop: 60,
+    paddingTop: 80,
     paddingBottom: 40,
-    alignItems: 'center',
-  },
-  bgPattern: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  blurOrb: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-  },
-  blurGold: {
-    top: 40,
-    left: -40,
-    backgroundColor: 'rgba(236,194,70,0.15)',
-  },
-  blurNavy: {
-    bottom: 80,
-    right: -60,
-    backgroundColor: 'rgba(26,58,92,0.4)',
-  },
-
-  // Logo
-  logoContainer: {
-    marginBottom: Spacing.md,
-    alignItems: 'center',
-  },
-  logoHalo: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(236,194,70,0.2)',
-  },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(14,42,77,0.8)',
-    borderWidth: 2,
-    borderColor: Colors.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   title: {
-    fontSize: FontSize.xl,
+    fontSize: FontSize.xxl,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.text,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
-    marginBottom: Spacing.lg,
+    color: Colors.textMuted,
+    marginBottom: Spacing.xl,
   },
 
-  // Form Card
-  formCard: {
-    width: '100%',
-    backgroundColor: 'rgba(14,42,77,0.6)',
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.15)',
-    padding: Spacing.lg,
-  },
+  form: { width: '100%' },
   label: {
     fontSize: FontSize.xs,
     fontFamily: FontFamily.body,
-    fontWeight: '600',
-    color: Colors.onSurfaceVariant,
+    fontWeight: '700',
+    color: Colors.textMuted,
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: 'rgba(18,20,17,0.6)',
-    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.1)',
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: 14,
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.creamSoft,
+    color: Colors.text,
     marginBottom: Spacing.md,
   },
   passwordRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(18,20,17,0.6)',
-    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.1)',
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
     marginBottom: Spacing.md,
-  },
-  passwordInput: {
-    flex: 1,
     paddingHorizontal: Spacing.md,
+  },
+  inputFlex: {
+    flex: 1,
     paddingVertical: 14,
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.creamSoft,
+    color: Colors.text,
   },
-  eyeBtn: {
-    paddingHorizontal: Spacing.md,
-  },
+  eyeBtn: { paddingHorizontal: 4 },
   ctaBtn: {
-    backgroundColor: Colors.secondary,
-    borderRadius: BorderRadius.sm,
-    paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.accent,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 16,
     marginTop: Spacing.sm,
   },
-  ctaBtnDisabled: {
-    opacity: 0.6,
-  },
+  ctaBtnDisabled: { opacity: 0.6 },
   ctaText: {
     fontSize: FontSize.md,
-    fontWeight: '700',
+    fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.navyDark,
+    color: Colors.white,
   },
 
-  // Login Link
   loginRow: {
     flexDirection: 'row',
     marginTop: Spacing.lg,
+    justifyContent: 'center',
   },
   loginLabel: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.text,
   },
   loginLink: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.md,
     fontFamily: FontFamily.body,
     fontWeight: '700',
-    color: Colors.secondary,
-  },
-
-  // Footer
-  footer: {
-    marginTop: Spacing.xl,
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.body,
-    fontStyle: 'italic',
-    color: Colors.onSurfaceVariant,
-    opacity: 0.5,
+    color: Colors.accent,
+    textDecorationLine: 'underline',
   },
 });

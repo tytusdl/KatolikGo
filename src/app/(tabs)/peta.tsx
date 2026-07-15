@@ -16,11 +16,11 @@ import { Routes } from '@/constants/routes';
 import { TOTAL_LEVELS } from '@/types';
 
 const CATEGORIES = [
-  { id: 'alkitab', label: 'Alkitab', range: [1, 20] },
-  { id: 'sakramen', label: 'Sakramen', range: [21, 40] },
-  { id: 'liturgi', label: 'Liturgi', range: [41, 60] },
-  { id: 'katekismus', label: 'Katekismus', range: [61, 80] },
-  { id: 'santo', label: 'Santo', range: [81, 100] },
+  { id: 'alkitab', label: 'Alkitab', range: [1, 20], icon: 'book' as const },
+  { id: 'sakramen', label: 'Sakramen', range: [21, 40], icon: 'business' as const },
+  { id: 'liturgi', label: 'Liturgi', range: [41, 60], icon: 'globe' as const },
+  { id: 'katekismus', label: 'Katekismus', range: [61, 80], icon: 'school' as const },
+  { id: 'santo', label: 'Santo', range: [81, 100], icon: 'people' as const },
 ];
 
 export default function PetaScreen() {
@@ -60,7 +60,10 @@ export default function PetaScreen() {
           const end = cat.range[1];
           return (
             <View key={cat.id} style={styles.categorySection}>
-              <Text style={styles.catLabel}>{cat.label}</Text>
+              <View style={styles.catHeader}>
+                <Ionicons name={cat.icon} size={18} color={Colors.text} />
+                <Text style={styles.catLabel}>{cat.label}</Text>
+              </View>
               <View style={styles.levelGrid}>
                 {levels.slice(start - 1, end).map((level) => {
                   const prog = levelProgress[String(level)];
@@ -79,21 +82,16 @@ export default function PetaScreen() {
                       ]}
                       onPress={() => handleLevelPress(level)}
                       disabled={isLocked}
+                      activeOpacity={0.7}
                     >
-                      {isCompleted && (
-                        <Ionicons name="checkmark" size={18} color={Colors.navyDark} />
-                      )}
-                      {isCurrent && (
-                        <Ionicons name="play" size={18} color={Colors.navyDark} />
-                      )}
-                      {isLocked && (
-                        <Ionicons name="lock-closed" size={14} color={Colors.onSurfaceVariant} />
-                      )}
-                      {!isCompleted && !isCurrent && !isLocked && (
+                      {isCompleted ? (
+                        <Ionicons name="checkmark" size={20} color={Colors.white} />
+                      ) : isCurrent ? (
+                        <Ionicons name="play" size={20} color={Colors.white} />
+                      ) : isLocked ? (
+                        <Ionicons name="lock-closed" size={16} color={Colors.textMuted} />
+                      ) : (
                         <Text style={styles.levelNum}>{level}</Text>
-                      )}
-                      {(isCompleted || isCurrent) && (
-                        <Text style={styles.levelNumActive}>{level}</Text>
                       )}
                     </TouchableOpacity>
                   );
@@ -109,27 +107,24 @@ export default function PetaScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
-    backgroundColor: 'rgba(18,20,17,0.8)',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(236,194,70,0.1)',
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
     fontSize: FontSize.xxl,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.secondary,
+    color: Colors.text,
   },
   headerSub: {
     fontSize: FontSize.sm,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
     marginTop: 2,
   },
   scrollContent: {
@@ -137,16 +132,20 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.md,
   },
 
-  // Category
   categorySection: {
     marginBottom: Spacing.lg,
+  },
+  catHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.sm,
   },
   catLabel: {
     fontSize: FontSize.lg,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
-    marginBottom: Spacing.sm,
+    color: Colors.text,
   },
   levelGrid: {
     flexDirection: 'row',
@@ -157,24 +156,19 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(14,42,77,0.6)',
-    borderWidth: 2,
-    borderColor: 'rgba(236,194,70,0.15)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   nodeCompleted: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   nodeCurrent: {
-    backgroundColor: 'rgba(236,194,70,0.2)',
-    borderColor: Colors.secondary,
-    shadowColor: 'rgba(236,194,70,0.4)',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 6,
+    backgroundColor: Colors.text,
+    borderColor: Colors.text,
   },
   nodeLocked: {
     opacity: 0.4,
@@ -183,12 +177,6 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.onSurfaceVariant,
-  },
-  levelNumActive: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    fontFamily: FontFamily.display,
-    color: Colors.navyDark,
+    color: Colors.text,
   },
 });

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,25 +14,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Colors, Spacing, FontSize, BorderRadius, FontFamily } from '@/constants/theme';
 import { Routes } from '@/constants/routes';
 import { getXpProgress, LIVES_CONFIG } from '@/constants/xp.constants';
-
-const GLASS = {
-  backgroundColor: 'rgba(14,42,77,0.6)',
-  borderWidth: 1,
-  borderColor: 'rgba(236,194,70,0.15)',
-  borderRadius: BorderRadius.lg,
-};
+import {
+  subscribeToGlobalLeaderboard,
+} from '@/services/leaderboardService';
+import type { LeaderboardEntry } from '@/types';
 
 const CATEGORIES = [
-  { icon: 'book', label: 'Alkitab', desc: 'Perjanjian Lama & Baru', color: '#4a90d9' },
-  { icon: 'heart', label: 'Sakramen', desc: '7 Sakramen Kudus', color: '#d94a6b' },
-  { icon: 'flame', label: 'Liturgi', desc: 'Tatacara Misa', color: '#d9a84a' },
-  { icon: 'school', label: 'Katekismus', desc: 'Ajaran Gereja', color: '#4ad9a8' },
-];
-
-const DAILY_VERSES = [
-  { text: 'Pergilah ke seluruh dunia, khabarkan Injil kepada semua makhluk.', ref: 'Markus 16:15' },
-  { text: 'Kerana aku yakin, bahawa baik maut, baik hidup... semua itu tidak dapat memisahkan kita dari kasih Allah.', ref: 'Roma 8:38-39' },
-  { text: 'Tuhanlah kekuatanku dan perlindunganku.', ref: 'Mazmur 18:2' },
+  {
+    icon: 'book' as const,
+    label: 'Alkitab',
+    desc: 'Perjanjian Lama & Baru',
+  },
+  {
+    icon: 'business' as const,
+    label: 'Katekismus',
+    desc: 'Ajaran Iman Katolik',
+  },
+  {
+    icon: 'globe' as const,
+    label: 'Sejarah Gereja',
+    desc: 'Warisan 2000 Tahun',
+  },
 ];
 
 export default function HomeScreen() {
@@ -45,24 +47,36 @@ export default function HomeScreen() {
     [userData?.totalXP]
   );
 
-  const verse = DAILY_VERSES[new Date().getDate() % DAILY_VERSES.length];
   const lives = userData?.lives ?? LIVES_CONFIG.MAX;
+  const [topThree, setTopThree] = useState<LeaderboardEntry[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeToGlobalLeaderboard((entries) => {
+      setTopThree(entries.slice(0, 3));
+    }, 10);
+    return () => unsub();
+  }, []);
 
   return (
     <View style={styles.container}>
-      {/* Top Bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.topBarLeft}>
+        <View style={styles.brandRow}>
           <View style={styles.avatar}>
             <Text style={styles.avatarInitial}>
               {(userData?.displayName ?? 'S').charAt(0).toUpperCase()}
             </Text>
           </View>
-          <Text style={styles.greeting}>Hai, {userData?.displayName ?? 'Saudara'}!</Text>
+          <Text style={styles.brand}>KatolikGo</Text>
         </View>
-        <View style={styles.tokenPill}>
-          <Image source={require('../../../assets/token.png')} style={styles.tokenIcon} />
-          <Text style={styles.tokenCount}>{userData?.tokens ?? 0}</Text>
+        <View style={styles.topBarRight}>
+          <View style={styles.tokenPill}>
+            <Text style={styles.tokenCount}>{(userData?.tokens ?? 0).toLocaleString()}</Text>
+            <Image source={require('../../../assets/token.png')} style={styles.tokenIcon} />
+          </View>
+          <View style={styles.livesPill}>
+            <Text style={styles.livesCount}>{lives}</Text>
+            <Ionicons name="heart" size={14} color={Colors.error} />
+          </View>
         </View>
       </View>
 
@@ -70,77 +84,106 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Hero Card */}
-        <View style={styles.heroCard}>
-          <Text style={styles.heroLabel}>Tahap Anda</Text>
-          <Text style={styles.heroLevel}>Tahap {xpProgress.level}</Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${xpProgress.percentage}%` as any }]} />
+        <TouchableOpacity
+          style={styles.heroCard}
+          activeOpacity={0.85}
+          onPress={() => router.push(Routes.PETA)}
+        >
+          <View style={styles.heroContent}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.heroEyebrow}>CABARAN TERKINI</Text>
+              <Text style={styles.heroTitle}>Kuiz Hari Ini</Text>
+              <Text style={styles.heroDesc}>Uji pengetahuan iman anda hari ini.</Text>
+            </View>
+            <View style={styles.heroPlay}>
+              <Ionicons name="play" size={28} color={Colors.white} />
+            </View>
           </View>
-          <Text style={styles.xpText}>{xpProgress.current} / {xpProgress.required} XP</Text>
+        </TouchableOpacity>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Pencapaian Mingguan</Text>
+            <View style={styles.statValueRow}>
+              <Text style={styles.statValue}>{xpProgress.percentage.toFixed(0)}%</Text>
+              <Ionicons name="trending-up" size={16} color={Colors.accent} />
+            </View>
+            <View style={styles.statBar}>
+              <View
+                style={[
+                  styles.statBarFill,
+                  { width: `${Math.min(100, xpProgress.percentage)}%` as any },
+                ]}
+              />
+            </View>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Berita Gereja</Text>
+            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statSub}>ARTIKEL BAHARU DIBACA</Text>
+          </View>
         </View>
 
-        {/* Stats Grid */}
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Ionicons name="flame" size={20} color={Colors.secondary} />
-            <Text style={styles.statValue}>{userData?.streakDays ?? 0}</Text>
-            <Text style={styles.statLabel}>Streak</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="heart" size={20} color={Colors.tertiary} />
-            <Text style={styles.statValue}>{lives}/{LIVES_CONFIG.MAX}</Text>
-            <Text style={styles.statLabel}>Nyawa</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="star" size={20} color={Colors.secondary} />
-            <Text style={styles.statValue}>{userData?.totalXP?.toLocaleString() ?? '0'}</Text>
-            <Text style={styles.statLabel}>XP</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="ribbon" size={20} color={Colors.primary} />
-            <Text style={styles.statValue}>{userData?.tokens ?? 0}</Text>
-            <Text style={styles.statLabel}>Token</Text>
-          </View>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Kategori Utama</Text>
+          <TouchableOpacity onPress={() => router.push(Routes.PETA)}>
+            <Text style={styles.sectionLink}>Lihat Semua</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Categories */}
-        <Text style={styles.sectionTitle}>✝ Topik Kuiz</Text>
         {CATEGORIES.map((cat) => (
           <TouchableOpacity
             key={cat.label}
             style={styles.categoryRow}
+            activeOpacity={0.7}
             onPress={() => router.push(Routes.PETA)}
           >
-            <View style={[styles.categoryIcon, { backgroundColor: cat.color + '20' }]}>
-              <Ionicons name={cat.icon as any} size={20} color={cat.color} />
+            <View style={styles.categoryIcon}>
+              <Ionicons name={cat.icon} size={24} color={Colors.accent} />
             </View>
             <View style={styles.categoryInfo}>
               <Text style={styles.categoryLabel}>{cat.label}</Text>
               <Text style={styles.categoryDesc}>{cat.desc}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={Colors.onSurfaceVariant} />
+            <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
           </TouchableOpacity>
         ))}
 
-        {/* Daily Verse */}
-        <View style={styles.verseCard}>
-          <Text style={styles.verseQuote}>{'\u201C'}{verse.text}{'\u201D'}</Text>
-          <Text style={styles.verseRef}>— {verse.ref}</Text>
-        </View>
-
-        {/* Leaderboard Teaser */}
-        <TouchableOpacity
-          style={styles.leaderboardTeaser}
-          onPress={() => router.push(Routes.LEADERBOARD)}
-        >
-          <Ionicons name="trophy" size={22} color={Colors.secondary} />
-          <View style={styles.leaderboardInfo}>
-            <Text style={styles.leaderboardTitle}>Papan Pendahulu</Text>
-            <Text style={styles.leaderboardSub}>Lihat kedudukan anda</Text>
+        <View style={styles.boardCard}>
+          <View style={styles.boardHeader}>
+            <View style={styles.boardHeaderLeft}>
+              <Ionicons name="trophy" size={18} color={Colors.accent} />
+              <Text style={styles.boardTitle}>Papan Pendahulu</Text>
+            </View>
+            <Text style={styles.boardSub}>Top 3 Mingguan</Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color={Colors.onSurfaceVariant} />
-        </TouchableOpacity>
+          {topThree.length === 0 ? (
+            <Text style={styles.boardEmpty}>Belum ada data pendahulu.</Text>
+          ) : (
+            topThree.map((entry, idx) => (
+              <View key={entry.userId} style={styles.boardRow}>
+                <Text style={styles.boardRank}>{idx + 1}</Text>
+                <View style={styles.boardAvatar}>
+                  <Text style={styles.boardAvatarText}>
+                    {entry.displayName.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <Text style={styles.boardName} numberOfLines={1}>
+                  {entry.displayName}
+                </Text>
+                <Text style={styles.boardXP}>
+                  {entry.weeklyXP.toLocaleString()} pts
+                </Text>
+              </View>
+            ))
+          )}
+          <TouchableOpacity
+            style={styles.boardLink}
+            onPress={() => router.push(Routes.LEADERBOARD)}
+          >
+            <Text style={styles.boardLinkText}>Lihat Papan Penuh</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.accent} />
+          </TouchableOpacity>
+        </View>
 
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -154,27 +197,28 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 
-  // Top Bar
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
-    backgroundColor: 'rgba(18,20,17,0.8)',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(236,194,70,0.1)',
+    borderBottomColor: Colors.border,
   },
-  topBarLeft: {
+  brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.secondary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -182,34 +226,56 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.navyDark,
+    color: Colors.text,
   },
-  greeting: {
+  brand: {
     fontSize: FontSize.lg,
-    fontWeight: '700',
+    fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.text,
+  },
+  topBarRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   tokenPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(14,42,77,0.6)',
+    backgroundColor: Colors.background,
     borderRadius: BorderRadius.round,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.2)',
-    paddingHorizontal: 12,
+    borderColor: Colors.border,
+    paddingHorizontal: 10,
     paddingVertical: 6,
   },
   tokenIcon: {
-    width: 18,
-    height: 18,
+    width: 16,
+    height: 16,
   },
   tokenCount: {
     fontSize: FontSize.sm,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.secondary,
+    color: Colors.text,
+  },
+  livesPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.round,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  livesCount: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
   },
 
   scrollContent: {
@@ -217,98 +283,138 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.md,
   },
 
-  // Hero
   heroCard: {
-    ...GLASS,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    borderColor: 'rgba(236,194,70,0.3)',
-    shadowColor: 'rgba(201,162,39,0.3)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  heroLabel: {
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  heroLevel: {
-    fontSize: FontSize.xl,
-    fontWeight: '800',
-    fontFamily: FontFamily.display,
-    color: Colors.secondary,
-    marginBottom: Spacing.sm,
-  },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(18,20,17,0.6)',
-    marginBottom: 6,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
-    backgroundColor: Colors.secondary,
-  },
-  xpText: {
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
-  },
-
-  // Stats
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    height: 140,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.text,
+    overflow: 'hidden',
     marginBottom: Spacing.lg,
   },
-  statCard: {
-    ...GLASS,
-    width: '48%',
-    flexGrow: 1,
-    padding: Spacing.md,
-    alignItems: 'center',
-    gap: 4,
+  heroContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    padding: Spacing.lg,
   },
-  statValue: {
-    fontSize: FontSize.xl,
+  heroEyebrow: {
+    fontSize: FontSize.xs,
+    fontFamily: FontFamily.body,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    letterSpacing: 1.2,
+    marginBottom: 6,
+  },
+  heroTitle: {
+    fontSize: 26,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.white,
+    marginBottom: 4,
+  },
+  heroDesc: {
+    fontSize: FontSize.sm,
+    fontFamily: FontFamily.body,
+    color: Colors.textMuted,
+    lineHeight: 20,
+  },
+  heroPlay: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: Spacing.md,
+  },
+
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: Spacing.xl,
+  },
+  statCard: {
+    flex: 1,
+    padding: Spacing.md,
+    gap: 6,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.lg,
   },
   statLabel: {
     fontSize: FontSize.xs,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
+  },
+  statValueRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
+    lineHeight: 32,
+  },
+  statSub: {
+    fontSize: 9,
+    fontFamily: FontFamily.body,
+    fontWeight: '600',
+    color: Colors.textMuted,
+    letterSpacing: 0.8,
+  },
+  statBar: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.border,
+    marginTop: 4,
+    overflow: 'hidden',
+  },
+  statBarFill: {
+    height: '100%',
+    borderRadius: 3,
+    backgroundColor: Colors.accent,
   },
 
-  // Section
-  sectionTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: Spacing.sm,
   },
+  sectionTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
+  },
+  sectionLink: {
+    fontSize: FontSize.sm,
+    fontFamily: FontFamily.body,
+    fontWeight: '600',
+    color: Colors.accent,
+  },
 
-  // Category
   categoryRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...GLASS,
     padding: Spacing.md,
-    marginBottom: 8,
+    marginBottom: 10,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.lg,
   },
   categoryIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.sm,
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
@@ -320,60 +426,112 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.text,
   },
   categoryDesc: {
     fontSize: FontSize.xs,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
     marginTop: 2,
   },
 
-  // Verse
-  verseCard: {
-    ...GLASS,
-    padding: Spacing.lg,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.secondary,
+  boardCard: {
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.lg,
   },
-  verseQuote: {
-    fontSize: FontSize.md,
-    fontFamily: FontFamily.body,
-    fontStyle: 'italic',
-    color: Colors.creamSoft,
-    lineHeight: 24,
-    marginBottom: 8,
+  boardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    marginBottom: Spacing.sm,
   },
-  verseRef: {
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.body,
-    fontWeight: '600',
-    color: Colors.secondary,
-  },
-
-  // Leaderboard Teaser
-  leaderboardTeaser: {
+  boardHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...GLASS,
-    padding: Spacing.md,
+    gap: 8,
   },
-  leaderboardInfo: {
-    flex: 1,
-    marginLeft: Spacing.md,
-  },
-  leaderboardTitle: {
+  boardTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.text,
   },
-  leaderboardSub: {
+  boardSub: {
     fontSize: FontSize.xs,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
-    marginTop: 2,
+    color: Colors.textMuted,
+  },
+  boardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  boardRank: {
+    width: 24,
+    fontSize: FontSize.md,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
+  },
+  boardAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+  },
+  boardAvatarText: {
+    fontSize: FontSize.sm,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
+  },
+  boardName: {
+    flex: 1,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    fontFamily: FontFamily.body,
+    color: Colors.text,
+  },
+  boardXP: {
+    fontSize: FontSize.md,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
+  },
+  boardEmpty: {
+    paddingVertical: Spacing.md,
+    fontSize: FontSize.sm,
+    fontFamily: FontFamily.body,
+    color: Colors.textMuted,
+    textAlign: 'center',
+  },
+  boardLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingTop: Spacing.sm,
+    marginTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  boardLinkText: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    fontFamily: FontFamily.body,
+    color: Colors.accent,
   },
 });

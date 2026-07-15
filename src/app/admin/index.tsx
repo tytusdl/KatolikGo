@@ -17,7 +17,6 @@ export default function AdminScreen() {
   const { userData, refreshUserData } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  // Assert admin on render
   if (!userData?.isAdmin) {
     return (
       <View style={styles.centered}>
@@ -44,7 +43,6 @@ export default function AdminScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Panel Pentadbir</Text>
 
-      {/* Tokens */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Token</Text>
         <View style={styles.row}>
@@ -52,24 +50,26 @@ export default function AdminScreen() {
             style={styles.actionBtn}
             onPress={() => run(async () => { await grantTokens(userData, 100); })}
           >
+            <Ionicons name="ribbon" size={16} color={Colors.text} />
             <Text style={styles.actionText}>+100</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => run(async () => { await grantTokens(userData, 500); })}
           >
+            <Ionicons name="ribbon" size={16} color={Colors.text} />
             <Text style={styles.actionText}>+500</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => run(async () => { await grantTokens(userData, 1000); })}
           >
+            <Ionicons name="ribbon" size={16} color={Colors.text} />
             <Text style={styles.actionText}>+1000</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* XP */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>XP</Text>
         <View style={styles.row}>
@@ -77,24 +77,26 @@ export default function AdminScreen() {
             style={styles.actionBtn}
             onPress={() => run(async () => { await grantXp(userData, 100); })}
           >
+            <Ionicons name="flash" size={16} color={Colors.text} />
             <Text style={styles.actionText}>+100 XP</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => run(async () => { await grantXp(userData, 500); })}
           >
+            <Ionicons name="flash" size={16} color={Colors.text} />
             <Text style={styles.actionText}>+500 XP</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => run(async () => { await grantXp(userData, 1000); })}
           >
+            <Ionicons name="flash" size={16} color={Colors.text} />
             <Text style={styles.actionText}>+1000 XP</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Lives */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Nyawa</Text>
         <View style={styles.row}>
@@ -102,44 +104,45 @@ export default function AdminScreen() {
             style={styles.actionBtn}
             onPress={() => run(async () => { await setLives(userData, 5); })}
           >
+            <Ionicons name="heart" size={16} color={Colors.error} />
             <Text style={styles.actionText}>Penuh (5)</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => run(async () => { await setLives(userData, 0); })}
           >
+            <Ionicons name="heart-dislike" size={16} color={Colors.error} />
             <Text style={styles.actionText}>Kosong (0)</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Premium */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Premium</Text>
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => run(async () => { await setPremium(userData, !userData.isPremium); })}
         >
+          <Ionicons name="diamond" size={16} color={Colors.text} />
           <Text style={styles.actionText}>
             {userData.isPremium ? 'Nyahaktif Premium' : 'Aktifkan Premium'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Refresh */}
       <View style={styles.section}>
         <TouchableOpacity
           style={[styles.actionBtn, styles.refreshBtn]}
           onPress={() => run(async () => { await fetchSnapshot(userData); })}
         >
-          <Ionicons name="refresh" size={18} color={Colors.secondary} />
+          <Ionicons name="refresh" size={18} color={Colors.text} />
           <Text style={styles.actionText}>Refresh dari Server</Text>
         </TouchableOpacity>
       </View>
 
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={Colors.accent} />
         </View>
       )}
     </ScrollView>
@@ -151,19 +154,19 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg, paddingBottom: 100 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background, gap: 8 },
   deniedText: { fontSize: FontSize.lg, fontWeight: '700', fontFamily: FontFamily.display, color: Colors.error },
-  deniedSub: { fontSize: FontSize.sm, fontFamily: FontFamily.body, color: Colors.onSurfaceVariant },
+  deniedSub: { fontSize: FontSize.sm, fontFamily: FontFamily.body, color: Colors.textMuted },
 
   title: {
     fontSize: FontSize.xxl,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.secondary,
+    color: Colors.text,
     marginBottom: Spacing.lg,
   },
   section: {
-    backgroundColor: 'rgba(14,42,77,0.6)',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.15)',
+    borderColor: Colors.border,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginBottom: Spacing.md,
@@ -172,7 +175,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: Spacing.sm,
@@ -186,9 +189,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(26,58,92,0.8)',
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.2)',
+    borderColor: Colors.border,
     borderRadius: BorderRadius.sm,
     paddingHorizontal: 16,
     paddingVertical: 10,
@@ -197,7 +200,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: '600',
     fontFamily: FontFamily.body,
-    color: Colors.creamSoft,
+    color: Colors.text,
   },
   refreshBtn: {
     width: '100%',
@@ -206,7 +209,7 @@ const styles = StyleSheet.create({
   loadingOverlay: {
     position: 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(255,255,255,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },

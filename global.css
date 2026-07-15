@@ -1,3 +1,12 @@
-/* Global CSS — placeholder for any global resets.
-   Web-only font imports live here if needed.
-   Native fonts are loaded via expo-font in _layout.tsx. */
+/* Global CSS — minimal palette placeholder.
+   Black / white / single blue accent — see src/constants/theme.ts. */
+:root {
+  --color-bg: #FFFFFF;
+  --color-text: #000000;
+  --color-text-muted: #666666;
+  --color-border: #E5E5E5;
+  --color-accent: #2563EB;
+  --color-error: #DC2626;
+  --font-display: system-ui, -apple-system, Roboto, sans-serif;
+  --font-body: system-ui, -apple-system, Roboto, sans-serif;
+}

@@ -16,13 +16,13 @@ export default function LivesEmptyScreen() {
           Semua nyawa anda telah digunakan. Tunggu untuk diisi semula atau gunakan token.
         </Text>
 
-        <TouchableOpacity style={styles.tokenBtn} onPress={() => {}}>
-          <Ionicons name="ribbon" size={20} color={Colors.secondary} />
+        <TouchableOpacity style={styles.tokenBtn} onPress={() => {}} activeOpacity={0.8}>
+          <Ionicons name="ribbon" size={20} color={Colors.white} />
           <Text style={styles.tokenBtnText}>Isi dengan 50 Token</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.adBtn} onPress={() => {}}>
-          <Ionicons name="play-circle" size={20} color={Colors.secondary} />
+        <TouchableOpacity style={styles.adBtn} onPress={() => {}} activeOpacity={0.7}>
+          <Ionicons name="play-circle" size={20} color={Colors.text} />
           <Text style={styles.adBtnText}>Tonton Iklan (+1 Nyawa)</Text>
         </TouchableOpacity>
 
@@ -32,6 +32,7 @@ export default function LivesEmptyScreen() {
       </View>
 
       <TouchableOpacity style={styles.backBtn} onPress={() => router.replace(Routes.PETA)}>
+        <Ionicons name="arrow-back" size={18} color={Colors.textMuted} />
         <Text style={styles.backText}>Kembali ke Peta</Text>
       </TouchableOpacity>
     </View>
@@ -47,9 +48,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   card: {
-    backgroundColor: 'rgba(14,42,77,0.6)',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.15)',
+    borderColor: Colors.border,
     borderRadius: BorderRadius.lg,
     padding: Spacing.xl,
     alignItems: 'center',
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   desc: {
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: Spacing.sm,
@@ -74,8 +75,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: Colors.secondary,
-    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.text,
+    borderRadius: BorderRadius.md,
     paddingVertical: 14,
     paddingHorizontal: 24,
     width: '100%',
@@ -85,15 +86,15 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '700',
     fontFamily: FontFamily.display,
-    color: Colors.navyDark,
+    color: Colors.white,
   },
   adBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderColor: 'rgba(236,194,70,0.2)',
-    borderRadius: BorderRadius.sm,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
     paddingVertical: 14,
     paddingHorizontal: 24,
     width: '100%',
@@ -103,22 +104,25 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: Colors.text,
   },
   waitText: {
     fontSize: FontSize.xs,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
-    opacity: 0.6,
+    color: Colors.textMuted,
     textAlign: 'center',
   },
   backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginTop: Spacing.lg,
+    paddingVertical: 8,
   },
   backText: {
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
     fontWeight: '600',
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
   },
 });

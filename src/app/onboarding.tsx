@@ -21,19 +21,19 @@ const SLIDES = [
     id: '1',
     icon: 'book' as const,
     title: 'Selamat Datang',
-    desc: 'Terokai iman Katolik melalui kuiz interaktif yang menyeronokkan.',
+    desc: 'Kukuhkan iman Katolik anda melalui aplikasi kuis interaktif yang direka khas untuk komuniti di Malaysia.',
   },
   {
     id: '2',
     icon: 'trophy' as const,
-    title: 'Uji Pengetahuan',
-    desc: 'Kumpul XP, token, dan naikkan tahap anda dalam perjalanan iman.',
+    title: 'Kumpul Pencapaian',
+    desc: 'Selesaikan kuiz, kumpul token, dan naikkan tahap anda dalam perjalanan iman.',
   },
   {
     id: '3',
     icon: 'people' as const,
     title: 'Sertai Komuniti',
-    desc: 'Beradu dengan rakan-rakan dan daki carta pendahulu.',
+    desc: 'Beradu dengan rakan-rakan dan daki carta pendahulu paroki anda.',
   },
 ];
 
@@ -68,18 +68,15 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Background orbs */}
-      <View style={styles.bgPattern} pointerEvents="none">
-        <View style={[styles.blurOrb, styles.blurGold]} />
-        <View style={[styles.blurOrb, styles.blurNavy]} />
+      <View style={styles.brandRow}>
+        <Ionicons name="home" size={22} color={Colors.text} />
+        <Text style={styles.brand}>KatolikGo</Text>
       </View>
 
-      {/* Skip */}
       <TouchableOpacity style={styles.skipBtn} onPress={handleSkip}>
         <Text style={styles.skipText}>Langkau</Text>
       </TouchableOpacity>
 
-      {/* Slides */}
       <FlatList
         ref={flatListRef}
         data={SLIDES}
@@ -91,9 +88,8 @@ export default function OnboardingScreen() {
         viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            <View style={styles.iconHalo} />
             <View style={styles.iconCircle}>
-              <Ionicons name={item.icon} size={48} color={Colors.secondary} />
+              <Ionicons name={item.icon} size={64} color={Colors.accent} />
             </View>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.desc}>{item.desc}</Text>
@@ -101,7 +97,6 @@ export default function OnboardingScreen() {
         )}
       />
 
-      {/* Dots */}
       <View style={styles.dotsRow}>
         {SLIDES.map((_, i) => (
           <View
@@ -111,12 +106,11 @@ export default function OnboardingScreen() {
         ))}
       </View>
 
-      {/* CTA */}
-      <TouchableOpacity style={styles.ctaBtn} onPress={handleNext}>
+      <TouchableOpacity style={styles.ctaBtn} onPress={handleNext} activeOpacity={0.8}>
         <Text style={styles.ctaText}>
           {currentIndex === SLIDES.length - 1 ? 'Mula' : 'Seterusnya'}
         </Text>
-        <Ionicons name="arrow-forward" size={20} color={Colors.navyDark} />
+        <Ionicons name="arrow-forward" size={20} color={Colors.white} />
       </TouchableOpacity>
     </View>
   );
@@ -125,121 +119,111 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.navyDark,
-    justifyContent: 'center',
+    backgroundColor: Colors.background,
     alignItems: 'center',
   },
-  bgPattern: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  blurOrb: {
+
+  brandRow: {
     position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
+    top: 60,
+    left: Spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    zIndex: 10,
   },
-  blurGold: {
-    top: 100,
-    right: -60,
-    backgroundColor: 'rgba(236,194,70,0.15)',
-  },
-  blurNavy: {
-    bottom: 100,
-    left: -80,
-    backgroundColor: 'rgba(26,58,92,0.4)',
+  brand: {
+    fontSize: FontSize.lg,
+    fontWeight: '800',
+    fontFamily: FontFamily.display,
+    color: Colors.text,
   },
 
-  // Skip
   skipBtn: {
     position: 'absolute',
     top: 60,
     right: Spacing.lg,
     zIndex: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
   },
   skipText: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    fontWeight: '600',
+    color: Colors.text,
+    textDecorationLine: 'underline',
   },
 
-  // Slide
   slide: {
     width,
     alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
-  },
-  iconHalo: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(236,194,70,0.15)',
-    position: 'absolute',
-    top: -10,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
   },
   iconCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(14,42,77,0.8)',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: Colors.surface,
     borderWidth: 2,
-    borderColor: Colors.secondary,
-    justifyContent: 'center',
+    borderColor: Colors.border,
     alignItems: 'center',
-    marginBottom: Spacing.xl,
-    marginTop: 40,
+    justifyContent: 'center',
+    marginBottom: Spacing.lg,
   },
   title: {
     fontSize: FontSize.xxl,
     fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.creamSoft,
+    color: Colors.text,
     textAlign: 'center',
     marginBottom: Spacing.sm,
   },
   desc: {
     fontSize: FontSize.md,
     fontFamily: FontFamily.body,
-    color: Colors.onSurfaceVariant,
+    color: Colors.textMuted,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.sm,
   },
 
-  // Dots
   dotsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.onSurfaceVariant,
-    opacity: 0.4,
+    backgroundColor: Colors.border,
   },
   dotActive: {
     width: 28,
-    backgroundColor: Colors.secondary,
-    opacity: 1,
+    backgroundColor: Colors.accent,
+    borderRadius: 4,
   },
 
-  // CTA
   ctaBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.accent,
     borderRadius: BorderRadius.round,
     paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingHorizontal: 36,
     marginBottom: 60,
+    minWidth: 220,
   },
   ctaText: {
     fontSize: FontSize.md,
-    fontWeight: '700',
+    fontWeight: '800',
     fontFamily: FontFamily.display,
-    color: Colors.navyDark,
+    color: Colors.white,
   },
 });

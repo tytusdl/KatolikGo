@@ -151,32 +151,22 @@ scripts/
 
 ---
 
-## `stitch_community_feed/` — Design Reference Library
+## Design Direction — Status 2026-07-15
 
-> **Status:** Reference library only — NOT an active design direction. The app currently uses the **"Divine Elegance"** design system (dark navy `#0e2a4d` + gold `#c9a227` + glassmorphism), which matches `katolikgo_divine_elegance/DESIGN.md`. Browsing these sub-folders for inspiration when iterating UI.
-
-### Active Design System
-
-```
-stitch_community_feed/
-├── katolikgo_divine_elegance/          # ★ ACTIVE — source of the Divine Elegance palette
-│   └── DESIGN.md                       #   Dark navy + gold, glassmorphism, hex-clipped, halo glows
-│                                       #   Matches Colors.primary + Colors.accent in theme.ts
-├── luminous_grace/                     # Sibling system — cream + soft navy + pop gold, neomorphism-lite
-│   └── DESIGN.md                       #   Closer to v3 "Orange Pill Nav" but not adopted
-├── agent_system_prompt.md              # §4–§13 system prompt spec (canonical for design conversations)
-├── katolikgo_catholic_education_app/
-│   └── code.html                       # Single-file full-app HTML
-```
-
-### Per-Screen Mockups (Reference)
-
-Each sub-folder contains a PNG screenshot + stitch-generated `code.html`.
+> **REMOVED.** The `stitch_community_feed/` and `stitch_prompts/` directories have been deleted (moved to local trash — recoverable from `~/.mavis-trash/`). The "Divine Elegance" design system that v6 adopted is no longer in use. The app now ships with a **minimal placeholder theme** (black `#000000` / white `#FFFFFF` / single blue accent `#2563EB`) — see `src/constants/theme.ts`. A new design direction is to be decided in a future session; the historical v1–v5 + v6 entries in `AGENTS.md` remain as reference only.
+>
+> When a new design direction is chosen, add new tokens to `theme.ts` (current `Colors` is intentionally tiny — 11 tokens — so additions are easy) and re-apply the new palette to the 14 screens.
 
 ```
-stitch_community_feed/
-│
-│  ── Home ──
+stitch_community_feed/    (REMOVED 2026-07-15)
+├── katolikgo_divine_elegance/          # Was: dark navy + gold glassmorphism
+├── luminous_grace/                     # Was: cream + soft navy + pop gold
+├── agent_system_prompt.md              # (re-export of system prompt)
+├── katolikgo_catholic_education_app/   # Was: full-app HTML
+└── 38 per-screen mockup sub-folders     # Was: PNG + code.html per screen
+```
+
+### Per-Screen Mockups (Reference, removed)
 ├── home_elegant/                       # Home (elegant variant)
 ├── home_gamified/                      # Home (gamified variant)
 ├── home_modern/                        # Home (modern variant)
